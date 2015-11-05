@@ -39,7 +39,6 @@ public class Main extends Canvas implements Runnable{
 	private boolean menuKeyReleased = true;
 	private boolean dead = false;
 	private boolean enemyFree = false;
-	private boolean enemyMoved = false;
 	private boolean blueDiamond;
 	
 	private int menuSeperator = 15;
@@ -50,8 +49,7 @@ public class Main extends Canvas implements Runnable{
 	private int pVel = 2;
 	private int eVel = 0;
 	private int level = 1;
-	private double pERatio;
-	private double randomizer; 
+	private int blueTimer = 0;
 	
 	private int pWIDTH = 8;
 	private int pHEIGHT = 8;
@@ -68,6 +66,8 @@ public class Main extends Canvas implements Runnable{
 	private int bRealX;
 	private int bRealY;
 	
+	private double pERatio;
+	private double randomizer;
 	private double xPDDiff;
 	private double yPDDiff;
 	private double pDDiff;
@@ -217,13 +217,28 @@ public class Main extends Canvas implements Runnable{
 			randomizer = 1;
 		}
 		
+		//BlueDiamond timer
+		if(blueDiamond){
+			blueTimer++;
+		}
+		
+		//BlueDiamond timer final
+		if(blueDiamond && blueTimer >= 120){
+			blueDiamond = false;
+			b.setX(-20);
+			b.setY(-20);
+			blueTimer = 0;
+		}
+		
 		//Distance Player to BlueDiamond
 		pBDiff = (xPBDiff * xPBDiff) + (yPBDiff * yPBDiff);
 		rootedPBDiff = Math.sqrt(pBDiff);
-		if(rootedPDDiff <= (dWIDTH / 2) + (pWIDTH / 2)){
+		if(rootedPBDiff <= (dWIDTH / 2) + (pWIDTH / 2)){
 			bigScore += 1;
 			blueDiamond = false;
-			System.out.println(randomizer);
+			b.setX(-20);
+			b.setY(-20);
+			blueTimer = 0;
 		}
 		
 		//Score count
