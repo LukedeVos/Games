@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import Bopper.Player;
 import Bopper.KeyInput;
 import Bopper.Enemy;
+import Bopper.BlueDiamond;
 
 public class Main extends Canvas implements Runnable{
 
