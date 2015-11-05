@@ -30,6 +30,7 @@ public class Main extends Canvas implements Runnable{
 	private Player p;
 	private Diamond d;
 	private Enemy e;
+	private BlueDiamond b;
 	
 	private boolean inMenu = true;
 	private boolean inTutorial = false;
@@ -37,6 +38,8 @@ public class Main extends Canvas implements Runnable{
 	private boolean menuKeyReleased = true;
 	private boolean dead = false;
 	private boolean enemyFree = false;
+	private boolean enemyMoved = false;
+	private boolean blueDiamond;
 	
 	private int menuSeperator = 15;
 	private int menuChoice = 0;
@@ -47,6 +50,7 @@ public class Main extends Canvas implements Runnable{
 	private int eVel = 0;
 	private int level = 1;
 	private double pERatio;
+	private double randomizer; 
 	
 	private int pWIDTH = 8;
 	private int pHEIGHT = 8;
@@ -60,17 +64,23 @@ public class Main extends Canvas implements Runnable{
 	private int eRealY;
 	private int dRealX;
 	private int dRealY;
+	private int bRealX;
+	private int bRealY;
 	
-	private int xPDDiff;
-	private int yPDDiff;
-	private int pDDiff;
+	private double xPDDiff;
+	private double yPDDiff;
+	private double pDDiff;
 	private double rootedPDDiff;
-	private int xPEDiff;
-	private int yPEDiff;
-	private int pEDiff;
+	private double xPBDiff;
+	private double yPBDiff;
+	private double pBDiff;
+	private double rootedPBDiff;
+	private double xPEDiff;
+	private double yPEDiff;
+	private double pEDiff;
 	private double rootedPEDiff;
 	
-	private String difficultyString;
+	private String difficultyString = "Normal";
 	
 	Random rand = new Random();
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -80,20 +90,14 @@ public class Main extends Canvas implements Runnable{
 		addKeyListener(new KeyInput(this));
 		
 		
-		int  diaX = rand.nextInt(getWidth() - 10) + 10;
-		int  diaY = rand.nextInt(getHeight() - 10) + 10;
+		int  diaX = rand.nextInt(getWidth() - 40) + 40;
+		int  diaY = rand.nextInt(getHeight() - 40) + 40;
 		
 		p = new Player(10, 10, this);
 		d = new Diamond(diaX, diaY, this);
+		b = new BlueDiamond(-20, -20, this);
 		e = new Enemy(getWidth() - 20, getHeight() - 50, this);
 		
-		if(difficulty == 0){
-			difficultyString = "Easy";
-		} else if(difficulty == 1){
-			difficultyString = "Normal";
-		} else if(difficulty == 2){
-			difficultyString = "Hard";
-		}
 	}
 	
 	public void start(){
@@ -144,7 +148,9 @@ public class Main extends Canvas implements Runnable{
 			eRealY = (int)e.getY() + (pHEIGHT / 2);
 			dRealX = (int)d.getX() + (dWIDTH / 2);
 			dRealY = (int)d.getY() + (dHEIGHT / 2);
-			
+			bRealX = (int)b.getX() + (dWIDTH / 2);
+			bRealY = (int)b.getY() + (dHEIGHT / 2);
+					
 			render();
 			frames++;
 			if(System.currentTimeMillis() - timer > 1000){
@@ -169,6 +175,10 @@ public class Main extends Canvas implements Runnable{
 		xPDDiff = pRealX - dRealX;
 		yPDDiff = pRealY - dRealY;
 		
+		//BlueDiamond to Player difference
+		xPBDiff = pRealX - bRealX;
+		yPBDiff = pRealY - bRealY;
+		
 		//Distance Player to Enemy
 		pEDiff = (xPEDiff * xPEDiff) + (yPEDiff * yPEDiff);
 		rootedPEDiff = Math.sqrt(pEDiff);
@@ -192,8 +202,27 @@ public class Main extends Canvas implements Runnable{
 		rootedPDDiff = Math.sqrt(pDDiff);
 		if(rootedPDDiff <= (dWIDTH / 2) + (pWIDTH / 2)){
 			smallScore += 1;
-			d.setX(rand.nextInt(getWidth() - 10) + 10);
-			d.setY(rand.nextInt(getHeight() - 10) + 10);
+			d.setX(rand.nextInt(getWidth() - 40) + 40);
+			d.setY(rand.nextInt(getHeight() - 40) + 40);
+			randomizer = rand.nextInt(5) + 1;
+			System.out.println(randomizer);
+		}
+		
+		//Blue Gem detection
+		if(randomizer == 3){
+			blueDiamond = true;
+			b.setX(rand.nextInt(getWidth() - 40) + 40);
+			b.setY(rand.nextInt(getHeight() - 40) + 40);
+			randomizer = 1;
+		}
+		
+		//Distance Player to BlueDiamond
+		pBDiff = (xPBDiff * xPBDiff) + (yPBDiff * yPBDiff);
+		rootedPBDiff = Math.sqrt(pBDiff);
+		if(rootedPDDiff <= (dWIDTH / 2) + (pWIDTH / 2)){
+			bigScore += 1;
+			blueDiamond = false;
+			System.out.println(randomizer);
 		}
 		
 		//Score count
@@ -211,58 +240,92 @@ public class Main extends Canvas implements Runnable{
 			eVel = 2 + (level - 1) + (difficulty - 1);
 		}
 		
-		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead){
-			if(xPEDiff == yPEDiff){
-				System.out.println("1");
-				e.setVelX(eVel / 2);
-				e.setVelY(eVel / 2);
-			} else if(xPEDiff == -yPEDiff){
-				System.out.println("2");
-				e.setVelX(eVel / 2);
-				e.setVelY(-(eVel / 2));
-			} else if(-xPEDiff == yPEDiff){
-				System.out.println("3");
-				e.setVelX(-(eVel / 2));
-				e.setVelY(eVel / 2);
-			} else if(-xPEDiff == -yPEDiff){
-				System.out.println("4");
-				e.setVelX(-(eVel / 2));
-				e.setVelY(-(eVel / 2));
-			} else if(xPEDiff > yPEDiff){
+		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && enemyFree){
+			if(xPEDiff > yPEDiff){
 				if(yPEDiff != 0){
-					pERatio = xPEDiff / yPEDiff;
+					if(xPEDiff > 0){
+						pERatio = xPEDiff / yPEDiff;
+					} else if(xPEDiff < 0){
+						pERatio = -(xPEDiff / yPEDiff);
+					}
 					if(pERatio < 0){
 						pERatio = -pERatio;
+					}
+					e.setVelX(eVel / (pERatio + 1) * pERatio);
+					e.setVelY(eVel / (pERatio + 1));
+					if(xPEDiff < 0){
+						e.setVelX(-(e.getVelX()));
+					}
+					if(yPEDiff < 0){
+						e.setVelY(-(e.getVelY()));
 					}
 				} else {
 					e.setVelX(eVel);
 				}
-				e.setVelX((eVel / (pERatio + 1)) * pERatio);
-				e.setVelY(eVel / (pERatio + 1));
-				if(xPEDiff < 0){
-					e.setVelX(-e.getVelX());
-				}
-				if(yPEDiff < 0){
-					e.setVelY(-e.getVelY());
-				}
-			} else if(yPEDiff > xPEDiff){
+			} else if(xPEDiff < yPEDiff){
 				if(xPEDiff != 0){
-					pERatio = yPEDiff / xPEDiff;
+					if(yPEDiff > 0){
+						pERatio = yPEDiff / xPEDiff;
+					} else if(yPEDiff < 0){
+						pERatio = -(yPEDiff / xPEDiff);
+					}
 					if(pERatio < 0){
 						pERatio = -pERatio;
+					}
+					e.setVelX(eVel / (pERatio + 1));
+					e.setVelY(eVel / (pERatio + 1) * pERatio);
+					if(xPEDiff < 0){
+						e.setVelX(-(e.getVelX()));
+					}
+					if(yPEDiff < 0){
+						e.setVelY(-(e.getVelY()));
 					}
 				} else {
 					e.setVelY(eVel);
 				}
-				e.setVelY((eVel / (pERatio + 1)) * pERatio);
-				e.setVelX(eVel / (pERatio + 1));
-				if(xPEDiff < 0){
-					e.setVelX(-e.getVelX());
+			} else if(-xPEDiff > yPEDiff){
+				if(yPEDiff != 0){
+					if(xPEDiff > 0){
+						pERatio = xPEDiff / yPEDiff;
+					} else if(xPEDiff < 0){
+						pERatio = -(xPEDiff / yPEDiff);
+					}
+					if(pERatio < 0){
+						pERatio = -pERatio;
+					}
+					e.setVelX(eVel / (pERatio + 1) * pERatio);
+					e.setVelY(eVel / (pERatio + 1));
+					if(xPEDiff < 0){
+						e.setVelX(-(e.getVelX()));
+					}
+					if(yPEDiff < 0){
+						e.setVelY(-(e.getVelY()));
+					}
+				} else {
+					e.setVelX(eVel);
 				}
-				if(yPEDiff < 0){
-					e.setVelY(-e.getVelY());
+			} else if(-xPEDiff < yPEDiff){
+				if(xPEDiff != 0){
+					if(yPEDiff > 0){
+						pERatio = yPEDiff / xPEDiff;
+					} else if(yPEDiff < 0){
+						pERatio = -(yPEDiff / xPEDiff);
+					}
+					if(pERatio < 0){
+						pERatio = -pERatio;
+					}
+					e.setVelX(eVel / (pERatio + 1));
+					e.setVelY(eVel / (pERatio + 1) * pERatio);
+					if(xPEDiff < 0){
+						e.setVelX(-(e.getVelX()));
+					}
+					if(yPEDiff < 0){
+						e.setVelY(-(e.getVelY()));
+					}
+				} else {
+					e.setVelY(eVel);
 				}
-			}
+			} 
 		}
 	}
 	
@@ -354,6 +417,12 @@ public class Main extends Canvas implements Runnable{
 			g.setColor(Color.CYAN);
 			g.drawOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
 			g.fillOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
+			
+			if(blueDiamond){
+				g.setColor(Color.BLUE);
+				g.drawOval((int)b.getX(), (int)b.getY(), dWIDTH, dHEIGHT);
+				g.fillOval((int)b.getX(), (int)b.getY(), dWIDTH, dHEIGHT);
+			}
 			
 			g.setColor(Color.RED);
 			g.drawOval((int)e.getX(), (int)e.getY(), pWIDTH, pHEIGHT);
@@ -452,18 +521,21 @@ public class Main extends Canvas implements Runnable{
 					inDifficultyMenu = false;
 					inMenu = true;
 					menuChoice = 2;
+					difficultyString = "Easy";
 					System.out.println(difficulty);
 				} else if(menuChoice == 1){
 					difficulty = 1;
 					inDifficultyMenu = false;
 					inMenu = true;
 					menuChoice = 2;
+					difficultyString = "Normal";
 					System.out.println(difficulty);
 				} else if(menuChoice == 2){
 					difficulty = 2;
 					inDifficultyMenu = false;
 					inMenu = true;
 					menuChoice = 2;
+					difficultyString = "Hard";
 					System.out.println(difficulty);
 				}
 			}
