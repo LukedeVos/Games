@@ -99,6 +99,8 @@ public class Main extends Canvas implements Runnable{
 		b = new BlueDiamond(-20, -20, this);
 		e = new Enemy(getWidth() - 20, getHeight() - 50, this);
 		
+		smallScore = 0;
+		bigScore = 0;
 	}
 	
 	public void start(){
@@ -206,7 +208,7 @@ public class Main extends Canvas implements Runnable{
 			d.setX(rand.nextInt(getWidth() - 40) + 40);
 			d.setY(rand.nextInt(getHeight() - 40) + 40);
 			randomizer = rand.nextInt(5) + 1;
-			System.out.println(randomizer);
+			System.out.println("Spawning: " + randomizer);
 		}
 		
 		//Blue Gem detection
@@ -214,6 +216,7 @@ public class Main extends Canvas implements Runnable{
 			blueDiamond = true;
 			b.setX(rand.nextInt(getWidth() - 40) + 40);
 			b.setY(rand.nextInt(getHeight() - 40) + 40);
+			blueTimer = 0;
 			randomizer = 1;
 		}
 		
@@ -223,7 +226,7 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		//BlueDiamond timer final
-		if(blueDiamond && blueTimer >= 120){
+		if(blueDiamond && blueTimer >= 180){
 			blueDiamond = false;
 			b.setX(-20);
 			b.setY(-20);
