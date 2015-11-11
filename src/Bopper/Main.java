@@ -15,6 +15,7 @@ import Bopper.Player;
 import Bopper.KeyInput;
 import Bopper.Enemy;
 import Bopper.BlueDiamond;
+import Bopper.SpeedElement;
 
 public class Main extends Canvas implements Runnable{
 
@@ -32,6 +33,7 @@ public class Main extends Canvas implements Runnable{
 	private Diamond d;
 	private Enemy e;
 	private BlueDiamond b;
+	private SpeedElement s;
 	
 	private boolean inMenu = true;
 	private boolean inTutorial = false;
@@ -39,7 +41,10 @@ public class Main extends Canvas implements Runnable{
 	private boolean menuKeyReleased = true;
 	private boolean dead = false;
 	private boolean enemyFree = false;
+	private boolean levelTransfer = false;
+	private boolean glitchy = false;
 	private boolean blueDiamond;
+	private boolean speedElement;
 	
 	private int menuSeperator = 15;
 	private int menuChoice = 0;
@@ -48,8 +53,12 @@ public class Main extends Canvas implements Runnable{
 	private int bigScore = 0;
 	private int pVel = 2;
 	private int eVel = 0;
+	private int maxEVel = 3;
 	private int level = 1;
+	private int nextLevel;
 	private int blueTimer = 0;
+	private int speedTimer = 0;
+	private int transferTimer;
 	
 	private int pWIDTH = 8;
 	private int pHEIGHT = 8;
@@ -65,6 +74,8 @@ public class Main extends Canvas implements Runnable{
 	private int dRealY;
 	private int bRealX;
 	private int bRealY;
+	private int sRealX;
+	private int sRealY;
 	
 	private double pERatio;
 	private double randomizer;
@@ -80,6 +91,11 @@ public class Main extends Canvas implements Runnable{
 	private double yPEDiff;
 	private double pEDiff;
 	private double rootedPEDiff;
+	private double xPSDiff;
+	private double yPSDiff;
+	private double pSDiff;
+	private double rootedPSDiff;
+	private double speedInc = 0.5;
 	
 	private String difficultyString = "Normal";
 	
@@ -98,9 +114,7 @@ public class Main extends Canvas implements Runnable{
 		d = new Diamond(diaX, diaY, this);
 		b = new BlueDiamond(-20, -20, this);
 		e = new Enemy(getWidth() - 20, getHeight() - 50, this);
-		
-		smallScore = 0;
-		bigScore = 0;
+		s = new SpeedElement(-20, -20, this);
 	}
 	
 	public void start(){
@@ -153,6 +167,8 @@ public class Main extends Canvas implements Runnable{
 			dRealY = (int)d.getY() + (dHEIGHT / 2);
 			bRealX = (int)b.getX() + (dWIDTH / 2);
 			bRealY = (int)b.getY() + (dHEIGHT / 2);
+			sRealX = (int)s.getX() + (dWIDTH / 2);
+			sRealY = (int)s.getY() + (dHEIGHT / 2);
 					
 			render();
 			frames++;
@@ -182,6 +198,10 @@ public class Main extends Canvas implements Runnable{
 		xPBDiff = pRealX - bRealX;
 		yPBDiff = pRealY - bRealY;
 		
+		//SpeedElement to Player difference
+		xPSDiff = pRealX - sRealX;
+		yPSDiff = pRealY - sRealY;
+		
 		//Distance Player to Enemy
 		pEDiff = (xPEDiff * xPEDiff) + (yPEDiff * yPEDiff);
 		rootedPEDiff = Math.sqrt(pEDiff);
@@ -198,6 +218,9 @@ public class Main extends Canvas implements Runnable{
 			eVel = 0;
 			rootedPEDiff = 100;
 			enemyFree = false;
+			if(difficulty == 2){
+				level = 1;
+			}
 		}
 		
 		//Distance Player to Diamond
@@ -244,6 +267,24 @@ public class Main extends Canvas implements Runnable{
 			blueTimer = 0;
 		}
 		
+		//SpeedElement detection
+		if(randomizer == 5){
+			speedElement = true;
+			s.setX(rand.nextInt(getWidth() - 40) + 40);
+			s.setY(rand.nextInt(getHeight() - 40) + 40);
+			randomizer = 1;
+		}
+		
+		//Distance Player to SpeedElement
+		pSDiff = (xPSDiff * xPSDiff) + (yPSDiff * yPSDiff);
+		rootedPSDiff = Math.sqrt(pSDiff);
+		if(rootedPSDiff <= (dWIDTH / 2) + (pWIDTH / 2)){
+			pVel += speedInc;
+			speedElement = false;
+			speedTimer = 0;
+		}
+		
+		
 		//Score count
 		if(smallScore >= 10){
 			smallScore -= 10;
@@ -256,10 +297,13 @@ public class Main extends Canvas implements Runnable{
 			enemyFree = true;
 		}
 		if(enemyFree){
-			eVel = 2 + (level - 1) + (difficulty - 1);
+			if(eVel < maxEVel + difficulty){
+				eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
+			}
 		}
 		
-		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && enemyFree){
+		
+		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && enemyFree && !levelTransfer){
 			if(xPEDiff > yPEDiff){
 				if(yPEDiff != 0){
 					if(xPEDiff > 0){
@@ -346,6 +390,35 @@ public class Main extends Canvas implements Runnable{
 				}
 			} 
 		}
+		
+		if(bigScore >= 5){
+			smallScore = 0;
+			bigScore = 0;
+			levelTransfer = true;
+			transferTimer = 0;
+			nextLevel = level + 1;
+//			p.setX(10);
+//			p.setY(10);
+			p.setVelX(0);
+			p.setVelY(0);
+//			e.setX(getWidth() - 20);
+//			e.setY(getHeight() - 50);
+			e.setVelX(0);
+			e.setVelY(0);
+			rootedPEDiff = 100;
+		}
+		
+		if(levelTransfer){
+			transferTimer++;
+		}
+		
+		if(transferTimer >= 180){
+			levelTransfer = false;
+			level++;
+			if(!glitchy){
+				transferTimer = 0;
+			}
+		}
 	}
 	
 	private void render() {
@@ -394,6 +467,8 @@ public class Main extends Canvas implements Runnable{
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + menuSeperator);
 			} else if(menuChoice == 2){
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 3));
+			} else if(menuChoice >= 10){
+				g.drawString("->", getWidth() / 2, getHeight() / 2 - 50 + menuSeperator);
 			}
 		}
 		
@@ -426,7 +501,13 @@ public class Main extends Canvas implements Runnable{
 			g.fillOval(getWidth() / 2 + 12, getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
 		}
 		
-		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead){
+		if(levelTransfer){
+			g.setColor(Color.WHITE);
+			g.drawString("You defeated level: " + level + "!", getWidth() / 2 - 50, getHeight() / 2 - 50 - menuSeperator);
+			g.drawString("Now starting level: " + nextLevel, getWidth() / 2 - 50, getHeight() / 2 - 50 + menuSeperator);
+		}
+		
+		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			
 			//Ingame Rendering
 			g.setColor(Color.WHITE);
@@ -530,7 +611,17 @@ public class Main extends Canvas implements Runnable{
 			if(key == KeyEvent.VK_UP || key == KeyEvent.VK_W){
 				menuChoice-=1;
 				if(menuChoice < 0){
-					menuChoice = 3;
+					menuChoice = 2;
+				}
+			}
+			if(key == KeyEvent.VK_RIGHT){
+				if(menuChoice < 10){
+					menuChoice+=10;
+				}
+			}
+			if(key == KeyEvent.VK_LEFT){
+				if(menuChoice >= 10){
+					menuChoice-= 10;
 				}
 			}
 			
@@ -541,22 +632,26 @@ public class Main extends Canvas implements Runnable{
 					inMenu = true;
 					menuChoice = 2;
 					difficultyString = "Easy";
-					System.out.println(difficulty);
 				} else if(menuChoice == 1){
 					difficulty = 1;
 					inDifficultyMenu = false;
 					inMenu = true;
 					menuChoice = 2;
 					difficultyString = "Normal";
-					System.out.println(difficulty);
 				} else if(menuChoice == 2){
 					difficulty = 2;
 					inDifficultyMenu = false;
 					inMenu = true;
 					menuChoice = 2;
 					difficultyString = "Hard";
-					System.out.println(difficulty);
+				} else if(menuChoice >= 10){
+					glitchy = true;
+					inDifficultyMenu = false;
+					inMenu = true;
+					menuChoice = 2;
+					difficultyString = "Glitch Mode";
 				}
+				System.out.println("Difficulty: " + difficulty);
 			}
 		}
 		
@@ -570,6 +665,10 @@ public class Main extends Canvas implements Runnable{
 			} else if(key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D){
 				p.setVelX(pVel);
 			}
+			
+			if(key == KeyEvent.VK_SPACE){
+				bigScore = 5;
+			}
 		}
 		
 		if(dead){
@@ -577,6 +676,10 @@ public class Main extends Canvas implements Runnable{
 				inMenu = true;
 				dead = false;
 				menuKeyReleased = false;
+				enemyFree = false;
+				difficulty = 1;
+				smallScore = 0;
+				bigScore = 0;
 			}
 		}
 		
