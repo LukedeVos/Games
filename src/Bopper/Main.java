@@ -43,6 +43,7 @@ public class Main extends Canvas implements Runnable{
 	private boolean enemyFree = false;
 	private boolean levelTransfer = false;
 	private boolean glitchy = false;
+	private boolean speedCounter = false;
 	private boolean blueDiamond;
 	private boolean speedElement;
 	
@@ -51,8 +52,6 @@ public class Main extends Canvas implements Runnable{
 	private int difficulty = 1;
 	private int smallScore = 0;
 	private int bigScore = 0;
-	private int pVel = 2;
-	private int eVel = 0;
 	private int maxEVel = 3;
 	private int level = 1;
 	private int nextLevel;
@@ -95,7 +94,10 @@ public class Main extends Canvas implements Runnable{
 	private double yPSDiff;
 	private double pSDiff;
 	private double rootedPSDiff;
-	private double speedInc = 0.5;
+	private double speedInc = 1;
+	private double speedElementCounter;
+	private double pVel = 2;
+	private double eVel = 0;
 	
 	private String difficultyString = "Normal";
 	
@@ -281,9 +283,31 @@ public class Main extends Canvas implements Runnable{
 		if(rootedPSDiff <= (dWIDTH / 2) + (pWIDTH / 2)){
 			pVel += speedInc;
 			speedElement = false;
+			speedCounter = true;
 			speedTimer = 0;
+			speedElementCounter++;
+			if(!glitchy){
+				rootedPSDiff = 100;
+				s.setX(-20);
+				s.setY(-20);
+			}
 		}
 		
+		//Speed++
+		if(speedCounter){
+			speedTimer++;
+		}
+		
+		//Speed Timer
+		if(speedTimer >= 300){
+			pVel -= speedInc;
+			speedElementCounter--;
+			if(speedElementCounter == 0){
+				speedCounter = false;
+			}
+			speedTimer = 0;
+			System.out.println(pVel);
+		}
 		
 		//Score count
 		if(smallScore >= 10){
@@ -298,6 +322,9 @@ public class Main extends Canvas implements Runnable{
 		}
 		if(enemyFree){
 			if(eVel < maxEVel + difficulty){
+				eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
+			}
+			if(glitchy){
 				eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
 			}
 		}
@@ -429,7 +456,6 @@ public class Main extends Canvas implements Runnable{
 		}
 		Graphics g = bs.getDrawGraphics();
 		//////////////////////////////////
-		
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		g.setColor(Color.white);
 		
@@ -522,6 +548,11 @@ public class Main extends Canvas implements Runnable{
 				g.setColor(Color.BLUE);
 				g.drawOval((int)b.getX(), (int)b.getY(), dWIDTH, dHEIGHT);
 				g.fillOval((int)b.getX(), (int)b.getY(), dWIDTH, dHEIGHT);
+			}
+			
+			if(speedElement){
+				g.setColor(Color.ORANGE);
+				g.drawOval((int)s.getX(), (int)s.getY(), dWIDTH, dHEIGHT);
 			}
 			
 			g.setColor(Color.RED);
@@ -668,6 +699,10 @@ public class Main extends Canvas implements Runnable{
 			
 			if(key == KeyEvent.VK_SPACE){
 				bigScore = 5;
+			} else if(key == KeyEvent.VK_Q){
+				randomizer = 5;
+			} else if(key == KeyEvent.VK_E){
+				randomizer = 3;
 			}
 		}
 		
