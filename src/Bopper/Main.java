@@ -232,7 +232,7 @@ public class Main extends Canvas implements Runnable{
 			smallScore += 1;
 			d.setX(rand.nextInt(getWidth() - 40) + 40);
 			d.setY(rand.nextInt(getHeight() - 40) + 40);
-			randomizer = rand.nextInt(5) + 1;
+			randomizer = rand.nextInt(10) + 1;
 			System.out.println("Spawning: " + randomizer);
 		}
 		
@@ -267,10 +267,12 @@ public class Main extends Canvas implements Runnable{
 			b.setX(-20);
 			b.setY(-20);
 			blueTimer = 0;
+			randomizer = (rand.nextInt(6) + 4);
+			System.out.println("Spawning: " + randomizer);
 		}
 		
 		//SpeedElement detection
-		if(randomizer == 5){
+		if(randomizer == 5 || randomizer == 7){
 			speedElement = true;
 			s.setX(rand.nextInt(getWidth() - 40) + 40);
 			s.setY(rand.nextInt(getHeight() - 40) + 40);
@@ -306,7 +308,7 @@ public class Main extends Canvas implements Runnable{
 				speedCounter = false;
 			}
 			speedTimer = 0;
-			System.out.println(pVel);
+			System.out.println("Player speed: " + pVel);
 		}
 		
 		//Score count
@@ -424,12 +426,8 @@ public class Main extends Canvas implements Runnable{
 			levelTransfer = true;
 			transferTimer = 0;
 			nextLevel = level + 1;
-//			p.setX(10);
-//			p.setY(10);
 			p.setVelX(0);
 			p.setVelY(0);
-//			e.setX(getWidth() - 20);
-//			e.setY(getHeight() - 50);
 			e.setVelX(0);
 			e.setVelY(0);
 			rootedPEDiff = 100;
