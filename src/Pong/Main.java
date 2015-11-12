@@ -329,7 +329,6 @@ public class Main extends Canvas implements Runnable{
 			}
 			if(key == KeyEvent.VK_P){
 				paused = true;
-				//running = false;
 			}
 		} if(inMenu){
 			int key = k.getKeyCode();
