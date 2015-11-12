@@ -8,7 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.Random;
-
+import java.util.ArrayList;
 import javax.swing.JFrame;
 
 import Bopper.Player;
@@ -16,6 +16,8 @@ import Bopper.KeyInput;
 import Bopper.Enemy;
 import Bopper.BlueDiamond;
 import Bopper.SpeedElement;
+import Bopper.EnemyShooter;
+import Bopper.Bullet;
 
 public class Main extends Canvas implements Runnable{
 
@@ -34,6 +36,7 @@ public class Main extends Canvas implements Runnable{
 	private Enemy e;
 	private BlueDiamond b;
 	private SpeedElement s;
+	private EnemyShooter es;
 	
 	private boolean inMenu = true;
 	private boolean inTutorial = false;
@@ -41,9 +44,11 @@ public class Main extends Canvas implements Runnable{
 	private boolean menuKeyReleased = true;
 	private boolean dead = false;
 	private boolean enemyFree = false;
+	private boolean enemyShooting = false;
 	private boolean levelTransfer = false;
 	private boolean glitchy = false;
 	private boolean speedCounter = false;
+	private boolean bullet = false;
 	private boolean blueDiamond;
 	private boolean speedElement;
 	
@@ -58,6 +63,7 @@ public class Main extends Canvas implements Runnable{
 	private int blueTimer = 0;
 	private int speedTimer = 0;
 	private int transferTimer;
+	private int bulletTimer = 0;
 	
 	private int pWIDTH = 8;
 	private int pHEIGHT = 8;
@@ -75,8 +81,11 @@ public class Main extends Canvas implements Runnable{
 	private int bRealY;
 	private int sRealX;
 	private int sRealY;
+	private int esRealX;
+	private int esRealY;
 	
 	private double pERatio;
+	private double pESRatio;
 	private double randomizer;
 	private double xPDDiff;
 	private double yPDDiff;
@@ -94,9 +103,12 @@ public class Main extends Canvas implements Runnable{
 	private double yPSDiff;
 	private double pSDiff;
 	private double rootedPSDiff;
+	private double xPESDiff;
+	private double yPESDiff;
 	private double speedInc = 1;
 	private double speedElementCounter;
 	private double pVel = 2;
+	private double bVel = 8;
 	private double eVel = 0;
 	
 	private String difficultyString = "Normal";
@@ -104,6 +116,7 @@ public class Main extends Canvas implements Runnable{
 	Random rand = new Random();
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	
+	private ArrayList<Bullet> bullets;
 	public void init(){
 		requestFocus();
 		addKeyListener(new KeyInput(this));
@@ -117,6 +130,9 @@ public class Main extends Canvas implements Runnable{
 		b = new BlueDiamond(-20, -20, this);
 		e = new Enemy(getWidth() - 20, getHeight() - 50, this);
 		s = new SpeedElement(-20, -20, this);
+		es = new EnemyShooter(-20, -20, this);
+		bullets = new ArrayList<Bullet>();
+		
 	}
 	
 	public void start(){
@@ -171,7 +187,9 @@ public class Main extends Canvas implements Runnable{
 			bRealY = (int)b.getY() + (dHEIGHT / 2);
 			sRealX = (int)s.getX() + (dWIDTH / 2);
 			sRealY = (int)s.getY() + (dHEIGHT / 2);
-					
+			esRealX = (int)es.getX() + (pWIDTH / 2);
+			esRealY = (int)es.getY() + (pHEIGHT / 2);
+			
 			render();
 			frames++;
 			if(System.currentTimeMillis() - timer > 1000){
@@ -187,6 +205,12 @@ public class Main extends Canvas implements Runnable{
 	private void tick() {
 		p.tick();
 		e.tick();
+
+		for(int i = 0; i < bullets.size(); i++){
+			bullets.get(i).tick();
+		}
+		
+			
 		
 		//Enemy to Player difference
 		xPEDiff = pRealX - eRealX;
@@ -203,6 +227,10 @@ public class Main extends Canvas implements Runnable{
 		//SpeedElement to Player difference
 		xPSDiff = pRealX - sRealX;
 		yPSDiff = pRealY - sRealY;
+		
+		//Shooter to Player difference
+		xPESDiff = pRealX - esRealX;
+		yPESDiff = pRealY - esRealY;
 		
 		//Distance Player to Enemy
 		pEDiff = (xPEDiff * xPEDiff) + (yPEDiff * yPEDiff);
@@ -320,7 +348,9 @@ public class Main extends Canvas implements Runnable{
 		
 		//Enemy AI
 		if(smallScore >= 3 || bigScore >= 1 || rootedPEDiff <= 30){
-			enemyFree = true;
+			if(!(level >= 5)){
+				enemyFree = true;
+			}
 		}
 		if(enemyFree){
 			if(eVel < maxEVel + difficulty){
@@ -420,6 +450,57 @@ public class Main extends Canvas implements Runnable{
 			} 
 		}
 		
+		//Shooter AI
+		if(level == 5){
+			enemyShooting = true;
+		}
+		
+		if(enemyShooting == true){
+			bulletTimer++;
+		}
+		if(bulletTimer >= 40){
+			if(xPESDiff > yPESDiff){
+				if(yPESDiff != 0){
+					if(xPESDiff > 0){
+						pESRatio = xPESDiff / yPESDiff;
+					} else if(xPESDiff < 0){
+						pESRatio = -(xPESDiff / yPESDiff);
+					}
+					if(pESRatio < 0){
+						pESRatio = -pESRatio;
+					}
+					bullets.add(new Bullet(esRealX, esRealY, this));
+					for(int i = 0; i < 1; i++){
+						bullets.get(i).setVelX(-(bVel / (pESRatio + 1) * pESRatio));
+						bullets.get(i).setVelY(-(bVel / (pESRatio + 1)));
+						bullet = true;
+					}
+					System.out.println("biep");
+					bulletTimer = 0;
+				}
+			} else if(xPESDiff < yPESDiff){
+				if(xPESDiff != 0){
+					if(yPESDiff > 0){
+						pESRatio = yPESDiff / xPESDiff;
+					} else if(yPESDiff < 0){
+						pESRatio = -(yPESDiff / xPESDiff);
+					}
+					if(pESRatio < 0){
+						pESRatio = -pESRatio;
+					}
+					bullets.add(new Bullet(esRealX, esRealY, this));
+					for(int i = 0; i < 1; i++){
+						bullets.get(i).setVelY(-(bVel / (pESRatio + 1) * pESRatio));
+						bullets.get(i).setVelX(-(bVel / (pESRatio + 1)));
+						bullet = true;
+					}
+					System.out.println("Biep");
+					bulletTimer = 0;
+				}
+			}
+		}
+		
+		//Level system
 		if(bigScore >= 5){
 			smallScore = 0;
 			bigScore = 0;
@@ -440,12 +521,19 @@ public class Main extends Canvas implements Runnable{
 		if(transferTimer >= 180){
 			levelTransfer = false;
 			level++;
+			if(level == 5){
+				e.setX(-20);
+				e.setY(-20);
+				enemyFree = false;
+				es.setX(getWidth() - 20);
+				es.setY(getHeight() - 50);
+			}
 			if(!glitchy){
 				transferTimer = 0;
 			}
 		}
 	}
-	
+
 	private void render() {
 		BufferStrategy bs = this.getBufferStrategy();
 		if(bs == null){
@@ -556,6 +644,17 @@ public class Main extends Canvas implements Runnable{
 			g.setColor(Color.RED);
 			g.drawOval((int)e.getX(), (int)e.getY(), pWIDTH, pHEIGHT);
 			g.fillOval((int)e.getX(), (int)e.getY(), pWIDTH, pHEIGHT);
+			
+			g.setColor(Color.ORANGE);
+			g.drawOval((int)es.getX(), (int)es.getY(), pWIDTH, pHEIGHT);
+			g.fillOval((int)es.getX(), (int)es.getY(), pWIDTH, pHEIGHT);
+			
+			if(bullet){
+				for(int i = 0; i < 1; i++){
+					g.setColor(Color.WHITE);
+					g.drawRect((int)bullets.get(i).getX(), (int)bullets.get(i).getY(), 1, 1);
+				}
+			}
 			
 			//Cage
 			if(!enemyFree){
@@ -701,6 +800,9 @@ public class Main extends Canvas implements Runnable{
 				randomizer = 5;
 			} else if(key == KeyEvent.VK_E){
 				randomizer = 3;
+			} else if(key == KeyEvent.VK_5){
+				level += 3;
+				bigScore = 5;
 			}
 		}
 		
