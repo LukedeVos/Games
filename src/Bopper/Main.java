@@ -458,7 +458,7 @@ public class Main extends Canvas implements Runnable{
 		if(enemyShooting == true){
 			bulletTimer++;
 		}
-		if(bulletTimer >= 40){
+		if(!bullet){
 			if(xPESDiff > yPESDiff){
 				if(yPESDiff != 0){
 					if(xPESDiff > 0){
@@ -475,7 +475,7 @@ public class Main extends Canvas implements Runnable{
 						bullets.get(i).setVelY(-(bVel / (pESRatio + 1)));
 						bullet = true;
 					}
-					System.out.println("biep");
+					System.out.println("1");
 					bulletTimer = 0;
 				}
 			} else if(xPESDiff < yPESDiff){
@@ -494,8 +494,17 @@ public class Main extends Canvas implements Runnable{
 						bullets.get(i).setVelX(-(bVel / (pESRatio + 1)));
 						bullet = true;
 					}
-					System.out.println("Biep");
+					System.out.println("2");
 					bulletTimer = 0;
+				}
+			}
+		}
+		
+		if(bullet){
+			for(int i = 0; i < 1; i++){
+				if(bullets.get(i).getX() < p.getX() || bullets.get(i).getY() < p.getY()){
+					bullets.remove(i);
+					bullet = false;
 				}
 			}
 		}
