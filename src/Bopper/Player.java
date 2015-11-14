@@ -38,6 +38,12 @@ public class Player {
 	public double getY(){
 		return y;
 	}
+	public double getVelX(){
+		return velX;
+	}
+	public double getVelY(){
+		return velY;
+	}
 	public void setX(double x){
 		this.x = x;
 	}
