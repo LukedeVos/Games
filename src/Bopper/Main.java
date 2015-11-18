@@ -675,8 +675,8 @@ public class Main extends Canvas implements Runnable{
 			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score: "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
 			
 			g.setColor(Color.CYAN);
-			g.drawOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x   "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
-			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x   "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+			g.drawOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + " "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + " "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
 		}
 		
 		if(levelTransfer){
@@ -747,8 +747,8 @@ public class Main extends Canvas implements Runnable{
 			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
 			
 			g.setColor(Color.BLUE);
-			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:    x     "), 441, dWIDTH, dHEIGHT);
-			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:    x     "), 441, dWIDTH, dHEIGHT);
+			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   "), 441, dWIDTH, dHEIGHT);
+			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   "), 441, dWIDTH, dHEIGHT);
 		}
 		
 		if(paused && !levelTransfer){
