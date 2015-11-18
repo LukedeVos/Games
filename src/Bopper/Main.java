@@ -3,6 +3,7 @@ package Bopper;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
@@ -37,6 +38,7 @@ public class Main extends Canvas implements Runnable{
 	private BlueDiamond b;
 	private SpeedElement s;
 	private EnemyShooter es;
+	private Font f;
 	
 	private boolean inMenu = true;
 	private boolean inTutorial = false;
@@ -140,6 +142,7 @@ public class Main extends Canvas implements Runnable{
 		s = new SpeedElement(-20, -20, this);
 		es = new EnemyShooter(-20, -20, this);
 		bullets = new ArrayList<Bullet>();
+		f = new Font("Arial", Font.PLAIN, 14);
 		
 	}
 	
@@ -606,6 +609,8 @@ public class Main extends Canvas implements Runnable{
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		g.setColor(Color.white);
 		
+		g.setFont(f);
+		
 		if(inMenu){
 			g.drawString("Play", getWidth() / 2 - 50, getHeight() / 2 - 50 - menuSeperator);
 			g.drawString("Tutorial", getWidth() / 2 - 50, getHeight() / 2 - 50 + menuSeperator);
@@ -659,19 +664,19 @@ public class Main extends Canvas implements Runnable{
 				g.setColor(Color.RED);
 			}
 			
-			g.drawString(difficultyString, getWidth() / 2, getHeight() / 2 - 50 + (menuSeperator * 3));
+			g.drawString(difficultyString, getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Difficulty: "), getHeight() / 2 - 50 + (menuSeperator * 3));
 			
 			g.setColor(Color.WHITE);
 			g.drawString("Level: " + level,getWidth() / 2 - 50, getHeight() / 2 - 50 + (menuSeperator * 5));
 			g.drawString("Press 'Enter' to return to menu", getWidth() / 2 - 50, getHeight() / 2 - 50 + (menuSeperator * 7));
 			
 			g.setColor(Color.BLUE);
-			g.drawOval(getWidth() / 2 - 12, getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
-			g.fillOval(getWidth() / 2 - 12, getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+			g.drawOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score: "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score: "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
 			
 			g.setColor(Color.CYAN);
-			g.drawOval(getWidth() / 2 + 12, getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
-			g.fillOval(getWidth() / 2 + 12, getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+			g.drawOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x   "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x   "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
 		}
 		
 		if(levelTransfer){
@@ -738,12 +743,12 @@ public class Main extends Canvas implements Runnable{
 			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 10, 450);
 			
 			g.setColor(Color.CYAN);
-			g.drawOval(79, 441, dWIDTH, dHEIGHT);
-			g.fillOval(79, 441, dWIDTH, dHEIGHT);
+			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
+			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
 			
 			g.setColor(Color.BLUE);
-			g.drawOval(55, 441, dWIDTH, dHEIGHT);
-			g.fillOval(55, 441, dWIDTH, dHEIGHT);
+			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:    x     "), 441, dWIDTH, dHEIGHT);
+			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:    x     "), 441, dWIDTH, dHEIGHT);
 		}
 		
 		if(paused && !levelTransfer){
