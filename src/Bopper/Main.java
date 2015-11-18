@@ -269,7 +269,7 @@ public class Main extends Canvas implements Runnable{
 			}
 			if(enemyFree){
 				if(eVel < maxEVel + difficulty){
-					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
+					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
 				}
 				if(glitchy){
 					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
@@ -415,7 +415,6 @@ public class Main extends Canvas implements Runnable{
 				}
 			}
 		}
-		
 		
 		//Distance Player to Diamond
 		pDDiff = (xPDDiff * xPDDiff) + (yPDDiff * yPDDiff);
@@ -574,9 +573,6 @@ public class Main extends Canvas implements Runnable{
 				enemys.get(i).setVelY(0);
 			}
 			rootedPEDiff = 100;
-			if(nextLevel == 3){
-				enemys.add(new Enemy(p.getX() + xPEDiff, p.getVelY() + yPEDiff,this));
-			}
 		}
 		
 		if(levelTransfer){
@@ -588,12 +584,14 @@ public class Main extends Canvas implements Runnable{
 			level++;
 			if(level == 5){
 				for(int i = 0; i < enemys.size(); i++){
-					enemys.get(i).setX(-20);
-					enemys.get(i).setY(-20);
+					enemys.remove(i);
+					System.out.println(i);
 				}
-				enemyFree = false;
 				es.setX(getWidth() - 20);
 				es.setY(getHeight() - 50);
+			}
+			if(level == 3){
+				enemys.add(new Enemy(20, 20,this));
 			}
 			if(!glitchy){
 				transferTimer = 0;
@@ -899,6 +897,9 @@ public class Main extends Canvas implements Runnable{
 				smallScore = 0;
 				bigScore = 0;
 				level = 1;
+				for(int i = 0; i < enemys.size(); i++){
+					enemys.remove(i);
+				}
 			}
 		}
 		
