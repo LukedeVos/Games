@@ -118,6 +118,7 @@ public class Main extends Canvas implements Runnable{
 	private double pVel = 2;
 	private double bVel = 12;
 	private double eVel = 0;
+	private double sVel = 40;
 	
 	private String difficultyString = "Normal";
 	
@@ -505,14 +506,19 @@ public class Main extends Canvas implements Runnable{
 		if(level == 5){
 			enemyShooting = true;
 		}
+		if(enemyShooting){
+			sVel = 40 - (( level - 5) * 5);
+		}
 		
-		if(enemyShooting == true && !dead){
+		//Bullet AI
+		if(enemyShooting == true && !dead && !levelTransfer){
 			for(int i = 0; i < shooters.size(); i++){
+				System.out.println(i);
 				esRealX = (int)shooters.get(i).getX() + (pWIDTH / 2);
 				esRealY = (int)shooters.get(i).getY() + (pHEIGHT / 2);
 				xPESDiff = pRealX - esRealX;
 				yPESDiff = pRealY - esRealY;
-				if(bulletTimer >= 40){
+				if(bulletTimer == sVel - (sVel * (i / 2))){
 					if(xPESDiff > yPESDiff){
 						if(yPESDiff != 0){
 							if(xPESDiff > 0){
@@ -528,7 +534,7 @@ public class Main extends Canvas implements Runnable{
 							bullets.get(bullets.size() - 1).setVelY(-(bVel / (pESRatio + 1)));
 							bullet = true;
 						}
-					} else if(xPESDiff < yPESDiff){
+					} else if(xPESDiff < yPESDiff && !(xPESDiff > 0)){
 						if(xPESDiff != 0){
 							if(yPESDiff > 0){
 								pESRatio = yPESDiff / xPESDiff;
@@ -543,7 +549,39 @@ public class Main extends Canvas implements Runnable{
 							bullets.get(bullets.size() - 1).setVelX(-(bVel / (pESRatio + 1)));
 							bullet = true;
 						}
+					} else if(xPESDiff > yPESDiff && !(xPESDiff > 0)){
+						if(xPESDiff != 0){
+							if(yPESDiff > 0){
+								pESRatio = yPESDiff / xPESDiff;
+							} else if(yPESDiff < 0){
+								pESRatio = -(yPESDiff / xPESDiff);
+							}
+							if(pESRatio < 0){
+								pESRatio = -pESRatio;
+							}
+							bullets.add(new Bullet(esRealX, esRealY, this));
+							bullets.get(bullets.size() - 1).setVelY(-(bVel / (pESRatio + 1) * pESRatio));
+							bullets.get(bullets.size() - 1).setVelX((bVel / (pESRatio + 1)));
+							bullet = true;
+						}
+					} else if(-xPESDiff < yPESDiff){
+						if(xPESDiff != 0){
+							if(yPESDiff > 0){
+								pESRatio = yPESDiff / xPESDiff;
+							} else if(yPESDiff < 0){
+								pESRatio = -(yPESDiff / xPESDiff);
+							}
+							if(pESRatio < 0){
+								pESRatio = -pESRatio;
+							}
+							bullets.add(new Bullet(esRealX, esRealY, this));
+							bullets.get(bullets.size() - 1).setVelY(-(bVel / (pESRatio + 1) * pESRatio));
+							bullets.get(bullets.size() - 1).setVelX((bVel / (pESRatio + 1)));
+							bullet = true;
+						}
 					}
+				}
+				if(bulletTimer >= sVel){
 					bulletTimer = 0;
 				}
 			}
@@ -581,7 +619,7 @@ public class Main extends Canvas implements Runnable{
 		if(transferTimer >= 180){
 			levelTransfer = false;
 			level++;
-			if(level == 5){System.out.println();
+			if(level == 5){
 				for(int i = 0; i < enemies.size(); i++){
 					enemies.remove(i);
 				}
@@ -590,6 +628,9 @@ public class Main extends Canvas implements Runnable{
 			}
 			if(level == 3){
 				enemies.add(new Enemy(20, 20,this));
+			}
+			if(level == 7){
+				shooters.add(new EnemyShooter(20,getHeight() - 20, this));
 			}
 			if(!glitchy){
 				transferTimer = 0;
