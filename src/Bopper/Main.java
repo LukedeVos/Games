@@ -519,7 +519,7 @@ public class Main extends Canvas implements Runnable{
 				xPESDiff = pRealX - esRealX;
 				yPESDiff = pRealY - esRealY;
 				if(bulletTimer == sVel - (sVel * (i / 2))){
-					if(xPESDiff > yPESDiff){
+					if(xPESDiff > yPESDiff && !(xPESDiff > 0)){
 						if(yPESDiff != 0){
 							if(xPESDiff > 0){
 								pESRatio = xPESDiff / yPESDiff;
@@ -549,7 +549,7 @@ public class Main extends Canvas implements Runnable{
 							bullets.get(bullets.size() - 1).setVelX(-(bVel / (pESRatio + 1)));
 							bullet = true;
 						}
-					} else if(xPESDiff > yPESDiff && !(xPESDiff > 0)){
+					} else if(-xPESDiff > yPESDiff){
 						if(xPESDiff != 0){
 							if(yPESDiff > 0){
 								pESRatio = yPESDiff / xPESDiff;
