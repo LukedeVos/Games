@@ -515,9 +515,10 @@ public class Main extends Canvas implements Runnable{
 		
 		//Bullet AI
 		if(enemyShooting == true && !dead && !levelTransfer){
-				System.out.println();
-				esRealX = (int)shooters.get(shooterShooting).getX() + (pWIDTH / 2);
-				esRealY = (int)shooters.get(shooterShooting).getY() + (pHEIGHT / 2);
+			for(int i = 0; i < shooters.size(); i++){
+				System.out.println(bulletTimer);
+				esRealX = (int)shooters.get(i).getX() + (pWIDTH / 2);
+				esRealY = (int)shooters.get(i).getY() + (pHEIGHT / 2);
 				xPESDiff = pRealX - esRealX;
 				yPESDiff = pRealY - esRealY;
 				if(bulletTimer == sVel){
@@ -586,15 +587,9 @@ public class Main extends Canvas implements Runnable{
 							bullet = true;
 						}
 					}
-					
-					if(shooterShooting > (shooters.size() - 1)){
-						shooterShooting = 0;
-					}
-					shooterShooting++;
-				}
-				if(bulletTimer >= sVel){
 					bulletTimer = 0;
 				}
+			}
 			bulletTimer++;
 		}
 		
@@ -605,8 +600,6 @@ public class Main extends Canvas implements Runnable{
 				}
 			}
 		}
-		System.out.println(shooters.size());
-		System.out.println(shooterShooting);
 		
 		//Level system
 		if(bigScore >= 3){
