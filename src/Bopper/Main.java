@@ -65,6 +65,7 @@ public class Main extends Canvas implements Runnable{
 	private int speedTimer = 0;
 	private int bulletCounter = 0;
 	private int bulletTimer = 0;
+	private int shooterShooting = 0;
 	private int transferTimer;
 	
 	private int pWIDTH = 8;
@@ -378,8 +379,8 @@ public class Main extends Canvas implements Runnable{
 		//Bullet to Player difference
 		if(bullet){
 			for(int i = 0; i < bullets.size(); i++){
-				buRealX = (int)bullets.get(0).getX();
-				buRealY = (int)bullets.get(0).getY();
+				buRealX = (int)bullets.get(i).getX();
+				buRealY = (int)bullets.get(i).getY();
 				xPBUDiff = pRealX - buRealX;
 				yPBUDiff = pRealY - buRealY;
 				pBUDiff = (xPBUDiff * xPBUDiff) + (yPBUDiff * yPBUDiff);
@@ -393,19 +394,17 @@ public class Main extends Canvas implements Runnable{
 					for(int j = 0; i < enemies.size(); i++){
 						enemies.remove(j);
 					}
-					shooters.get(i).setX(-20);
-					shooters.get(i).setY(-20);
-					bullets.get(0).setX(-20);
-					bullets.get(0).setY(-20);
+					for(int j = 0; j < shooters.size(); j++){
+						shooters.get(i).setX(-20);
+						shooters.get(i).setY(-20);
+					}
 					eVel = 0;
 					bullet = false;
 					enemyShooting = false;
 					rootedPEDiff = 100;
 					rootedPBUDiff = 100;
 					enemyFree = false;
-					for(int j = 0; j < bullets.size(); j++){
-						bullets.remove(j);
-					}
+					bullets.remove(i);
 				}
 			}
 		}
@@ -507,19 +506,23 @@ public class Main extends Canvas implements Runnable{
 			enemyShooting = true;
 		}
 		if(enemyShooting){
-			sVel = 40 - (( level - 5) * 5);
+			if(level < 7){
+				sVel = 40 - (( level - 5) * 5);
+			} else if(level >= 7){
+				sVel = (40 - (( level - 5) * 5)) / 2;
+			}
 		}
 		
 		//Bullet AI
 		if(enemyShooting == true && !dead && !levelTransfer){
-			for(int i = 0; i < shooters.size(); i++){
-				System.out.println(i);
-				esRealX = (int)shooters.get(i).getX() + (pWIDTH / 2);
-				esRealY = (int)shooters.get(i).getY() + (pHEIGHT / 2);
+				System.out.println();
+				esRealX = (int)shooters.get(shooterShooting).getX() + (pWIDTH / 2);
+				esRealY = (int)shooters.get(shooterShooting).getY() + (pHEIGHT / 2);
 				xPESDiff = pRealX - esRealX;
 				yPESDiff = pRealY - esRealY;
-				if(bulletTimer == sVel - (sVel * (i / 2))){
+				if(bulletTimer == sVel){
 					if(xPESDiff > yPESDiff && !(xPESDiff > 0)){
+						System.out.println("1");
 						if(yPESDiff != 0){
 							if(xPESDiff > 0){
 								pESRatio = xPESDiff / yPESDiff;
@@ -535,6 +538,7 @@ public class Main extends Canvas implements Runnable{
 							bullet = true;
 						}
 					} else if(xPESDiff < yPESDiff && !(xPESDiff > 0)){
+						System.out.println("2");
 						if(xPESDiff != 0){
 							if(yPESDiff > 0){
 								pESRatio = yPESDiff / xPESDiff;
@@ -550,6 +554,7 @@ public class Main extends Canvas implements Runnable{
 							bullet = true;
 						}
 					} else if(-xPESDiff > yPESDiff){
+						System.out.println("3");
 						if(xPESDiff != 0){
 							if(yPESDiff > 0){
 								pESRatio = yPESDiff / xPESDiff;
@@ -565,6 +570,7 @@ public class Main extends Canvas implements Runnable{
 							bullet = true;
 						}
 					} else if(-xPESDiff < yPESDiff){
+						System.out.println("4");
 						if(xPESDiff != 0){
 							if(yPESDiff > 0){
 								pESRatio = yPESDiff / xPESDiff;
@@ -580,11 +586,15 @@ public class Main extends Canvas implements Runnable{
 							bullet = true;
 						}
 					}
+					
+					if(shooterShooting > (shooters.size() - 1)){
+						shooterShooting = 0;
+					}
+					shooterShooting++;
 				}
 				if(bulletTimer >= sVel){
 					bulletTimer = 0;
 				}
-			}
 			bulletTimer++;
 		}
 		
@@ -595,6 +605,8 @@ public class Main extends Canvas implements Runnable{
 				}
 			}
 		}
+		System.out.println(shooters.size());
+		System.out.println(shooterShooting);
 		
 		//Level system
 		if(bigScore >= 3){
