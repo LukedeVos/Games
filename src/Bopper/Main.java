@@ -66,7 +66,6 @@ public class Main extends Canvas implements Runnable{
 	private int bulletCounter = 0;
 	private int bulletTimer = 0;
 	private int shooterShooting = 0;
-	private int removables;
 	private int transferTimer;
 	
 	private int pWIDTH = 8;
@@ -243,8 +242,7 @@ public class Main extends Canvas implements Runnable{
 				p.setY(10);
 				p.setVelX(0);
 				p.setVelY(0);
-				removables = enemies.size();
-				for(int j = 0; j < removables; j++){
+				for(int j = 0; j < enemies.size(); j++){
 					enemies.remove(j);
 				}
 				eVel = 0;
@@ -258,8 +256,7 @@ public class Main extends Canvas implements Runnable{
 					bullet = false;
 					enemyShooting = false;
 					rootedPBUDiff = 100;
-					removables = bullets.size();
-					for(int j = 0; j < removables; j++){
+					for(int j = 0; j < bullets.size(); j++){
 						bullets.remove(j);
 					}
 				}
@@ -395,12 +392,10 @@ public class Main extends Canvas implements Runnable{
 					p.setY(10);
 					p.setVelX(0);
 					p.setVelY(0);
-					removables = enemies.size();
-					for(int j = 0; j < removables; j++){
+					for(int j = 0; j < enemies.size(); j++){
 						enemies.remove(j);
 					}
-					removables = shooters.size();
-					for(int j = 0; j < removables; j++){
+					for(int j = 0; j < shooters.size(); j++){
 						shooters.remove(j);
 					}
 					eVel = 0;
@@ -628,12 +623,11 @@ public class Main extends Canvas implements Runnable{
 			levelTransfer = false;
 			level++;
 			if(level == 5){
-				removables = enemies.size();
-				for(int i = 0; i < removables; i++){
-					System.out.println("Size: " + enemies.size());
+				for(int i = 0; i < enemies.size(); i++){
 					enemies.remove(i);
-					System.out.println("Removed: " + i);
+					System.out.println("Removed enem #" + i);
 				}
+				enemies.remove(0);
 				shooters.add(new EnemyShooter(getWidth() - 20, getHeight() - 20, this));
 			}
 			if(level == 3){
@@ -934,8 +928,16 @@ public class Main extends Canvas implements Runnable{
 			} else if(key == KeyEvent.VK_E){
 				randomizer = 3;
 			} else if(key == KeyEvent.VK_5){
-				level += 3;
+				if(level == 1){
+					level += 3;
+					if(enemies.size() < 2){
+						enemies.add(new Enemy(20,20,this));
+					}
+				} else {
+					level += 4;
+				}
 				bigScore = 3;
+				
 			}
 		}
 		
@@ -951,9 +953,15 @@ public class Main extends Canvas implements Runnable{
 				smallScore = 0;
 				bigScore = 0;
 				level = 1;
-				removables = enemies.size();
-				for(int i = 0; i < removables; i++){
-					enemies.remove(i);
+				if(enemies.size() >= 2){
+					for(int i = 0; i < enemies.size(); i++){
+						enemies.remove(i);
+					}
+					enemies.remove(0);
+				} else {
+					for(int i = 0; i < enemies.size(); i++){
+						enemies.remove(i);
+					}
 				}
 				enemies.add(new Enemy(getWidth() - 20, getHeight() - 50, this));
 			}
