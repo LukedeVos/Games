@@ -1,5 +1,7 @@
 package Bopper;
 
+import game.BufferedImageLoader;
+
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,8 +10,10 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Random;
 import java.util.ArrayList;
+
 import javax.swing.JFrame;
 
 import Bopper.Player;
@@ -66,10 +70,11 @@ public class Main extends Canvas implements Runnable{
 	private int bulletCounter = 0;
 	private int bulletTimer = 0;
 	private int shooterShooting = 0;
+	private int playerDirection = 0;
 	private int transferTimer;
 	
-	private int pWIDTH = 8;
-	private int pHEIGHT = 8;
+	private int pWIDTH = 16;
+	private int pHEIGHT = 16;
 	private int dWIDTH = 6;
 	private int dHEIGHT = 8;
 	
@@ -125,6 +130,7 @@ public class Main extends Canvas implements Runnable{
 	
 	Random rand = new Random();
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+	private BufferedImage spriteSheet = null;
 	
 	private ArrayList<Bullet> bullets;
 	private ArrayList<Enemy> enemies;
@@ -132,6 +138,12 @@ public class Main extends Canvas implements Runnable{
 	
 	public void init(){
 		requestFocus();
+		BufferedImageLoader loader = new BufferedImageLoader();
+		try{
+			spriteSheet = loader.loadImage("/res/Sprite_Sheet_Bopper.png");
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 		addKeyListener(new KeyInput(this));
 		
 		
@@ -207,6 +219,27 @@ public class Main extends Canvas implements Runnable{
 		
 	private void tick() {
 		
+		if(p.getVelX() == 0 && p.getVelY() == 0){
+			playerDirection = 0;
+		}
+		
+		if(playerDirection == 0){
+			p.setCol(1);
+			p.setRow(1);
+		} else if(playerDirection == 1){
+			p.setCol(2);
+			p.setRow(1);
+		} else if(playerDirection == 2){
+			p.setCol(3);
+			p.setRow(1);
+		} else if(playerDirection == 3){
+			p.setCol(4);
+			p.setRow(1);
+		} else if(playerDirection == 4){
+			p.setCol(5);
+			p.setRow(1);
+		}
+		
 		pRealX = (int)p.getX() + (pWIDTH / 2);
 		pRealY = (int)p.getY() + (pHEIGHT / 2);
 		dRealX = (int)d.getX() + (dWIDTH / 2);
@@ -216,7 +249,7 @@ public class Main extends Canvas implements Runnable{
 		sRealX = (int)s.getX() + (dWIDTH / 2);
 		sRealY = (int)s.getY() + (dHEIGHT / 2);
 		
-		p.tick();
+		p.tick(this);
 		
 		for(int i = 0; i < enemies.size(); i++){
 			enemies.get(i).tick();
@@ -735,9 +768,10 @@ public class Main extends Canvas implements Runnable{
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			
 			//Ingame Rendering
-			g.setColor(Color.WHITE);
-			g.drawOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
-			g.fillOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
+//			g.setColor(Color.WHITE);
+//			g.drawOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
+//			g.fillOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
+			p.render(g);
 			
 			g.setColor(Color.CYAN);
 			g.drawOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
@@ -909,12 +943,16 @@ public class Main extends Canvas implements Runnable{
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			if(key == KeyEvent.VK_UP || key == KeyEvent.VK_W){
 				p.setVelY(-pVel);
+				playerDirection = 4;
 			} else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S){
 				p.setVelY(pVel);
+				playerDirection = 3;
 			} else if(key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A){
 				p.setVelX(-pVel);
+				playerDirection = 2;
 			} else if(key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D){
 				p.setVelX(pVel);
+				playerDirection = 1;
 			}
 			
 			if(key == KeyEvent.VK_P){
@@ -1021,6 +1059,10 @@ public class Main extends Canvas implements Runnable{
 		frame.setVisible(true);
 		
 		game.start();
+	}
+	
+	public BufferedImage getSpriteSheet(){
+		return spriteSheet;
 	}
 
 }

@@ -1,21 +1,30 @@
 package Bopper;
 
+import game.SpriteSheet;
 import Bopper.Main;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 public class Player {
 	
 	public double x;
 	public double y;
 	
+	public int col = 1;
+	public int row = 1;
+	
 	public double velX = 0;
 	public double velY = 0;
+	
+	private BufferedImage player;
 	
 	public Player(double x, double y, Main game){
 		this.x = x;
 		this.y = y;
 	}
 	
-	public void tick(){
+	public void tick(Main game){
 		x+=velX;
 		y+=velY;
 		
@@ -30,6 +39,13 @@ public class Player {
 		} else if(y >= 480){
 			y = -10;
 		}
+		
+		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet());
+		player = ss.grabImage(col, row, 16, 16);
+	}
+	
+	public void render(Graphics g){
+		g.drawImage(player, (int)x, (int)y, null);
 	}
 	
 	public double getX(){
@@ -55,5 +71,11 @@ public class Player {
 	}
 	public void setVelY(double velY){
 		this.velY = velY;
+	}
+	public void setCol(int col){
+		this.col = col;
+	}
+	public void setRow(int row){
+		this.row = row;
 	}
 }
