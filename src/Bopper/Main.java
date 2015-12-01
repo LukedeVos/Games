@@ -622,22 +622,22 @@ public class Main extends Canvas implements Runnable{
 		if(transferTimer >= 180){
 			levelTransfer = false;
 			level++;
-			if(level == 5){
-				for(int i = 0; i < enemies.size(); i++){
-					enemies.remove(i);
-					System.out.println("Removed enem #" + i);
+			if(!glitchy){
+				if(level == 5){
+					for(int i = 0; i < enemies.size(); i++){
+						enemies.remove(i);
+						System.out.println("Removed enemy #" + i);
+					}
+					enemies.remove(0);
+					System.out.println("Removed enemy #1");
+					shooters.add(new EnemyShooter(getWidth() - 20, getHeight() - 20, this));
 				}
-				enemies.remove(0);
-				shooters.add(new EnemyShooter(getWidth() - 20, getHeight() - 20, this));
-			}
-			if(level == 3){
-				enemies.add(new Enemy(20, 20,this));
-			}
-			if(level == 7){
-				shooters.add(new EnemyShooter(20,getHeight() - 20, this));
-			}
-			if(level == 10){
-				enemies.add(new Enemy(20,20,this));
+				if(level == 3 || level == 10 || level == 13){
+					enemies.add(new Enemy(getWidth() - 20, getHeight() -  20,this));
+				}
+				if(level == 7){
+					shooters.add(new EnemyShooter(20,getHeight() - 20, this));
+				}
 			}
 			if(!glitchy){
 				transferTimer = 0;
@@ -961,6 +961,16 @@ public class Main extends Canvas implements Runnable{
 				} else {
 					for(int i = 0; i < enemies.size(); i++){
 						enemies.remove(i);
+					}
+				}
+				if(shooters.size() >= 2){
+					for(int i = 0; i < shooters.size(); i++){
+						shooters.remove(i);
+					}
+					shooters.remove(0);
+				} else {
+					for(int i = 0; i < shooters.size(); i++){
+						shooters.remove(i);
 					}
 				}
 				enemies.add(new Enemy(getWidth() - 20, getHeight() - 50, this));
