@@ -1,5 +1,7 @@
 package Bopper;
 
+import game.BufferedImageLoader;
+
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,8 +10,10 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Random;
 import java.util.ArrayList;
+
 import javax.swing.JFrame;
 
 import Bopper.Player;
@@ -34,10 +38,8 @@ public class Main extends Canvas implements Runnable{
 	
 	private Player p;
 	private Diamond d;
-	private Enemy e;
 	private BlueDiamond b;
 	private SpeedElement s;
-	private EnemyShooter es;
 	private Font f;
 	
 	private boolean inMenu = true;
@@ -67,10 +69,12 @@ public class Main extends Canvas implements Runnable{
 	private int speedTimer = 0;
 	private int bulletCounter = 0;
 	private int bulletTimer = 0;
+	private int shooterShooting = 0;
+	private int playerDirection = 0;
 	private int transferTimer;
 	
-	private int pWIDTH = 8;
-	private int pHEIGHT = 8;
+	private int pWIDTH = 16;
+	private int pHEIGHT = 16;
 	private int dWIDTH = 6;
 	private int dHEIGHT = 8;
 	
@@ -120,15 +124,26 @@ public class Main extends Canvas implements Runnable{
 	private double pVel = 2;
 	private double bVel = 12;
 	private double eVel = 0;
+	private double sVel = 40;
 	
 	private String difficultyString = "Normal";
 	
 	Random rand = new Random();
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+	private BufferedImage spriteSheet = null;
 	
 	private ArrayList<Bullet> bullets;
+	private ArrayList<Enemy> enemies;
+	private ArrayList<EnemyShooter> shooters;
+	
 	public void init(){
 		requestFocus();
+		BufferedImageLoader loader = new BufferedImageLoader();
+		try{
+			spriteSheet = loader.loadImage("/res/Sprite_Sheet_Bopper.png");
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 		addKeyListener(new KeyInput(this));
 		
 		
@@ -138,12 +153,13 @@ public class Main extends Canvas implements Runnable{
 		p = new Player(10, 10, this);
 		d = new Diamond(diaX, diaY, this);
 		b = new BlueDiamond(-20, -20, this);
-		e = new Enemy(getWidth() - 20, getHeight() - 50, this);
+		enemies = new ArrayList<Enemy>();
 		s = new SpeedElement(-20, -20, this);
-		es = new EnemyShooter(-20, -20, this);
+		shooters = new ArrayList<EnemyShooter>();
 		bullets = new ArrayList<Bullet>();
 		f = new Font("Arial", Font.PLAIN, 14);
-		
+
+		enemies.add(new Enemy(getWidth() - 20, getHeight() - 50, this));
 	}
 	
 	public void start(){
@@ -189,26 +205,6 @@ public class Main extends Canvas implements Runnable{
 				updates++;
 				delta--; 
 			}
-			
-			pRealX = (int)p.getX() + (pWIDTH / 2);
-			pRealY = (int)p.getY() + (pHEIGHT / 2);
-			eRealX = (int)e.getX() + (pWIDTH / 2);
-			eRealY = (int)e.getY() + (pHEIGHT / 2);
-			dRealX = (int)d.getX() + (dWIDTH / 2);
-			dRealY = (int)d.getY() + (dHEIGHT / 2);
-			bRealX = (int)b.getX() + (dWIDTH / 2);
-			bRealY = (int)b.getY() + (dHEIGHT / 2);
-			sRealX = (int)s.getX() + (dWIDTH / 2);
-			sRealY = (int)s.getY() + (dHEIGHT / 2);
-			esRealX = (int)es.getX() + (pWIDTH / 2);
-			esRealY = (int)es.getY() + (pHEIGHT / 2);
-			if(bullet){
-				for(int i = 0; i < bullets.size(); i++){
-					buRealX = (int)bullets.get(0).getX();
-					buRealY = (int)bullets.get(0).getY();
-				}
-			}
-			
 			render();
 			frames++;
 			if(System.currentTimeMillis() - timer > 1000){
@@ -222,9 +218,43 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 	private void tick() {
-		p.tick();
-		e.tick();
-
+		
+		if(p.getVelX() == 0 && p.getVelY() == 0){
+			playerDirection = 0;
+		}
+		
+		if(playerDirection == 0){
+			p.setCol(1);
+			p.setRow(1);
+		} else if(playerDirection == 1){
+			p.setCol(2);
+			p.setRow(1);
+		} else if(playerDirection == 2){
+			p.setCol(3);
+			p.setRow(1);
+		} else if(playerDirection == 3){
+			p.setCol(4);
+			p.setRow(1);
+		} else if(playerDirection == 4){
+			p.setCol(5);
+			p.setRow(1);
+		}
+		
+		pRealX = (int)p.getX() + (pWIDTH / 2);
+		pRealY = (int)p.getY() + (pHEIGHT / 2);
+		dRealX = (int)d.getX() + (dWIDTH / 2);
+		dRealY = (int)d.getY() + (dHEIGHT / 2);
+		bRealX = (int)b.getX() + (dWIDTH / 2);
+		bRealY = (int)b.getY() + (dHEIGHT / 2);
+		sRealX = (int)s.getX() + (dWIDTH / 2);
+		sRealY = (int)s.getY() + (dHEIGHT / 2);
+		
+		p.tick(this);
+		
+		for(int i = 0; i < enemies.size(); i++){
+			enemies.get(i).tick();
+		}
+		
 		for(int i = 0; i < bullets.size(); i++){
 			bullets.get(i).tick();
 		}
@@ -232,8 +262,141 @@ public class Main extends Canvas implements Runnable{
 			
 		
 		//Enemy to Player difference
-		xPEDiff = pRealX - eRealX;
-		yPEDiff = pRealY - eRealY;
+		for(int i = 0; i < enemies.size(); i++){
+			eRealX = (int)enemies.get(i).getX() + (pWIDTH / 2);
+			eRealY = (int)enemies.get(i).getY() + (pHEIGHT / 2);
+			xPEDiff = pRealX - eRealX;
+			yPEDiff = pRealY - eRealY;
+			pEDiff = (xPEDiff * xPEDiff) + (yPEDiff * yPEDiff);
+			rootedPEDiff = Math.sqrt(pEDiff);
+			if(rootedPEDiff <= (pWIDTH / 2) + (pWIDTH / 2)){
+				dead = true;
+				p.setX(10);
+				p.setY(10);
+				p.setVelX(0);
+				p.setVelY(0);
+				for(int j = 0; j < enemies.size(); j++){
+					enemies.remove(j);
+				}
+				eVel = 0;
+				rootedPEDiff = 100;
+				enemyFree = false;
+				if(bullet){
+					shooters.get(i).setX(-20);
+					shooters.get(i).setY(-20);
+					bullets.get(0).setX(-20);
+					bullets.get(0).setY(-20);
+					bullet = false;
+					enemyShooting = false;
+					rootedPBUDiff = 100;
+					for(int j = 0; j < bullets.size(); j++){
+						bullets.remove(j);
+					}
+				}
+			}
+			if(smallScore >= 3 || bigScore >= 1 || rootedPEDiff <= 30){
+				if(!(level >= 5)){
+					enemyFree = true;
+				}
+			}
+			if(enemyFree){
+				if(eVel < maxEVel + difficulty && level <= 5){
+					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
+				} else if(eVel < maxEVel + difficulty && level >= 10){
+					eVel = 2 + ((level - 6) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
+				}
+				if(glitchy){
+					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
+				}
+			}
+			if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && enemyFree && !levelTransfer){
+				if(xPEDiff > yPEDiff){
+					if(yPEDiff != 0){
+						if(xPEDiff > 0){
+							pERatio = xPEDiff / yPEDiff;
+						} else if(xPEDiff < 0){
+							pERatio = -(xPEDiff / yPEDiff);
+						}
+						if(pERatio < 0){
+							pERatio = -pERatio;
+						}
+						enemies.get(i).setVelX(eVel / (pERatio + 1) * pERatio);
+						enemies.get(i).setVelY(eVel / (pERatio + 1));
+						if(xPEDiff < 0){
+							enemies.get(i).setVelX(-(enemies.get(i).getVelX()));
+						}
+						if(yPEDiff < 0){
+							enemies.get(i).setVelY(-(enemies.get(i).getVelY()));
+						}
+					} else {
+						enemies.get(i).setVelX(eVel);
+					}
+				} else if(xPEDiff < yPEDiff){
+					if(xPEDiff != 0){
+						if(yPEDiff > 0){
+							pERatio = yPEDiff / xPEDiff;
+						} else if(yPEDiff < 0){
+							pERatio = -(yPEDiff / xPEDiff);
+						}
+						if(pERatio < 0){
+							pERatio = -pERatio;
+						}
+						enemies.get(i).setVelX(eVel / (pERatio + 1));
+						enemies.get(i).setVelY(eVel / (pERatio + 1) * pERatio);
+						if(xPEDiff < 0){
+							enemies.get(i).setVelX(-(enemies.get(i).getVelX()));
+						}
+						if(yPEDiff < 0){
+							enemies.get(i).setVelY(-(enemies.get(i).getVelY()));
+						}
+					} else {
+						enemies.get(i).setVelY(eVel);
+					}
+				} else if(-xPEDiff > yPEDiff){
+					if(yPEDiff != 0){
+						if(xPEDiff > 0){
+							pERatio = xPEDiff / yPEDiff;
+						} else if(xPEDiff < 0){
+							pERatio = -(xPEDiff / yPEDiff);
+						}
+						if(pERatio < 0){
+							pERatio = -pERatio;
+						}
+						enemies.get(i).setVelX(eVel / (pERatio + 1) * pERatio);
+						enemies.get(i).setVelY(eVel / (pERatio + 1));
+						if(xPEDiff < 0){
+							enemies.get(i).setVelX(-(enemies.get(i).getVelX()));
+						}
+						if(yPEDiff < 0){
+							enemies.get(i).setVelY(-(enemies.get(i).getVelY()));
+						}
+					} else {
+						enemies.get(i).setVelX(eVel);
+					}
+				} else if(-xPEDiff < yPEDiff){
+					if(xPEDiff != 0){
+						if(yPEDiff > 0){
+							pERatio = yPEDiff / xPEDiff;
+						} else if(yPEDiff < 0){
+							pERatio = -(yPEDiff / xPEDiff);
+						}
+						if(pERatio < 0){
+							pERatio = -pERatio;
+						}
+						enemies.get(i).setVelX(eVel / (pERatio + 1));
+						enemies.get(i).setVelY(eVel / (pERatio + 1) * pERatio);
+						if(xPEDiff < 0){
+							enemies.get(i).setVelX(-(enemies.get(i).getVelX()));
+						}
+						if(yPEDiff < 0){
+							enemies.get(i).setVelY(-(enemies.get(i).getVelY()));
+						}
+					} else {
+						enemies.get(i).setVelY(eVel);
+					}
+				} 
+			}
+		}
 		
 		//Diamond to Player difference
 		xPDDiff = pRealX - dRealX;
@@ -247,13 +410,11 @@ public class Main extends Canvas implements Runnable{
 		xPSDiff = pRealX - sRealX;
 		yPSDiff = pRealY - sRealY;
 		
-		//Shooter to Player difference
-		xPESDiff = pRealX - esRealX;
-		yPESDiff = pRealY - esRealY;
-		
 		//Bullet to Player difference
-		if(bullet){
+		if(bullet && !levelTransfer){
 			for(int i = 0; i < bullets.size(); i++){
+				buRealX = (int)bullets.get(i).getX();
+				buRealY = (int)bullets.get(i).getY();
 				xPBUDiff = pRealX - buRealX;
 				yPBUDiff = pRealY - buRealY;
 				pBUDiff = (xPBUDiff * xPBUDiff) + (yPBUDiff * yPBUDiff);
@@ -264,53 +425,19 @@ public class Main extends Canvas implements Runnable{
 					p.setY(10);
 					p.setVelX(0);
 					p.setVelY(0);
-					e.setX(getWidth() - 20);
-					e.setY(getHeight() - 50);
-					e.setVelX(0);
-					e.setVelY(0);
-					es.setX(-20);
-					es.setY(-20);
-					bullets.get(0).setX(-20);
-					bullets.get(0).setY(-20);
+					for(int j = 0; j < enemies.size(); j++){
+						enemies.remove(j);
+					}
+					for(int j = 0; j < shooters.size(); j++){
+						shooters.remove(j);
+					}
 					eVel = 0;
 					bullet = false;
 					enemyShooting = false;
 					rootedPEDiff = 100;
 					rootedPBUDiff = 100;
 					enemyFree = false;
-					for(int j = 0; j < bullets.size(); j++){
-						bullets.remove(j);
-					}
-				}
-			}
-		}
-		
-		//Distance Player to Enemy
-		pEDiff = (xPEDiff * xPEDiff) + (yPEDiff * yPEDiff);
-		rootedPEDiff = Math.sqrt(pEDiff);
-		if(rootedPEDiff <= (pWIDTH / 2) + (pWIDTH / 2)){
-			dead = true;
-			p.setX(10);
-			p.setY(10);
-			p.setVelX(0);
-			p.setVelY(0);
-			e.setX(getWidth() - 20);
-			e.setY(getHeight() - 50);
-			e.setVelX(0);
-			e.setVelY(0);
-			eVel = 0;
-			rootedPEDiff = 100;
-			enemyFree = false;
-			if(bullet){
-				es.setX(-20);
-				es.setY(-20);
-				bullets.get(0).setX(-20);
-				bullets.get(0).setY(-20);
-				bullet = false;
-				enemyShooting = false;
-				rootedPBUDiff = 100;
-				for(int j = 0; j < bullets.size(); j++){
-					bullets.remove(j);
+					bullets.remove(i);
 				}
 			}
 		}
@@ -401,126 +528,30 @@ public class Main extends Canvas implements Runnable{
 			System.out.println("Player speed: " + pVel);
 		}
 		
-		
 		//Score count
 		if(smallScore >= 10){
 			smallScore -= 10;
 			bigScore += 1;
 		}
 		
-		
-		//Enemy AI
-		if(smallScore >= 3 || bigScore >= 1 || rootedPEDiff <= 30){
-			if(!(level >= 5)){
-				enemyFree = true;
-			}
-		}
-		if(enemyFree){
-			if(eVel < maxEVel + difficulty){
-				eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
-			}
-			if(glitchy){
-				eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
-			}
-		}
-		
-		
-		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && enemyFree && !levelTransfer){
-			if(xPEDiff > yPEDiff){
-				if(yPEDiff != 0){
-					if(xPEDiff > 0){
-						pERatio = xPEDiff / yPEDiff;
-					} else if(xPEDiff < 0){
-						pERatio = -(xPEDiff / yPEDiff);
-					}
-					if(pERatio < 0){
-						pERatio = -pERatio;
-					}
-					e.setVelX(eVel / (pERatio + 1) * pERatio);
-					e.setVelY(eVel / (pERatio + 1));
-					if(xPEDiff < 0){
-						e.setVelX(-(e.getVelX()));
-					}
-					if(yPEDiff < 0){
-						e.setVelY(-(e.getVelY()));
-					}
-				} else {
-					e.setVelX(eVel);
-				}
-			} else if(xPEDiff < yPEDiff){
-				if(xPEDiff != 0){
-					if(yPEDiff > 0){
-						pERatio = yPEDiff / xPEDiff;
-					} else if(yPEDiff < 0){
-						pERatio = -(yPEDiff / xPEDiff);
-					}
-					if(pERatio < 0){
-						pERatio = -pERatio;
-					}
-					e.setVelX(eVel / (pERatio + 1));
-					e.setVelY(eVel / (pERatio + 1) * pERatio);
-					if(xPEDiff < 0){
-						e.setVelX(-(e.getVelX()));
-					}
-					if(yPEDiff < 0){
-						e.setVelY(-(e.getVelY()));
-					}
-				} else {
-					e.setVelY(eVel);
-				}
-			} else if(-xPEDiff > yPEDiff){
-				if(yPEDiff != 0){
-					if(xPEDiff > 0){
-						pERatio = xPEDiff / yPEDiff;
-					} else if(xPEDiff < 0){
-						pERatio = -(xPEDiff / yPEDiff);
-					}
-					if(pERatio < 0){
-						pERatio = -pERatio;
-					}
-					e.setVelX(eVel / (pERatio + 1) * pERatio);
-					e.setVelY(eVel / (pERatio + 1));
-					if(xPEDiff < 0){
-						e.setVelX(-(e.getVelX()));
-					}
-					if(yPEDiff < 0){
-						e.setVelY(-(e.getVelY()));
-					}
-				} else {
-					e.setVelX(eVel);
-				}
-			} else if(-xPEDiff < yPEDiff){
-				if(xPEDiff != 0){
-					if(yPEDiff > 0){
-						pERatio = yPEDiff / xPEDiff;
-					} else if(yPEDiff < 0){
-						pERatio = -(yPEDiff / xPEDiff);
-					}
-					if(pERatio < 0){
-						pERatio = -pERatio;
-					}
-					e.setVelX(eVel / (pERatio + 1));
-					e.setVelY(eVel / (pERatio + 1) * pERatio);
-					if(xPEDiff < 0){
-						e.setVelX(-(e.getVelX()));
-					}
-					if(yPEDiff < 0){
-						e.setVelY(-(e.getVelY()));
-					}
-				} else {
-					e.setVelY(eVel);
-				}
-			} 
-		}
-		
 		//Shooter AI
 		if(level == 5){
 			enemyShooting = true;
 		}
+		if(enemyShooting){
+			if(level < 7){
+				sVel = 40 - (( level - 5) * 5) - ((difficulty - 1) * 3);
+			}
+		}
 		
-		if(enemyShooting == true && !dead){
-			if(bulletTimer >= 40){
-				if(xPESDiff > yPESDiff){
+		//Bullet AI
+		if(enemyShooting == true && !dead && !levelTransfer){
+			esRealX = (int)shooters.get(shooterShooting).getX() + (pWIDTH / 2);
+			esRealY = (int)shooters.get(shooterShooting).getY() + (pHEIGHT / 2);
+			xPESDiff = pRealX - esRealX;
+			yPESDiff = pRealY - esRealY;
+			if(bulletTimer == sVel){
+				if(xPESDiff > yPESDiff && !(xPESDiff > 0)){
 					if(yPESDiff != 0){
 						if(xPESDiff > 0){
 							pESRatio = xPESDiff / yPESDiff;
@@ -535,7 +566,7 @@ public class Main extends Canvas implements Runnable{
 						bullets.get(bullets.size() - 1).setVelY(-(bVel / (pESRatio + 1)));
 						bullet = true;
 					}
-				} else if(xPESDiff < yPESDiff){
+				} else if(xPESDiff < yPESDiff && !(xPESDiff > 0)){
 					if(xPESDiff != 0){
 						if(yPESDiff > 0){
 							pESRatio = yPESDiff / xPESDiff;
@@ -550,8 +581,44 @@ public class Main extends Canvas implements Runnable{
 						bullets.get(bullets.size() - 1).setVelX(-(bVel / (pESRatio + 1)));
 						bullet = true;
 					}
+				} else if(-xPESDiff > yPESDiff){
+					if(xPESDiff != 0){
+						if(yPESDiff > 0){
+							pESRatio = yPESDiff / xPESDiff;
+						} else if(yPESDiff < 0){
+							pESRatio = -(yPESDiff / xPESDiff);
+						}
+						if(pESRatio < 0){
+							pESRatio = -pESRatio;
+						}
+						bullets.add(new Bullet(esRealX, esRealY, this));
+						bullets.get(bullets.size() - 1).setVelY(-(bVel / (pESRatio + 1) * pESRatio));
+						bullets.get(bullets.size() - 1).setVelX((bVel / (pESRatio + 1)));
+						bullet = true;
+					}
+				} else if(-xPESDiff < yPESDiff){
+					if(xPESDiff != 0){
+						if(yPESDiff > 0){
+							pESRatio = yPESDiff / xPESDiff;
+						} else if(yPESDiff < 0){
+							pESRatio = -(yPESDiff / xPESDiff);
+						}
+						if(pESRatio < 0){
+							pESRatio = -pESRatio;
+						}
+						bullets.add(new Bullet(esRealX, esRealY, this));
+						bullets.get(bullets.size() - 1).setVelY(-(bVel / (pESRatio + 1) * pESRatio));
+						bullets.get(bullets.size() - 1).setVelX((bVel / (pESRatio + 1)));
+						bullet = true;
+					}
 				}
 				bulletTimer = 0;
+				if(shooters.size() != 1){
+					shooterShooting++;
+					if(shooterShooting == shooters.size()){
+						shooterShooting = 0;
+					}
+				}
 			}
 			bulletTimer++;
 		}
@@ -565,7 +632,7 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		//Level system
-		if(bigScore >= 5){
+		if(bigScore >= 3){
 			smallScore = 0;
 			bigScore = 0;
 			levelTransfer = true;
@@ -573,9 +640,12 @@ public class Main extends Canvas implements Runnable{
 			nextLevel = level + 1;
 			p.setVelX(0);
 			p.setVelY(0);
-			e.setVelX(0);
-			e.setVelY(0);
+			for(int i = 0; i < enemies.size(); i++){
+				enemies.get(i).setVelX(0);
+				enemies.get(i).setVelY(0);
+			}
 			rootedPEDiff = 100;
+			bulletTimer = 0;
 		}
 		
 		if(levelTransfer){
@@ -585,12 +655,22 @@ public class Main extends Canvas implements Runnable{
 		if(transferTimer >= 180){
 			levelTransfer = false;
 			level++;
-			if(level == 5){
-				e.setX(-20);
-				e.setY(-20);
-				enemyFree = false;
-				es.setX(getWidth() - 20);
-				es.setY(getHeight() - 50);
+			if(!glitchy){
+				if(level == 5){
+					for(int i = 0; i < enemies.size(); i++){
+						enemies.remove(i);
+						System.out.println("Removed enemy #" + i);
+					}
+					enemies.remove(0);
+					System.out.println("Removed enemy #1");
+					shooters.add(new EnemyShooter(getWidth() - 20, getHeight() - 20, this));
+				}
+				if(level == 3 || level == 10 || level == 13){
+					enemies.add(new Enemy(getWidth() - 20, getHeight() -  20,this));
+				}
+				if(level == 7){
+					shooters.add(new EnemyShooter(20,getHeight() - 20, this));
+				}
 			}
 			if(!glitchy){
 				transferTimer = 0;
@@ -688,9 +768,10 @@ public class Main extends Canvas implements Runnable{
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			
 			//Ingame Rendering
-			g.setColor(Color.WHITE);
-			g.drawOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
-			g.fillOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
+//			g.setColor(Color.WHITE);
+//			g.drawOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
+//			g.fillOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
+			p.render(g);
 			
 			g.setColor(Color.CYAN);
 			g.drawOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
@@ -708,12 +789,16 @@ public class Main extends Canvas implements Runnable{
 			}
 			
 			g.setColor(Color.RED);
-			g.drawOval((int)e.getX(), (int)e.getY(), pWIDTH, pHEIGHT);
-			g.fillOval((int)e.getX(), (int)e.getY(), pWIDTH, pHEIGHT);
+			for(int i = 0; i < enemies.size(); i++){
+				g.drawOval((int)enemies.get(i).getX(), (int)enemies.get(i).getY(), pWIDTH, pHEIGHT);
+				g.fillOval((int)enemies.get(i).getX(), (int)enemies.get(i).getY(), pWIDTH, pHEIGHT);
+			}
 			
 			g.setColor(Color.ORANGE);
-			g.drawOval((int)es.getX(), (int)es.getY(), pWIDTH, pHEIGHT);
-			g.fillOval((int)es.getX(), (int)es.getY(), pWIDTH, pHEIGHT);
+			for(int i = 0; i < shooters.size(); i++){
+				g.drawOval((int)shooters.get(i).getX(), (int)shooters.get(i).getY(), pWIDTH, pHEIGHT);
+				g.fillOval((int)shooters.get(i).getX(), (int)shooters.get(i).getY(), pWIDTH, pHEIGHT);
+			}
 			
 			if(bullet){
 				for(int i = 0; i < bullets.size(); i++){
@@ -725,11 +810,11 @@ public class Main extends Canvas implements Runnable{
 			//Cage
 			if(!enemyFree){
 				g.setColor(Color.WHITE);
-				g.drawRect((int)e.getX() - 5, (int)e.getY() - 3, 19, 1);
-				g.drawRect((int)e.getX() - 5, (int)e.getY() + 11, 19, 1);
-				g.drawRect((int)e.getX() - 3, (int)e.getY() - 3, 1, 14);
-				g.drawRect((int)e.getX() + 10, (int)e.getY() - 3, 1, 14);
-				g.drawRect((int)e.getX() + 3, (int)e.getY() - 3, 1, 14);
+				g.drawRect((int)enemies.get(0).getX() - 5, (int)enemies.get(0).getY() - 3, 19, 1);
+				g.drawRect((int)enemies.get(0).getX() - 5, (int)enemies.get(0).getY() + 11, 19, 1);
+				g.drawRect((int)enemies.get(0).getX() - 3, (int)enemies.get(0).getY() - 3, 1, 14);
+				g.drawRect((int)enemies.get(0).getX() + 10, (int)enemies.get(0).getY() - 3, 1, 14);
+				g.drawRect((int)enemies.get(0).getX() + 3, (int)enemies.get(0).getY() - 3, 1, 14);
 				
 			}
 			
@@ -743,12 +828,12 @@ public class Main extends Canvas implements Runnable{
 			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 10, 450);
 			
 			g.setColor(Color.CYAN);
-			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
-			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
-			
-			g.setColor(Color.BLUE);
 			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   "), 441, dWIDTH, dHEIGHT);
 			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   "), 441, dWIDTH, dHEIGHT);
+			
+			g.setColor(Color.BLUE);
+			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
+			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
 		}
 		
 		if(paused && !levelTransfer){
@@ -855,15 +940,19 @@ public class Main extends Canvas implements Runnable{
 			}
 		}
 		
-		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead){
+		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			if(key == KeyEvent.VK_UP || key == KeyEvent.VK_W){
 				p.setVelY(-pVel);
+				playerDirection = 4;
 			} else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S){
 				p.setVelY(pVel);
+				playerDirection = 3;
 			} else if(key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A){
 				p.setVelX(-pVel);
+				playerDirection = 2;
 			} else if(key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D){
 				p.setVelX(pVel);
+				playerDirection = 1;
 			}
 			
 			if(key == KeyEvent.VK_P){
@@ -871,14 +960,22 @@ public class Main extends Canvas implements Runnable{
 			}
 			
 			if(key == KeyEvent.VK_SPACE){
-				bigScore = 5;
+				bigScore = 3;
 			} else if(key == KeyEvent.VK_Q){
 				randomizer = 5;
 			} else if(key == KeyEvent.VK_E){
 				randomizer = 3;
 			} else if(key == KeyEvent.VK_5){
-				level += 3;
-				bigScore = 5;
+				if(level == 1){
+					level += 3;
+					if(enemies.size() < 2){
+						enemies.add(new Enemy(20,20,this));
+					}
+				} else {
+					level += 4;
+				}
+				bigScore = 3;
+				
 			}
 		}
 		
@@ -894,6 +991,27 @@ public class Main extends Canvas implements Runnable{
 				smallScore = 0;
 				bigScore = 0;
 				level = 1;
+				if(enemies.size() >= 2){
+					for(int i = 0; i < enemies.size(); i++){
+						enemies.remove(i);
+					}
+					enemies.remove(0);
+				} else {
+					for(int i = 0; i < enemies.size(); i++){
+						enemies.remove(i);
+					}
+				}
+				if(shooters.size() >= 2){
+					for(int i = 0; i < shooters.size(); i++){
+						shooters.remove(i);
+					}
+					shooters.remove(0);
+				} else {
+					for(int i = 0; i < shooters.size(); i++){
+						shooters.remove(i);
+					}
+				}
+				enemies.add(new Enemy(getWidth() - 20, getHeight() - 50, this));
 			}
 		}
 		
@@ -941,6 +1059,10 @@ public class Main extends Canvas implements Runnable{
 		frame.setVisible(true);
 		
 		game.start();
+	}
+	
+	public BufferedImage getSpriteSheet(){
+		return spriteSheet;
 	}
 
 }

@@ -143,7 +143,7 @@ public class Game  extends Canvas implements Runnable{
 	}
 	
 	public void keyReleased(KeyEvent e){
-int key = e.getKeyCode();
+		int key = e.getKeyCode();
 		
 		if(key == KeyEvent.VK_RIGHT){
 			p.setVelX(0);
