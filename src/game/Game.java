@@ -30,7 +30,7 @@ public class Game  extends Canvas implements Runnable{
 		requestFocus();
 		BufferedImageLoader loader = new BufferedImageLoader();
 		try{
-			spriteSheet = loader.loadImage("/res/Sprite_Sheet.png");
+			spriteSheet = loader.loadImage("/res/Sprite_Sheet_Game.png");
 		}catch(IOException e){
 			e.printStackTrace();
 		}
