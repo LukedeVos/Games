@@ -11,8 +11,9 @@ public class SpriteSheet {
 	}
 	
 	public BufferedImage grabImage(int col, int row, int width, int height){
-		
+		//System.out.println(((col * 16) ) + "   " + ((row * 16) - 16));
 		BufferedImage img = image.getSubimage((col * 16) - 16, (row * 16) - 16, width, height);
+		
 		return img;
 	}
 	

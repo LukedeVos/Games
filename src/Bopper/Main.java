@@ -1,6 +1,6 @@
 package Bopper;
 
-import game.BufferedImageLoader;
+import Bopper.BufferedImageLoader;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -773,9 +773,10 @@ public class Main extends Canvas implements Runnable{
 //			g.fillOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
 			p.render(g);
 			
-			g.setColor(Color.CYAN);
-			g.drawOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
-			g.fillOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
+//			g.setColor(Color.CYAN);
+//			g.drawOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
+//			g.fillOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
+			d.render(g);
 			
 			if(blueDiamond){
 				g.setColor(Color.BLUE);
