@@ -23,6 +23,7 @@ import Bopper.BlueDiamond;
 import Bopper.SpeedElement;
 import Bopper.EnemyShooter;
 import Bopper.Bullet;
+import Bopper.SpriteSheet;
 
 public class Main extends Canvas implements Runnable{
 
@@ -70,7 +71,6 @@ public class Main extends Canvas implements Runnable{
 	private int bulletCounter = 0;
 	private int bulletTimer = 0;
 	private int shooterShooting = 0;
-//	private int playerDirection = 0;
 	private int transferTimer;
 	
 	private int pWIDTH = 16;
@@ -78,13 +78,6 @@ public class Main extends Canvas implements Runnable{
 	private int dWIDTH = 6;
 	private int dHEIGHT = 8;
 	
-	
-	private int pRealX;
-	private int pRealY;
-	private int eRealX;
-	private int eRealY;
-	private int dRealX;
-	private int dRealY;
 	private int bRealX;
 	private int bRealY;
 	private int sRealX;
@@ -131,6 +124,8 @@ public class Main extends Canvas implements Runnable{
 	Random rand = new Random();
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private BufferedImage spriteSheet = null;
+	private BufferedImage diamond;
+	private BufferedImage blue;
 	
 	private ArrayList<Bullet> bullets;
 	private ArrayList<Enemy> enemies;
@@ -219,32 +214,6 @@ public class Main extends Canvas implements Runnable{
 		
 	private void tick() {
 		
-//		if(p.getVelX() == 0 && p.getVelY() == 0){
-//			playerDirection = 0;
-//		}
-//		
-//		if(playerDirection == 0){
-//			p.setCol(1);
-//			p.setRow(1);
-//		} else if(playerDirection == 1){
-//			p.setCol(2);
-//			p.setRow(1);
-//		} else if(playerDirection == 2){
-//			p.setCol(3);
-//			p.setRow(1);
-//		} else if(playerDirection == 3){
-//			p.setCol(4);
-//			p.setRow(1);
-//		} else if(playerDirection == 4){
-//			p.setCol(5);
-//			p.setRow(1);
-//		}
-		
-		pRealX = (int)p.getX() + (pWIDTH / 2);
-		pRealY = (int)p.getY() + (pHEIGHT / 2);
-		dRealX = (int)d.getX() + (dWIDTH / 2);
-		dRealY = (int)d.getY() + (dHEIGHT / 2);
-		bRealX = (int)b.getX() + (dWIDTH / 2);
 		bRealY = (int)b.getY() + (dHEIGHT / 2);
 		sRealX = (int)s.getX() + (dWIDTH / 2);
 		sRealY = (int)s.getY() + (dHEIGHT / 2);
@@ -263,10 +232,9 @@ public class Main extends Canvas implements Runnable{
 		
 		//Enemy to Player difference
 		for(int i = 0; i < enemies.size(); i++){
-			eRealX = (int)enemies.get(i).getX() + (pWIDTH / 2);
-			eRealY = (int)enemies.get(i).getY() + (pHEIGHT / 2);
-			xPEDiff = pRealX - eRealX;
-			yPEDiff = pRealY - eRealY;
+			
+			xPEDiff = p.getX() - enemies.get(i).getX();
+			yPEDiff = p.getY() - enemies.get(i).getY();
 			pEDiff = (xPEDiff * xPEDiff) + (yPEDiff * yPEDiff);
 			rootedPEDiff = Math.sqrt(pEDiff);
 			if(rootedPEDiff <= (pWIDTH / 2) + (pWIDTH / 2)){
@@ -399,24 +367,24 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		//Diamond to Player difference
-		xPDDiff = pRealX - dRealX;
-		yPDDiff = pRealY - dRealY;
+		xPDDiff = p.getX() - d.getX();
+		yPDDiff = p.getY() - d.getY();
 		
 		//BlueDiamond to Player difference
-		xPBDiff = pRealX - bRealX;
-		yPBDiff = pRealY - bRealY;
+		xPBDiff = p.getX() - bRealX;
+		yPBDiff = p.getY() - bRealY;
 		
 		//SpeedElement to Player difference
-		xPSDiff = pRealX - sRealX;
-		yPSDiff = pRealY - sRealY;
+		xPSDiff = p.getX() - sRealX;
+		yPSDiff = p.getY() - sRealY;
 		
 		//Bullet to Player difference
 		if(bullet && !levelTransfer){
 			for(int i = 0; i < bullets.size(); i++){
 				buRealX = (int)bullets.get(i).getX();
 				buRealY = (int)bullets.get(i).getY();
-				xPBUDiff = pRealX - buRealX;
-				yPBUDiff = pRealY - buRealY;
+				xPBUDiff = p.getX() - buRealX;
+				yPBUDiff = p.getY() - buRealY;
 				pBUDiff = (xPBUDiff * xPBUDiff) + (yPBUDiff * yPBUDiff);
 				rootedPBUDiff = Math.sqrt(pBUDiff);
 				if(rootedPBUDiff <= (pWIDTH / 2)){
@@ -548,8 +516,8 @@ public class Main extends Canvas implements Runnable{
 		if(enemyShooting == true && !dead && !levelTransfer){
 			esRealX = (int)shooters.get(shooterShooting).getX() + (pWIDTH / 2);
 			esRealY = (int)shooters.get(shooterShooting).getY() + (pHEIGHT / 2);
-			xPESDiff = pRealX - esRealX;
-			yPESDiff = pRealY - esRealY;
+			xPESDiff = p.getX() - esRealX;
+			yPESDiff = p.getY() - esRealY;
 			if(bulletTimer == sVel){
 				if(xPESDiff > yPESDiff && !(xPESDiff > 0)){
 					if(yPESDiff != 0){
@@ -750,13 +718,17 @@ public class Main extends Canvas implements Runnable{
 			g.drawString("Level: " + level,getWidth() / 2 - 50, getHeight() / 2 - 50 + (menuSeperator * 5));
 			g.drawString("Press 'Enter' to return to menu", getWidth() / 2 - 50, getHeight() / 2 - 50 + (menuSeperator * 7));
 			
-			g.setColor(Color.BLUE);
-			g.drawOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score: "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
-			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score: "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+			blue = new SpriteSheet(this.getSpriteSheet()).grabImage(2, 2, 16, 16);
+			g.drawImage(blue, getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score: ") - dWIDTH, getHeight() / 2 - 59 + menuSeperator - (dHEIGHT / 2), null);
+//			g.setColor(Color.BLUE);
+//			g.drawOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score: "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+//			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score: "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
 			
-			g.setColor(Color.CYAN);
-			g.drawOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + " "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
-			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + " "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+			diamond = new SpriteSheet(this.getSpriteSheet()).grabImage(1, 2, 16, 16);
+			g.drawImage(diamond, getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + " ") - dWIDTH, getHeight() / 2 - 59 + menuSeperator - (dHEIGHT / 2), null);
+//			g.setColor(Color.CYAN);
+//			g.drawOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + " "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
+//			g.fillOval(getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + " "), getHeight() / 2 - 59 + menuSeperator, dWIDTH, dHEIGHT);
 		}
 		
 		if(levelTransfer){
@@ -768,20 +740,11 @@ public class Main extends Canvas implements Runnable{
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			
 			//Ingame Rendering
-//			g.setColor(Color.WHITE);
-//			g.drawOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
-//			g.fillOval((int)p.getX(), (int)p.getY(), pWIDTH, pHEIGHT);
 			p.render(g);
-			
-//			g.setColor(Color.CYAN);
-//			g.drawOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
-//			g.fillOval((int)d.getX(), (int)d.getY(), dWIDTH, dHEIGHT);
 			d.render(g);
 			
 			if(blueDiamond){
-				g.setColor(Color.BLUE);
-				g.drawOval((int)b.getX(), (int)b.getY(), dWIDTH, dHEIGHT);
-				g.fillOval((int)b.getX(), (int)b.getY(), dWIDTH, dHEIGHT);
+				b.render(g);
 			}
 			
 			if(speedElement){
@@ -828,13 +791,17 @@ public class Main extends Canvas implements Runnable{
 			g.setColor(Color.WHITE);
 			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 10, 450);
 			
-			g.setColor(Color.CYAN);
-			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   "), 441, dWIDTH, dHEIGHT);
-			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   "), 441, dWIDTH, dHEIGHT);
+			diamond = new SpriteSheet(this.getSpriteSheet()).grabImage(1, 2, 16, 16);
+			g.drawImage(diamond, 10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   ") - dWIDTH, 441 - (dHEIGHT / 2), null);
+//			g.setColor(Color.CYAN);
+//			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   "), 441, dWIDTH, dHEIGHT);
+//			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   "), 441, dWIDTH, dHEIGHT);
 			
-			g.setColor(Color.BLUE);
-			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
-			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
+			blue = new SpriteSheet(this.getSpriteSheet()).grabImage(2, 2, 16, 16);
+			g.drawImage(blue, 10 + g.getFontMetrics(f).stringWidth("Score:   ") - dWIDTH, 441 - (dHEIGHT / 2), null);
+//			g.setColor(Color.BLUE);
+//			g.drawOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
+//			g.fillOval(10 + g.getFontMetrics(f).stringWidth("Score:   "), 441, dWIDTH, dHEIGHT);
 		}
 		
 		if(paused && !levelTransfer){
