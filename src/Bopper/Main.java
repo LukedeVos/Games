@@ -70,7 +70,7 @@ public class Main extends Canvas implements Runnable{
 	private int bulletCounter = 0;
 	private int bulletTimer = 0;
 	private int shooterShooting = 0;
-	private int playerDirection = 0;
+//	private int playerDirection = 0;
 	private int transferTimer;
 	
 	private int pWIDTH = 16;
@@ -219,26 +219,26 @@ public class Main extends Canvas implements Runnable{
 		
 	private void tick() {
 		
-		if(p.getVelX() == 0 && p.getVelY() == 0){
-			playerDirection = 0;
-		}
-		
-		if(playerDirection == 0){
-			p.setCol(1);
-			p.setRow(1);
-		} else if(playerDirection == 1){
-			p.setCol(2);
-			p.setRow(1);
-		} else if(playerDirection == 2){
-			p.setCol(3);
-			p.setRow(1);
-		} else if(playerDirection == 3){
-			p.setCol(4);
-			p.setRow(1);
-		} else if(playerDirection == 4){
-			p.setCol(5);
-			p.setRow(1);
-		}
+//		if(p.getVelX() == 0 && p.getVelY() == 0){
+//			playerDirection = 0;
+//		}
+//		
+//		if(playerDirection == 0){
+//			p.setCol(1);
+//			p.setRow(1);
+//		} else if(playerDirection == 1){
+//			p.setCol(2);
+//			p.setRow(1);
+//		} else if(playerDirection == 2){
+//			p.setCol(3);
+//			p.setRow(1);
+//		} else if(playerDirection == 3){
+//			p.setCol(4);
+//			p.setRow(1);
+//		} else if(playerDirection == 4){
+//			p.setCol(5);
+//			p.setRow(1);
+//		}
 		
 		pRealX = (int)p.getX() + (pWIDTH / 2);
 		pRealY = (int)p.getY() + (pHEIGHT / 2);
@@ -943,16 +943,16 @@ public class Main extends Canvas implements Runnable{
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			if(key == KeyEvent.VK_UP || key == KeyEvent.VK_W){
 				p.setVelY(-pVel);
-				playerDirection = 4;
+//				playerDirection = 4;
 			} else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S){
 				p.setVelY(pVel);
-				playerDirection = 3;
+//				playerDirection = 3;
 			} else if(key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A){
 				p.setVelX(-pVel);
-				playerDirection = 2;
+//				playerDirection = 2;
 			} else if(key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D){
 				p.setVelX(pVel);
-				playerDirection = 1;
+//				playerDirection = 1;
 			}
 			
 			if(key == KeyEvent.VK_P){
