@@ -1,5 +1,8 @@
 package Bopper;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
 public class Enemy {
 	
 	public double x;
@@ -8,9 +11,14 @@ public class Enemy {
 	public double velX;
 	public double velY;
 	
+	private BufferedImage enemy;
+	
 	public Enemy(double x, double y, Main game){
 		this.x = x;
 		this.y = y;
+		
+		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet());
+		enemy = ss.grabImage(2, 1, 16, 16);
 	}
 	
 	public void tick(){
@@ -18,6 +26,9 @@ public class Enemy {
 		y+=velY;
 	}
 	
+	public void render(Graphics g){
+		g.drawImage(enemy, (int)x, (int)y, null);
+	}
 	
 	public double getX(){
 		return x;
