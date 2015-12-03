@@ -253,13 +253,11 @@ public class Main extends Canvas implements Runnable{
 			rootedPEDiff = Math.sqrt(pEDiff);
 			if(rootedPEDiff <= (pWIDTH / 2) + (pWIDTH / 2)){
 				dead = true;
-				randomizer = rand.nextInt(1) - 1;
+				randomizer = rand.nextInt(2);
 				if(randomizer == 0){
 					playSound("Bopper_Death.wav");
-					System.out.println("1");
 				} else {
 					playSound("Bopper_Death2.wav");
-					System.out.println("2");
 				}
 				p.setX(10);
 				p.setY(10);
