@@ -58,7 +58,7 @@ public class Main extends Canvas implements Runnable{
 	private boolean glitchy = false;
 	private boolean speedCounter = false;
 	private boolean bullet = false;
-	private boolean musicPlaying = false;
+	private boolean titleMusicPlaying = false;
 	private boolean blueDiamond;
 	private boolean speedElement;
 	
@@ -81,6 +81,7 @@ public class Main extends Canvas implements Runnable{
 	private int dWIDTH = 6;
 	private int dHEIGHT = 8;
 	
+	private static Clip clip;
 
 	private int esRealX;
 	private int esRealY;
@@ -164,11 +165,11 @@ public class Main extends Canvas implements Runnable{
 		  new Thread(new Runnable() {
 		    public void run() {
 		      try {
-		        Clip clip = AudioSystem.getClip();
+		        clip = AudioSystem.getClip();
 		        AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-		          Main.class.getResourceAsStream("/res/" + url));
+		      Main.class.getResourceAsStream("/res/" + url));
 		        clip.open(inputStream);
-		        clip.start(); 
+		        clip.start();
 		      } catch (Exception e) {
 		        System.err.println(e.getMessage());
 		      }
@@ -246,13 +247,20 @@ public class Main extends Canvas implements Runnable{
 		
 		//Enemy to Player difference
 		for(int i = 0; i < enemies.size(); i++){
-			
 			xPEDiff = p.getX() - enemies.get(i).getX();
 			yPEDiff = p.getY() - enemies.get(i).getY();
 			pEDiff = (xPEDiff * xPEDiff) + (yPEDiff * yPEDiff);
 			rootedPEDiff = Math.sqrt(pEDiff);
 			if(rootedPEDiff <= (pWIDTH / 2) + (pWIDTH / 2)){
 				dead = true;
+				randomizer = rand.nextInt(1) - 1;
+				if(randomizer == 0){
+					playSound("Bopper_Death.wav");
+					System.out.println("1");
+				} else {
+					playSound("Bopper_Death2.wav");
+					System.out.println("2");
+				}
 				p.setX(10);
 				p.setY(10);
 				p.setVelX(0);
@@ -689,9 +697,9 @@ public class Main extends Canvas implements Runnable{
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 5));
 			}
 			
-			if(!musicPlaying){
+			if(!titleMusicPlaying){
 			playSound("Bopper_Title_Music.wav");
-			musicPlaying = true;
+			titleMusicPlaying = true;
 			}
 		}
 		
@@ -749,6 +757,10 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
+			if(titleMusicPlaying){
+				clip.stop();
+				titleMusicPlaying = false;
+			}
 			
 			//Ingame Rendering
 			p.render(g);
