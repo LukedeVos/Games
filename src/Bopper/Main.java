@@ -58,6 +58,7 @@ public class Main extends Canvas implements Runnable{
 	private boolean glitchy = false;
 	private boolean speedCounter = false;
 	private boolean bullet = false;
+	private boolean musicPlaying = false;
 	private boolean blueDiamond;
 	private boolean speedElement;
 	
@@ -686,6 +687,11 @@ public class Main extends Canvas implements Runnable{
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 3));
 			} else if(menuChoice == 3){
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 5));
+			}
+			
+			if(!musicPlaying){
+			playSound("Bopper_Title_Music.wav");
+			musicPlaying = true;
 			}
 		}
 		
