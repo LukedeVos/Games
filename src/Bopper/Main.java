@@ -61,6 +61,7 @@ public class Main extends Canvas implements Runnable{
 	private boolean titleMusicPlaying = false;
 	private boolean blueDiamond;
 	private boolean speedElement;
+	private boolean glitchyTextures = false;
 	
 	private int menuSeperator = 15;
 	private int menuChoice = 0;
@@ -127,6 +128,7 @@ public class Main extends Canvas implements Runnable{
 	private BufferedImage spriteSheet = null;
 	private BufferedImage diamond;
 	private BufferedImage blue;
+	BufferedImageLoader loader = new BufferedImageLoader();
 	
 	private ArrayList<Bullet> bullets;
 	private ArrayList<Enemy> enemies;
@@ -134,7 +136,6 @@ public class Main extends Canvas implements Runnable{
 	
 	public void init(){
 		requestFocus();
-		BufferedImageLoader loader = new BufferedImageLoader();
 		try{
 			spriteSheet = loader.loadImage("/res/Sprite_Sheet_Bopper.png");
 		}catch(IOException e){
@@ -233,6 +234,15 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 	private void tick() {
+		if(glitchy && !glitchyTextures){
+			try {
+				spriteSheet = loader.loadImage("/res/Sprite_Sheet_Bopper2.png");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			glitchyTextures = true;
+		}
+		
 		p.tick(this);
 		
 		for(int i = 0; i < enemies.size(); i++){
@@ -251,7 +261,7 @@ public class Main extends Canvas implements Runnable{
 			yPEDiff = p.getY() - enemies.get(i).getY();
 			pEDiff = (xPEDiff * xPEDiff) + (yPEDiff * yPEDiff);
 			rootedPEDiff = Math.sqrt(pEDiff);
-			if(rootedPEDiff <= (pWIDTH / 2) + (pWIDTH / 2)){
+			if(rootedPEDiff <= (pWIDTH / 2) + (pWIDTH / 2) && !levelTransfer){
 				dead = true;
 				randomizer = rand.nextInt(2);
 				if(randomizer == 0){
