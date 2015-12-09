@@ -49,6 +49,7 @@ public class Main extends Canvas implements Runnable{
 	private boolean inMenu = true;
 	private boolean inTutorial = false;
 	private boolean inDifficultyMenu = false;
+	private boolean inSettings = false;
 	private boolean menuKeyReleased = true;
 	private boolean paused = false;
 	private boolean dead = false;
@@ -62,6 +63,7 @@ public class Main extends Canvas implements Runnable{
 	private boolean blueDiamond;
 	private boolean speedElement;
 	private boolean glitchyTextures = false;
+	private boolean volume = true;
 	
 	private int menuSeperator = 15;
 	private int menuChoice = 0;
@@ -264,9 +266,9 @@ public class Main extends Canvas implements Runnable{
 			if(rootedPEDiff <= (pWIDTH / 2) + (pWIDTH / 2) && !levelTransfer){
 				dead = true;
 				randomizer = rand.nextInt(2);
-				if(randomizer == 0){
+				if(randomizer == 0 && volume){
 					playSound("Bopper_Death.wav");
-				} else {
+				} else if(randomizer == 1 && volume){
 					playSound("Bopper_Death2.wav");
 				}
 				p.setX(10);
@@ -693,7 +695,8 @@ public class Main extends Canvas implements Runnable{
 			g.drawString("Play", getWidth() / 2 - 50, getHeight() / 2 - 50 - menuSeperator);
 			g.drawString("Tutorial", getWidth() / 2 - 50, getHeight() / 2 - 50 + menuSeperator);
 			g.drawString("Difficulty", getWidth() / 2 - 50, getHeight() / 2 - 50 + (menuSeperator * 3));
-			g.drawString("Exit", getWidth() / 2 - 50, getHeight() / 2 - 50 + (menuSeperator * 5));
+			g.drawString("Settings", getWidth() / 2 - 50, getHeight() / 2 - 50 + (menuSeperator * 5));
+			g.drawString("Exit", getWidth() / 2 - 50, getHeight() / 2 - 50 + (menuSeperator * 7));
 			
 			if(menuChoice == 0){
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 - menuSeperator);
@@ -703,9 +706,11 @@ public class Main extends Canvas implements Runnable{
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 3));
 			} else if(menuChoice == 3){
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 5));
+			} else if(menuChoice == 4){
+				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 7));
 			}
 			
-			if(!titleMusicPlaying){
+			if(!titleMusicPlaying && volume){
 			playSound("Bopper_Title_Music.wav");
 			titleMusicPlaying = true;
 			}
@@ -730,6 +735,23 @@ public class Main extends Canvas implements Runnable{
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 3));
 			} else if(menuChoice >= 10){
 				g.drawString("->", getWidth() / 2, getHeight() / 2 - 50 + menuSeperator);
+			}
+		}
+		
+		if(inSettings){
+			g.drawString("Sound: ", getWidth() / 2 - 50, getHeight() / 2 - 50 - menuSeperator);
+			g.drawString("Exit", getWidth() / 2 - 50, getHeight() / 2 - 50 + menuSeperator);
+			
+			if(menuChoice == 0){
+				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 - menuSeperator);
+			} else if(menuChoice == 1){
+				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + menuSeperator);
+			}
+			
+			if(volume){
+				g.drawString("on", getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Sound: "), getHeight() / 2 - 50 - menuSeperator);
+			} else if(!volume){
+				g.drawString("off", getWidth() / 2 - 50 + g.getFontMetrics(f).stringWidth("Sound: "), getHeight() / 2 - 50 - menuSeperator);
 			}
 		}
 		
@@ -764,7 +786,7 @@ public class Main extends Canvas implements Runnable{
 			g.drawString("Now starting level: " + nextLevel, getWidth() / 2 - 50, getHeight() / 2 - 50 + menuSeperator);
 		}
 		
-		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
+		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer && !inSettings){
 			if(titleMusicPlaying){
 				clip.stop();
 				titleMusicPlaying = false;
@@ -836,7 +858,7 @@ public class Main extends Canvas implements Runnable{
 		if(inMenu){
 			if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S){
 				menuChoice+=1;
-				if(menuChoice > 3){
+				if(menuChoice > 4){
 					menuChoice = 0;
 				}
 			}
@@ -857,6 +879,10 @@ public class Main extends Canvas implements Runnable{
 					inMenu = false;
 					menuChoice = 1;
 				} else if(menuChoice == 3){
+					inSettings = true;
+					inMenu = false;
+					menuChoice = 1;
+				} else if(menuChoice == 4){
 					System.exit(1);
 				}
 				menuKeyReleased = false;
@@ -924,19 +950,40 @@ public class Main extends Canvas implements Runnable{
 			}
 		}
 		
+		if(inSettings){
+			if(key == KeyEvent.VK_UP){
+				menuChoice -= 1;
+				if(menuChoice < 0){
+					menuChoice = 1;
+				}
+			} else if(key == KeyEvent.VK_DOWN){
+				menuChoice += 1;
+				if(menuChoice > 1){
+					menuChoice = 0;
+				}
+			}
+			
+			if(key == KeyEvent.VK_ENTER){
+				if(menuChoice == 0){
+					volume = !volume;
+				}
+				if(menuChoice == 1){
+					inMenu = true;
+					inSettings = false;
+					menuChoice = 3;
+				}
+			}
+		}
+		
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			if(key == KeyEvent.VK_UP || key == KeyEvent.VK_W){
 				p.setVelY(-pVel);
-//				playerDirection = 4;
 			} else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S){
 				p.setVelY(pVel);
-//				playerDirection = 3;
 			} else if(key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A){
 				p.setVelX(-pVel);
-//				playerDirection = 2;
 			} else if(key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D){
 				p.setVelX(pVel);
-//				playerDirection = 1;
 			}
 			
 			if(key == KeyEvent.VK_P){
@@ -955,6 +1002,7 @@ public class Main extends Canvas implements Runnable{
 					if(enemies.size() < 2){
 						enemies.add(new Enemy(20,20,this));
 					}
+					levelTransfer = true;
 				} else {
 					level += 4;
 				}
