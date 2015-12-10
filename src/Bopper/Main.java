@@ -64,6 +64,10 @@ public class Main extends Canvas implements Runnable{
 	private boolean speedElement;
 	private boolean glitchyTextures = false;
 	private boolean volume = true;
+	private boolean movedUp;
+	private boolean movedDown;
+	private boolean movedLeft;
+	private boolean movedRight;
 	
 	private int menuSeperator = 15;
 	private int menuChoice = 0;
@@ -157,7 +161,7 @@ public class Main extends Canvas implements Runnable{
 		shooters = new ArrayList<EnemyShooter>();
 		bullets = new ArrayList<Bullet>();
 		f = new Font("Arial", Font.PLAIN, 14);
-
+		
 		enemies.add(new Enemy(getWidth() - 20, getHeight() - 50, this));
 		
 		diamond = new SpriteSheet(this.getSpriteSheet()).grabImage(1, 2, 16, 16);
@@ -168,11 +172,11 @@ public class Main extends Canvas implements Runnable{
 		  new Thread(new Runnable() {
 		    public void run() {
 		      try {
-		        clip = AudioSystem.getClip();
-		        AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-		      Main.class.getResourceAsStream("/res/" + url));
-		        clip.open(inputStream);
-		        clip.start();
+		    		  clip = AudioSystem.getClip();
+		    	  AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+		    			  Main.class.getResourceAsStream("/res/" + url));
+		    	  clip.open(inputStream);
+		    	  clip.start();
 		      } catch (Exception e) {
 		        System.err.println(e.getMessage());
 		      }
@@ -224,6 +228,7 @@ public class Main extends Canvas implements Runnable{
 				delta--; 
 			}
 			render();
+			music();
 			frames++;
 			if(System.currentTimeMillis() - timer > 1000){
 				timer += 1000;
@@ -709,11 +714,6 @@ public class Main extends Canvas implements Runnable{
 			} else if(menuChoice == 4){
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 + (menuSeperator * 7));
 			}
-			
-			if(!titleMusicPlaying && volume){
-			playSound("Bopper_Title_Music.wav");
-			titleMusicPlaying = true;
-			}
 		}
 		
 		if(inTutorial){
@@ -740,7 +740,7 @@ public class Main extends Canvas implements Runnable{
 		
 		if(inSettings){
 			g.drawString("Sound: ", getWidth() / 2 - 50, getHeight() / 2 - 50 - menuSeperator);
-			g.drawString("Exit", getWidth() / 2 - 50, getHeight() / 2 - 50 + menuSeperator);
+			g.drawString("Accept", getWidth() / 2 - 50, getHeight() / 2 - 50 + menuSeperator);
 			
 			if(menuChoice == 0){
 				g.drawString("->", getWidth() / 2 - 75, getHeight() / 2 - 50 - menuSeperator);
@@ -852,6 +852,16 @@ public class Main extends Canvas implements Runnable{
 		bs.show();
 	}
 	
+	public void music(){
+		if(!titleMusicPlaying && volume){
+			playSound("Bopper_Title_Music.wav");
+			titleMusicPlaying = true;
+		}
+		if(!volume){
+			clip.stop();
+		}
+	}
+	
 	public void keyPressed(KeyEvent k){
 		int key = k.getKeyCode();
 		
@@ -881,7 +891,7 @@ public class Main extends Canvas implements Runnable{
 				} else if(menuChoice == 3){
 					inSettings = true;
 					inMenu = false;
-					menuChoice = 1;
+					menuChoice = 0;
 				} else if(menuChoice == 4){
 					System.exit(1);
 				}
@@ -950,7 +960,7 @@ public class Main extends Canvas implements Runnable{
 			}
 		}
 		
-		if(inSettings){
+		if(inSettings && menuKeyReleased){
 			if(key == KeyEvent.VK_UP){
 				menuChoice -= 1;
 				if(menuChoice < 0){
@@ -976,14 +986,18 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
-			if(key == KeyEvent.VK_UP || key == KeyEvent.VK_W){
-				p.setVelY(-pVel);
-			} else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S){
-				p.setVelY(pVel);
-			} else if(key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A){
-				p.setVelX(-pVel);
-			} else if(key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D){
-				p.setVelX(pVel);
+			if((key == KeyEvent.VK_UP || key == KeyEvent.VK_W) && !movedUp){
+				p.setVelY(p.getVelY() - pVel);
+				movedUp = true;
+			} else if((key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S)){
+				p.setVelY(p.getVelY() + pVel);
+				movedDown = true;
+			} else if((key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A)){
+				p.setVelX(p.getVelX() - pVel);
+				movedLeft = true;
+			} else if((key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D)){
+				p.setVelX(p.getVelX() + pVel);
+				movedRight = true;
 			}
 			
 			if(key == KeyEvent.VK_P){
@@ -1060,12 +1074,16 @@ public class Main extends Canvas implements Runnable{
 			if(!inMenu && !inTutorial && !inDifficultyMenu){
 				if(key == KeyEvent.VK_UP || key == KeyEvent.VK_W){
 					p.setVelY(0);
+					movedUp = false;
 				} else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S){
 					p.setVelY(0);
+					movedDown = false;
 				} else if(key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A){
 					p.setVelX(0);
+					movedLeft = false;
 				} else if(key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D){
 					p.setVelX(0);
+					movedRight = false;
 				}
 			}
 			if(paused){
