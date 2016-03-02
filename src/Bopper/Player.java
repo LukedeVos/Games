@@ -25,18 +25,6 @@ public class Player {
 		x+=velX;
 		y+=velY;
 		
-		if(x <= -11){
-			x = 649;
-		} else if(x >= 650){
-			x = -10;
-		}
-		
-		if(y <= -11){
-			y = 479;
-		} else if(y >= 480){
-			y = -10;
-		}
-		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet());
 		player = ss.grabImage(1, 1, 16, 16);
 	}

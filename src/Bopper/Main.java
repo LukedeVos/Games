@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.DisplayMode;
 import java.io.IOException;
 import java.util.Random;
 import java.util.ArrayList;
@@ -78,11 +79,13 @@ public class Main extends Canvas implements Runnable{
 	private int level = 1;
 	private int nextLevel;
 	private int blueTimer = 0;
+	private int blueFinal = 180;
 	private int speedTimer = 0;
 	private int bulletCounter = 0;
 	private int bulletTimer = 0;
 	private int shooterShooting = 0;
 	private int transferTimer;
+	private int frames = 0;
 	
 	private int pWIDTH = 16;
 	private int dWIDTH = 6;
@@ -162,7 +165,7 @@ public class Main extends Canvas implements Runnable{
 		bullets = new ArrayList<Bullet>();
 		f = new Font("Arial", Font.PLAIN, 14);
 		
-		enemies.add(new Enemy(getWidth() - 20, getHeight() - 50, this));
+		enemies.add(new Enemy(getWidth() - 30, getHeight() - 30, this));
 		
 		diamond = new SpriteSheet(this.getSpriteSheet()).grabImage(1, 2, 16, 16);
 		blue = new SpriteSheet(this.getSpriteSheet()).grabImage(2, 2, 16, 16);
@@ -192,6 +195,7 @@ public class Main extends Canvas implements Runnable{
 		thread = new Thread(this);
 		thread.start();
 	}
+	
 	public void stop(){
 		if(!running){
 			return;
@@ -212,7 +216,6 @@ public class Main extends Canvas implements Runnable{
 		double ns = 1000000000 / amountOfTicks;
 		double delta = 0;
 		int updates = 0;
-		int frames = 0;
 		long timer = System.currentTimeMillis();
 		
 		//Game loop starts here
@@ -227,9 +230,7 @@ public class Main extends Canvas implements Runnable{
 				updates++;
 				delta--; 
 			}
-			render();
-			music();
-			frames++;
+//			music();
 			if(System.currentTimeMillis() - timer > 1000){
 				timer += 1000;
 				System.out.println(updates + " ticks, Fps " + frames);
@@ -238,9 +239,12 @@ public class Main extends Canvas implements Runnable{
 			}
 		}
 		stop();
-		}
+	}
 		
 	private void tick() {
+		render();
+		frames++;
+		
 		if(glitchy && !glitchyTextures){
 			try {
 				spriteSheet = loader.loadImage("/res/Sprite_Sheet_Bopper2.png");
@@ -251,6 +255,18 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		p.tick(this);
+		
+		if(p.getX() <= -11){
+			p.setX(getWidth() + 9);
+		} else if(p.getX() >= getWidth() + 10){
+			p.setX(-10);
+		}
+		
+		if(p.getY() <= -11){
+			p.setY(getHeight() + 9);
+		} else if(p.getY() >= getHeight() + 10){
+			p.setY(-10);
+		}
 		
 		for(int i = 0; i < enemies.size(); i++){
 			enemies.get(i).tick();
@@ -471,9 +487,14 @@ public class Main extends Canvas implements Runnable{
 		if(blueDiamond){
 			blueTimer++;
 		}
+		if(getHeight() > 480){
+			blueFinal = 600;
+		} else if(getHeight() < 480){
+			blueFinal = 180;
+		}
 		
 		//BlueDiamond timer final
-		if(blueDiamond && blueTimer >= 180){
+		if(blueDiamond && blueTimer >= blueFinal){
 			blueDiamond = false;
 			b.setX(-20);
 			b.setY(-20);
@@ -686,7 +707,7 @@ public class Main extends Canvas implements Runnable{
 	private void render() {
 		BufferStrategy bs = this.getBufferStrategy();
 		if(bs == null){
-			createBufferStrategy(3);
+			createBufferStrategy(2);
 			return;
 		}
 		Graphics g = bs.getDrawGraphics();
@@ -807,6 +828,10 @@ public class Main extends Canvas implements Runnable{
 			for(int i = 0; i < enemies.size(); i++){
 				enemies.get(i).render(g);
 			}
+			if(!enemyFree){
+				enemies.get(0).setX(getWidth() - 30);
+				enemies.get(0).setY(getHeight() - 30);
+			}
 			
 			for(int i = 0; i < shooters.size(); i++){
 				shooters.get(i).render(g);
@@ -822,24 +847,24 @@ public class Main extends Canvas implements Runnable{
 			//Cage
 			if(!enemyFree){
 				g.setColor(Color.WHITE);
-				g.drawRect((int)enemies.get(0).getX() - 5, (int)enemies.get(0).getY() - 3, 19, 1);
-				g.drawRect((int)enemies.get(0).getX() - 5, (int)enemies.get(0).getY() + 11, 19, 1);
-				g.drawRect((int)enemies.get(0).getX() - 3, (int)enemies.get(0).getY() - 3, 1, 14);
-				g.drawRect((int)enemies.get(0).getX() + 10, (int)enemies.get(0).getY() - 3, 1, 14);
-				g.drawRect((int)enemies.get(0).getX() + 3, (int)enemies.get(0).getY() - 3, 1, 14);
+				g.drawRect((int)enemies.get(0).getX() - 2, (int)enemies.get(0).getY() - 2, 19, 1);
+				g.drawRect((int)enemies.get(0).getX() - 2, (int)enemies.get(0).getY() + 12, 19, 1);
+				g.drawRect((int)enemies.get(0).getX(), (int)enemies.get(0).getY() - 2, 1, 14);
+				g.drawRect((int)enemies.get(0).getX() + 13, (int)enemies.get(0).getY() - 2, 1, 14);
+				g.drawRect((int)enemies.get(0).getX() + 6, (int)enemies.get(0).getY() - 2, 1, 14);
 			}
 			
 			//Score Display
 			g.setColor(Color.BLACK);
-			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 11, 451);
-			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 9, 449);
-			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 11, 449);
-			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 9, 451);
+			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 11, getHeight() - 17);
+			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 9, getHeight() - 19);
+			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 11, getHeight() - 19);
+			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 9, getHeight() - 17);
 			g.setColor(Color.WHITE);
-			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 10, 450);
+			g.drawString("SCORE    x" + bigScore + "    x" + smallScore, 10, getHeight() - 18);
 			
-			g.drawImage(diamond, 10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   ") - dWIDTH, 441 - (dHEIGHT / 2), null);
-			g.drawImage(blue, 10 + g.getFontMetrics(f).stringWidth("Score:   ") - dWIDTH, 441 - (dHEIGHT / 2), null);
+			g.drawImage(diamond, 10 + g.getFontMetrics(f).stringWidth("Score:    x" + bigScore + "   ") - dWIDTH, (getHeight() - 27) - (dHEIGHT / 2), null);
+			g.drawImage(blue, 10 + g.getFontMetrics(f).stringWidth("Score:   ") - dWIDTH, (getHeight() - 27) - (dHEIGHT / 2), null);
 		}
 		
 		if(paused && !levelTransfer){
@@ -987,16 +1012,16 @@ public class Main extends Canvas implements Runnable{
 		
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 			if((key == KeyEvent.VK_UP || key == KeyEvent.VK_W) && !movedUp){
-				p.setVelY(p.getVelY() - pVel);
+				p.setVelY(-pVel);
 				movedUp = true;
 			} else if((key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S)){
-				p.setVelY(p.getVelY() + pVel);
+					p.setVelY(pVel);
 				movedDown = true;
 			} else if((key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A)){
-				p.setVelX(p.getVelX() - pVel);
+					p.setVelX(-pVel);
 				movedLeft = true;
 			} else if((key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D)){
-				p.setVelX(p.getVelX() + pVel);
+					p.setVelX(pVel);
 				movedRight = true;
 			}
 			
@@ -1092,6 +1117,7 @@ public class Main extends Canvas implements Runnable{
 				}
 			}
 		}
+		
 	}
 	
 	public static void main(String args[]){
@@ -1104,7 +1130,7 @@ public class Main extends Canvas implements Runnable{
 		frame.add(game);
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
+		frame.setResizable(true);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
