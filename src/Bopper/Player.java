@@ -1,6 +1,6 @@
 package Bopper;
 
-import game.SpriteSheet;
+import Bopper.SpriteSheet;
 import Bopper.Main;
 
 import java.awt.Graphics;
@@ -10,9 +10,6 @@ public class Player {
 	
 	public double x;
 	public double y;
-	
-	public int col = 1;
-	public int row = 1;
 	
 	public double velX = 0;
 	public double velY = 0;
@@ -41,7 +38,7 @@ public class Player {
 		}
 		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet());
-		player = ss.grabImage(col, row, 16, 16);
+		player = ss.grabImage(1, 1, 16, 16);
 	}
 	
 	public void render(Graphics g){
@@ -71,11 +68,5 @@ public class Player {
 	}
 	public void setVelY(double velY){
 		this.velY = velY;
-	}
-	public void setCol(int col){
-		this.col = col;
-	}
-	public void setRow(int row){
-		this.row = row;
 	}
 }
