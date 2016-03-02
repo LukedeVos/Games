@@ -3,11 +3,17 @@ package Waiter_Simulator;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
+
+import Waiter_Simulator.BufferedImageLoader;
+import Waiter_Simulator.KeyInput;
 
 public class Main extends Canvas implements Runnable{
 
@@ -22,13 +28,19 @@ public class Main extends Canvas implements Runnable{
 	
 	private boolean paused = false;
 	
+	private int frames = 0;
+	
+	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+	private BufferedImage spriteSheet = null;
+	BufferedImageLoader loader = new BufferedImageLoader();
+	
 	public void init(){
-//		requestFocus();
-//		try{
-//			spriteSheet = loader.loadImage("/res/Sprite_Sheet_Bopper.png");
-//		}catch(IOException e){
-//			e.printStackTrace();
-//		}
+		requestFocus();
+		try{
+			spriteSheet = loader.loadImage("/res/Sprite_Sheet_WS.png");
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 		addKeyListener(new KeyInput(this));
 	}
 	
@@ -61,7 +73,6 @@ public class Main extends Canvas implements Runnable{
 		double ns = 1000000000 / amountOfTicks;
 		double delta = 0;
 		int updates = 0;
-		int frames = 0;
 		long timer = System.currentTimeMillis();
 		
 		//Game loop starts here
@@ -76,8 +87,6 @@ public class Main extends Canvas implements Runnable{
 				updates++;
 				delta--; 
 			}
-			render();
-			frames++;
 			if(System.currentTimeMillis() - timer > 1000){
 				timer += 1000;
 				System.out.println(updates + " ticks, Fps " + frames);
@@ -89,19 +98,31 @@ public class Main extends Canvas implements Runnable{
 	}
 	
 	public void tick(){
-		
+		render();
+		frames++;
 	}
 	
 	public void render(){
+		BufferStrategy bs = this.getBufferStrategy();
+		if(bs == null){
+			createBufferStrategy(2);
+			return;
+		}
+		Graphics g = bs.getDrawGraphics();
+		//////////////////////////////////
+		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		
+		//////////////////////////////////
+		g.dispose();
+		bs.show();
 	}
 	
 	public void keyPressed(KeyEvent k){
-		
+		int key = k.getKeyCode();
 	}
 	
 	public void keyReleased(KeyEvent k){
-		
+		int key = k.getKeyCode();
 	}
 	
 	public static void main(String args[]){

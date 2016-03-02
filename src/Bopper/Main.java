@@ -10,7 +10,6 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.awt.DisplayMode;
 import java.io.IOException;
 import java.util.Random;
 import java.util.ArrayList;
@@ -65,6 +64,7 @@ public class Main extends Canvas implements Runnable{
 	private boolean speedElement;
 	private boolean glitchyTextures = false;
 	private boolean volume = true;
+	private boolean diamondEaten;
 	private boolean movedUp;
 	private boolean movedDown;
 	private boolean movedLeft;
@@ -80,6 +80,7 @@ public class Main extends Canvas implements Runnable{
 	private int nextLevel;
 	private int blueTimer = 0;
 	private int blueFinal = 180;
+	private int diaTimer = 0;
 	private int speedTimer = 0;
 	private int bulletCounter = 0;
 	private int bulletTimer = 0;
@@ -100,6 +101,7 @@ public class Main extends Canvas implements Runnable{
 	
 	private double pERatio;
 	private double pESRatio;
+	private double eDRatio;
 	private double randomizer;
 	private double xPDDiff;
 	private double yPDDiff;
@@ -123,6 +125,10 @@ public class Main extends Canvas implements Runnable{
 	private double yPBUDiff;
 	private double pBUDiff;
 	private double rootedPBUDiff = 100;
+	private double xEDDiff;
+	private double yEDDiff;
+	private double eDDiff;
+	private double rootedEDDiff;
 	private double speedInc = 1;
 	private double speedElementCounter;
 	private double pVel = 2;
@@ -142,6 +148,7 @@ public class Main extends Canvas implements Runnable{
 	private ArrayList<Bullet> bullets;
 	private ArrayList<Enemy> enemies;
 	private ArrayList<EnemyShooter> shooters;
+	private ArrayList<EnemyEater> eaters;
 	
 	public void init(){
 		requestFocus();
@@ -160,6 +167,7 @@ public class Main extends Canvas implements Runnable{
 		d = new Diamond(diaX, diaY, this);
 		b = new BlueDiamond(-20, -20, this);
 		enemies = new ArrayList<Enemy>();
+		eaters = new ArrayList<EnemyEater>();
 		s = new SpeedElement(-20, -20, this);
 		shooters = new ArrayList<EnemyShooter>();
 		bullets = new ArrayList<Bullet>();
@@ -276,7 +284,9 @@ public class Main extends Canvas implements Runnable{
 			bullets.get(i).tick();
 		}
 		
-			
+		for(int i = 0; i < eaters.size(); i++){
+			eaters.get(i).tick();
+		}
 		
 		//Enemy to Player difference
 		for(int i = 0; i < enemies.size(); i++){
@@ -298,6 +308,9 @@ public class Main extends Canvas implements Runnable{
 				p.setVelY(0);
 				for(int j = 0; j < enemies.size(); j++){
 					enemies.remove(j);
+				}
+				for(int j = 0; j < eaters.size(); j++){
+					eaters.remove(j);
 				}
 				eVel = 0;
 				rootedPEDiff = 100;
@@ -451,6 +464,9 @@ public class Main extends Canvas implements Runnable{
 					}
 					for(int j = 0; j < shooters.size(); j++){
 						shooters.remove(j);
+					}
+					for(int j = 0; j < eaters.size(); j++){
+						eaters.remove(j);
 					}
 					eVel = 0;
 					bullet = false;
@@ -657,8 +673,132 @@ public class Main extends Canvas implements Runnable{
 			}
 		}
 		
+		//Eater AI
+		if(level >= 2 && !diamondEaten){
+			for(int i = 0; i < eaters.size(); i++){
+				xEDDiff = d.getX() - eaters.get(i).getX();
+				yEDDiff = d.getY() - eaters.get(i).getY();
+				eDDiff = (xEDDiff * xEDDiff) + (yEDDiff * yEDDiff);
+				rootedEDDiff = Math.sqrt(eDDiff);
+				if(rootedEDDiff <= (pWIDTH / 2) + (dWIDTH / 2) && !levelTransfer){
+					d.setX(-20);
+					d.setY(-20);
+					diamondEaten = true;
+				}
+				if(eVel < maxEVel + difficulty && level <= 5){
+					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
+				} else if(eVel < maxEVel + difficulty && level >= 10){
+					eVel = 2 + ((level - 6) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
+				}
+				if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
+					if(xEDDiff > yEDDiff){
+						if(yEDDiff != 0){
+							if(xEDDiff > 0){
+								eDRatio = xEDDiff / yEDDiff;
+							} else if(xEDDiff < 0){
+								eDRatio = -(xEDDiff / yEDDiff);
+							}
+							if(eDRatio < 0){
+								eDRatio = -eDRatio;
+							}
+							eaters.get(i).setVelX(eVel / (eDRatio + 1) * eDRatio);
+							eaters.get(i).setVelY(eVel / (eDRatio + 1));
+							if(xEDDiff < 0){
+								eaters.get(i).setVelX(-(eaters.get(i).getVelX()));
+							}
+							if(yEDDiff < 0){
+								eaters.get(i).setVelY(-(eaters.get(i).getVelY()));
+						}
+						} else {
+							eaters.get(i).setVelX(eVel);
+						}
+					} else if(xEDDiff < yEDDiff){
+						if(xEDDiff != 0){
+							if(yEDDiff > 0){
+								eDRatio = yEDDiff / xEDDiff;
+							} else if(yEDDiff < 0){
+								eDRatio = -(yEDDiff / xEDDiff);
+							}
+							if(eDRatio < 0){
+								eDRatio = -eDRatio;
+							}
+							eaters.get(i).setVelX(eVel / (eDRatio + 1));
+							eaters.get(i).setVelY(eVel / (eDRatio + 1) * eDRatio);
+							if(xEDDiff < 0){
+								eaters.get(i).setVelX(-(eaters.get(i).getVelX()));
+							}
+							if(yEDDiff < 0){
+								eaters.get(i).setVelY(-(eaters.get(i).getVelY()));
+							}
+						} else {
+							eaters.get(i).setVelY(eVel);
+						}
+					} else if(-xEDDiff > yEDDiff){
+						if(yEDDiff != 0){
+							if(xEDDiff > 0){
+								eDRatio = xEDDiff / yEDDiff;
+							} else if(xEDDiff < 0){
+								eDRatio = -(xEDDiff / yEDDiff);
+							}
+							if(eDRatio < 0){
+								eDRatio = -eDRatio;
+							}
+							eaters.get(i).setVelX(eVel / (eDRatio + 1) * eDRatio);
+							eaters.get(i).setVelY(eVel / (eDRatio + 1));
+							if(xEDDiff < 0){
+								eaters.get(i).setVelX(-(eaters.get(i).getVelX()));
+							}
+							if(yEDDiff < 0){
+								eaters.get(i).setVelY(-(eaters.get(i).getVelY()));
+							}
+						} else {
+							eaters.get(i).setVelX(eVel);
+						}
+					} else if(-xEDDiff < yEDDiff){
+						if(xEDDiff != 0){
+							if(yEDDiff > 0){
+								eDRatio = yEDDiff / xEDDiff;
+							} else if(yEDDiff < 0){
+								eDRatio = -(yEDDiff / xEDDiff);
+							}
+							if(eDRatio < 0){
+								eDRatio = -eDRatio;
+							}
+							eaters.get(i).setVelX(eVel / (eDRatio + 1));
+							eaters.get(i).setVelY(eVel / (eDRatio + 1) * eDRatio);
+							if(xEDDiff < 0){
+								eaters.get(i).setVelX(-(eaters.get(i).getVelX()));
+							}
+							if(yEDDiff < 0){
+								eaters.get(i).setVelY(-(eaters.get(i).getVelY()));
+							}
+						} else {
+							eaters.get(i).setVelY(eVel);
+						}
+					} 
+				}
+			}
+		}
+		
+		if(diamondEaten){
+			diaTimer++;
+			if(!glitchy){
+				for(int i = 0; i < eaters.size(); i++){
+					eaters.get(i).setVelX(0);
+					eaters.get(i).setVelY(0);
+				}
+			}
+		}
+		
+		if(diaTimer >= 300){
+			d.setX(rand.nextInt(getWidth() - 70) + 70);
+			d.setY(rand.nextInt(getHeight() - 70) + 70);
+			diamondEaten = false;
+			diaTimer = 0;
+		}
+		
 		//Level system
-		if(bigScore >= 3){
+		if(bigScore >= 1 && smallScore >= 5){
 			smallScore = 0;
 			bigScore = 0;
 			levelTransfer = true;
@@ -697,6 +837,9 @@ public class Main extends Canvas implements Runnable{
 				if(level == 7){
 					shooters.add(new EnemyShooter(20,getHeight() - 20, this));
 				}
+				if(level == 2){
+					eaters.add(new EnemyEater(getWidth() - 30, getHeight() - 30, this));
+				}
 			}
 			if(!glitchy){
 				transferTimer = 0;
@@ -707,7 +850,7 @@ public class Main extends Canvas implements Runnable{
 	private void render() {
 		BufferStrategy bs = this.getBufferStrategy();
 		if(bs == null){
-			createBufferStrategy(2);
+			createBufferStrategy(3);
 			return;
 		}
 		Graphics g = bs.getDrawGraphics();
@@ -844,6 +987,12 @@ public class Main extends Canvas implements Runnable{
 				}
 			}
 			
+			if(level == 2){
+				for(int i = 0; i < eaters.size(); i++){
+					eaters.get(i).render(g);
+				}
+			}
+			
 			//Cage
 			if(!enemyFree){
 				g.setColor(Color.WHITE);
@@ -869,7 +1018,7 @@ public class Main extends Canvas implements Runnable{
 		
 		if(paused && !levelTransfer){
 			g.setColor(Color.WHITE);
-			g.drawString("Paused", getWidth() / 2 - 10, getHeight() / 2 - 50 + menuSeperator);
+			g.drawString("Paused", getWidth() / 2 - (g.getFontMetrics(f).stringWidth("Paused") / 2), getHeight() / 2 - 3);
 		}
 		
 		//////////////////////////////////
@@ -1027,10 +1176,12 @@ public class Main extends Canvas implements Runnable{
 			
 			if(key == KeyEvent.VK_P){
 				paused = true;
+				render();
 			}
 			
 			if(key == KeyEvent.VK_SPACE){
-				bigScore = 3;
+				bigScore = 1;
+				smallScore = 5;
 			} else if(key == KeyEvent.VK_Q){
 				randomizer = 5;
 			} else if(key == KeyEvent.VK_E){
