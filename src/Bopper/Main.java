@@ -10,7 +10,12 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -66,10 +71,6 @@ public class Main extends Canvas implements Runnable{
 	private boolean volume = true;
 	private boolean eating = false;
 	private boolean diamondEaten;
-	private boolean movedUp;
-	private boolean movedDown;
-	private boolean movedLeft;
-	private boolean movedRight;
 	
 	private int menuSeperator = 15;
 	private int menuChoice = 0;
@@ -138,6 +139,8 @@ public class Main extends Canvas implements Runnable{
 	private double sVel = 40;
 	
 	private String difficultyString = "Normal";
+	private String fileName = "Bopper_sav.txt"; 
+	private String line = null;
 	
 	Random rand = new Random();
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -178,6 +181,50 @@ public class Main extends Canvas implements Runnable{
 		
 		diamond = new SpriteSheet(this.getSpriteSheet()).grabImage(1, 2, 16, 16);
 		blue = new SpriteSheet(this.getSpriteSheet()).grabImage(2, 2, 16, 16);
+	}
+	
+	public void save(){
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter("Bopper_sav.txt", "UTF-8");
+			writer.println(level);
+			writer.println(smallScore);
+			writer.println(bigScore);
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void load(){
+		int reading = 0;
+		
+		try {
+            FileReader fileReader = new FileReader(fileName);
+
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            while((line = bufferedReader.readLine()) != null) {
+            	int temp = Integer.parseInt(line);
+            	if(reading == 0){
+            		level = temp;
+            	} else if(reading == 1){
+            		smallScore = temp;
+            		System.out.println("yeas");
+            	} else if(reading == 2){
+            		bigScore = temp;
+            	}
+            	reading++;
+            }   
+            bufferedReader.close();         
+        } catch(FileNotFoundException ex) {
+            System.out.println(
+                "Unable to open file '" + fileName + "'");                
+        } catch(IOException ex) {
+            System.out.println(
+                "Error reading file '" + fileName + "'");                  
+        }
 	}
 	
 	public static synchronized void playSound(final String url) {
@@ -815,9 +862,11 @@ public class Main extends Canvas implements Runnable{
 				enemies.get(i).setVelX(0);
 				enemies.get(i).setVelY(0);
 			}
-			for(int i = 0; i < eaters.size(); i++){
-				eaters.get(i).setVelX(0);
-				eaters.get(i).setVelY(0);
+			if(eating){
+				for(int i = 0; i < eaters.size(); i++){
+					eaters.get(i).setVelX(0);
+					eaters.get(i).setVelY(0);
+				}
 			}
 			rootedPEDiff = 100;
 			bulletTimer = 0;
@@ -853,6 +902,7 @@ public class Main extends Canvas implements Runnable{
 			}
 			if(!glitchy){
 				transferTimer = 0;
+			} else if(glitchy){
 				shooters.add(new EnemyShooter(getWidth() - 30, getHeight() - 30, this));
 				eaters.add(new EnemyEater(getWidth() - 30, getHeight() - 30, this));
 			}
@@ -1172,23 +1222,41 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
-			if((key == KeyEvent.VK_UP || key == KeyEvent.VK_W) && !movedUp){
+			if((key == KeyEvent.VK_UP || key == KeyEvent.VK_W)){
 				p.setVelY(-pVel);
-				movedUp = true;
 			} else if((key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S)){
 					p.setVelY(pVel);
-				movedDown = true;
 			} else if((key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A)){
 					p.setVelX(-pVel);
-				movedLeft = true;
 			} else if((key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D)){
 					p.setVelX(pVel);
-				movedRight = true;
 			}
 			
 			if(key == KeyEvent.VK_P){
 				paused = true;
 				render();
+			}
+			
+			if(key == KeyEvent.VK_O){
+				save();
+			} else if(key == KeyEvent.VK_L){
+				load();
+				if(level >= 5){
+					shooters.add(new EnemyShooter(getWidth() - 20, getHeight() - 20, this));
+				}
+				if((level >= 1 && level < 5) || (level >= 10)){
+					enemies.add(new Enemy(getWidth() - 20, getHeight() -  20, this));
+					if((level >= 3 && level < 5) || level >= 13){
+						enemies.add(new Enemy(getWidth() - 20, getHeight() - 20, this));
+					}
+				}
+				if(level >= 7){
+					shooters.add(new EnemyShooter(20,getHeight() - 20, this));
+				}
+				if(level >= 2){
+					eaters.add(new EnemyEater(getWidth() - 30, getHeight() - 30, this));
+					eating = true;
+				}
 			}
 			
 			if(key == KeyEvent.VK_SPACE){
@@ -1262,16 +1330,12 @@ public class Main extends Canvas implements Runnable{
 			if(!inMenu && !inTutorial && !inDifficultyMenu){
 				if(key == KeyEvent.VK_UP || key == KeyEvent.VK_W){
 					p.setVelY(0);
-					movedUp = false;
 				} else if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S){
 					p.setVelY(0);
-					movedDown = false;
 				} else if(key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A){
 					p.setVelX(0);
-					movedLeft = false;
 				} else if(key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D){
 					p.setVelX(0);
-					movedRight = false;
 				}
 			}
 			if(paused){
