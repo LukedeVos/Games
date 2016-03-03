@@ -64,6 +64,7 @@ public class Main extends Canvas implements Runnable{
 	private boolean speedElement;
 	private boolean glitchyTextures = false;
 	private boolean volume = true;
+	private boolean eating = false;
 	private boolean diamondEaten;
 	private boolean movedUp;
 	private boolean movedDown;
@@ -234,6 +235,9 @@ public class Main extends Canvas implements Runnable{
 			if(delta >= 1){
 				if(!paused){
 					tick();
+				} else {
+					render();
+					frames++;
 				}
 				updates++;
 				delta--; 
@@ -315,6 +319,8 @@ public class Main extends Canvas implements Runnable{
 				eVel = 0;
 				rootedPEDiff = 100;
 				enemyFree = false;
+				enemyShooting = false;
+				eating = false;
 				if(bullet){
 					shooters.get(i).setX(-20);
 					shooters.get(i).setY(-20);
@@ -335,9 +341,9 @@ public class Main extends Canvas implements Runnable{
 			}
 			if(enemyFree){
 				if(eVel < maxEVel + difficulty && level <= 5){
-					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
+					eVel = 2 + ((level - 1) / 4) + ((difficulty - 1) / 2) + (i / 1.75);
 				} else if(eVel < maxEVel + difficulty && level >= 10){
-					eVel = 2 + ((level - 6) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
+					eVel = 2 + ((level - 6) / 4) + ((difficulty - 1) / 2) + (i / 1.75);
 				}
 				if(glitchy){
 					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2);
@@ -471,6 +477,7 @@ public class Main extends Canvas implements Runnable{
 					eVel = 0;
 					bullet = false;
 					enemyShooting = false;
+					eating = false;
 					rootedPEDiff = 100;
 					rootedPBUDiff = 100;
 					enemyFree = false;
@@ -484,8 +491,8 @@ public class Main extends Canvas implements Runnable{
 		rootedPDDiff = Math.sqrt(pDDiff);
 		if(rootedPDDiff <= (dWIDTH / 2) + (pWIDTH / 2)){
 			smallScore += 1;
-			d.setX(rand.nextInt(getWidth() - 70) + 70);
-			d.setY(rand.nextInt(getHeight() - 70) + 70);
+			d.setX(rand.nextInt(getWidth() - 80) + 40);
+			d.setY(rand.nextInt(getHeight() - 80) + 40);
 			randomizer = rand.nextInt(10) + 1;
 			System.out.println("Spawning: " + randomizer);
 		}
@@ -493,8 +500,8 @@ public class Main extends Canvas implements Runnable{
 		//Blue Gem detection
 		if(randomizer == 3){
 			blueDiamond = true;
-			b.setX(rand.nextInt(getWidth() - 40) + 40);
-			b.setY(rand.nextInt(getHeight() - 40) + 40);
+			b.setX(rand.nextInt(getWidth() - 80) + 40);
+			b.setY(rand.nextInt(getHeight() - 80) + 40);
 			blueTimer = 0;
 			randomizer = 1;
 		}
@@ -587,7 +594,7 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		//Bullet AI
-		if(enemyShooting == true && !dead && !levelTransfer){
+		if(enemyShooting && !dead && !levelTransfer){
 			esRealX = (int)shooters.get(shooterShooting).getX();
 			esRealY = (int)shooters.get(shooterShooting).getY();
 			xPESDiff = p.getX() - esRealX;
@@ -674,7 +681,7 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		//Eater AI
-		if(level >= 2 && !diamondEaten){
+		if(eating && !diamondEaten){
 			for(int i = 0; i < eaters.size(); i++){
 				xEDDiff = d.getX() - eaters.get(i).getX();
 				yEDDiff = d.getY() - eaters.get(i).getY();
@@ -686,9 +693,7 @@ public class Main extends Canvas implements Runnable{
 					diamondEaten = true;
 				}
 				if(eVel < maxEVel + difficulty && level <= 5){
-					eVel = 2 + ((level - 1) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
-				} else if(eVel < maxEVel + difficulty && level >= 10){
-					eVel = 2 + ((level - 6) / 3) + ((difficulty - 1) / 2) + (i / 1.75);
+					eVel = 2.3;
 				}
 				if(!inMenu && !inTutorial && !inDifficultyMenu && !dead && !levelTransfer){
 					if(xEDDiff > yEDDiff){
@@ -791,14 +796,14 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		if(diaTimer >= 300){
-			d.setX(rand.nextInt(getWidth() - 70) + 70);
-			d.setY(rand.nextInt(getHeight() - 70) + 70);
+			d.setX(rand.nextInt(getWidth() - 80) + 40);
+			d.setY(rand.nextInt(getHeight() - 80) + 40);
 			diamondEaten = false;
 			diaTimer = 0;
 		}
 		
 		//Level system
-		if(bigScore >= 1 && smallScore >= 5){
+		if((bigScore == 1 && smallScore >= 5) || (bigScore > 1)){
 			smallScore = 0;
 			bigScore = 0;
 			levelTransfer = true;
@@ -809,6 +814,10 @@ public class Main extends Canvas implements Runnable{
 			for(int i = 0; i < enemies.size(); i++){
 				enemies.get(i).setVelX(0);
 				enemies.get(i).setVelY(0);
+			}
+			for(int i = 0; i < eaters.size(); i++){
+				eaters.get(i).setVelX(0);
+				eaters.get(i).setVelY(0);
 			}
 			rootedPEDiff = 100;
 			bulletTimer = 0;
@@ -839,10 +848,13 @@ public class Main extends Canvas implements Runnable{
 				}
 				if(level == 2){
 					eaters.add(new EnemyEater(getWidth() - 30, getHeight() - 30, this));
+					eating = true;
 				}
 			}
 			if(!glitchy){
 				transferTimer = 0;
+				shooters.add(new EnemyShooter(getWidth() - 30, getHeight() - 30, this));
+				eaters.add(new EnemyEater(getWidth() - 30, getHeight() - 30, this));
 			}
 		}
 	}
@@ -987,7 +999,7 @@ public class Main extends Canvas implements Runnable{
 				}
 			}
 			
-			if(level == 2){
+			if(eating){
 				for(int i = 0; i < eaters.size(); i++){
 					eaters.get(i).render(g);
 				}
