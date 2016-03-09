@@ -211,7 +211,6 @@ public class Main extends Canvas implements Runnable{
             		level = temp;
             	} else if(reading == 1){
             		smallScore = temp;
-            		System.out.println("yeas");
             	} else if(reading == 2){
             		bigScore = temp;
             	}
@@ -219,11 +218,9 @@ public class Main extends Canvas implements Runnable{
             }   
             bufferedReader.close();         
         } catch(FileNotFoundException ex) {
-            System.out.println(
-                "Unable to open file '" + fileName + "'");                
+            System.out.println("Unable to open file '" + fileName + "'");                
         } catch(IOException ex) {
-            System.out.println(
-                "Error reading file '" + fileName + "'");                  
+            System.out.println("Error reading file '" + fileName + "'");                  
         }
 	}
 	

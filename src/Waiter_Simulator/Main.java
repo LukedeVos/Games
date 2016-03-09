@@ -1,6 +1,7 @@
 package Waiter_Simulator;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -9,6 +10,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.JFrame;
 
@@ -25,14 +27,19 @@ public class Main extends Canvas implements Runnable{
 	
 	private boolean running = false;
 	private Thread thread;
+	Random rand = new Random();
 	
 	private boolean paused = false;
 	
 	private int frames = 0;
+	private static int row = 4;
+	private static int col = 4;
 	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private BufferedImage spriteSheet = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
+	
+	public static int [][] map = new int [row] [col];
 	
 	public void init(){
 		requestFocus();
@@ -42,6 +49,12 @@ public class Main extends Canvas implements Runnable{
 			e.printStackTrace();
 		}
 		addKeyListener(new KeyInput(this));
+		
+		for(int i = 0; i < map.length; i++){
+			for(int j = 0; j < map[0].length; j++){
+				map[i][j] = rand.nextInt(2);
+			}
+		}
 	}
 	
 	public void start(){
@@ -100,6 +113,8 @@ public class Main extends Canvas implements Runnable{
 	public void tick(){
 		render();
 		frames++;
+		
+		
 	}
 	
 	public void render(){
@@ -111,6 +126,18 @@ public class Main extends Canvas implements Runnable{
 		Graphics g = bs.getDrawGraphics();
 		//////////////////////////////////
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+		
+		for(int x = 0; x < map.length; x++){
+			for(int y = 0; y < map[0].length; y++){
+				if(map[x][y] == 0){
+					g.setColor(Color.WHITE);
+				} else if(map[x][y] == 1){
+					g.setColor(Color.RED);
+				}
+				
+				g.fillRect(getWidth() / row * x, getHeight() / col * y, getWidth() / row, getHeight() / col);
+			}
+		}
 		
 		//////////////////////////////////
 		g.dispose();
