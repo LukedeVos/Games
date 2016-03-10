@@ -1015,6 +1015,7 @@ public class Main extends Canvas implements Runnable{
 				titleMusicPlaying = false;
 			}
 			
+			
 			//Ingame Rendering
 			p.render(g);
 			d.render(g);

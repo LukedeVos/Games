@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
@@ -25,21 +26,30 @@ public class Main extends Canvas implements Runnable{
 	private static final int SCALE = 2;
 	public final String TITLE = "Waiter Simulator";
 	
+	private Player p;
+	
 	private boolean running = false;
 	private Thread thread;
 	Random rand = new Random();
 	
+	private int pVel = 2;
+	
 	private boolean paused = false;
 	
 	private int frames = 0;
-	private static int row = 4;
-	private static int col = 4;
+	
+	private static int blockSize = 80;
+	
+	private static int row = WIDTH * SCALE / blockSize;
+	private static int col = HEIGHT * SCALE / blockSize;
 	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private BufferedImage spriteSheet = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
+
 	
-	public static int [][] map = new int [row] [col];
+	
+	public static Block[][] map = new Block[row][col];
 	
 	public void init(){
 		requestFocus();
@@ -50,11 +60,15 @@ public class Main extends Canvas implements Runnable{
 		}
 		addKeyListener(new KeyInput(this));
 		
-		for(int i = 0; i < map.length; i++){
-			for(int j = 0; j < map[0].length; j++){
-				map[i][j] = rand.nextInt(2);
+		p = new Player(10, 10,  8, this);
+		
+		for(int x = 0; x < map.length; x++) {
+			for(int y = 0; y < map[0].length; y++) {
+				map[x][y] = new Block(x * blockSize,  y * blockSize, blockSize);
+				map[x][y].setID(2);
 			}
 		}
+		map[1][1].setID(1);
 	}
 	
 	public void start(){
@@ -96,6 +110,7 @@ public class Main extends Canvas implements Runnable{
 			if(delta >= 1){
 				if(!paused){
 					tick();
+					render();
 				}
 				updates++;
 				delta--; 
@@ -111,13 +126,22 @@ public class Main extends Canvas implements Runnable{
 	}
 	
 	public void tick(){
-		render();
-		frames++;
+		p.tick();
 		
-		
+		//White collision
+
+		for(int x = 0; x < map.length; x++) {
+			for(int y = 0; y < map[0].length; y++) {
+				if(map[x][y].intersects(p) && map[x][y].getID() == 1) {
+					System.out.println(x + " " + y);
+				}
+			}
+		}
 	}
 	
 	public void render(){
+		frames++;
+
 		BufferStrategy bs = this.getBufferStrategy();
 		if(bs == null){
 			createBufferStrategy(2);
@@ -127,18 +151,14 @@ public class Main extends Canvas implements Runnable{
 		//////////////////////////////////
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		
-		for(int x = 0; x < map.length; x++){
-			for(int y = 0; y < map[0].length; y++){
-				if(map[x][y] == 0){
-					g.setColor(Color.WHITE);
-				} else if(map[x][y] == 1){
-					g.setColor(Color.RED);
-				}
-				
-				g.fillRect(getWidth() / row * x, getHeight() / col * y, getWidth() / row, getHeight() / col);
+		
+		for(int x = 0; x < map.length; x++) {
+			for(int y = 0; y < map[0].length; y++) {
+				map[x][y].render((Graphics2D) g);
 			}
 		}
 		
+		p.render((Graphics2D) g);
 		//////////////////////////////////
 		g.dispose();
 		bs.show();
@@ -146,10 +166,30 @@ public class Main extends Canvas implements Runnable{
 	
 	public void keyPressed(KeyEvent k){
 		int key = k.getKeyCode();
+		
+		if(key == KeyEvent.VK_UP){
+			p.setVelY(-pVel);
+		} else if(key == KeyEvent.VK_DOWN){
+			p.setVelY(pVel);
+		} else if(key == KeyEvent.VK_LEFT){
+			p.setVelX(-pVel);
+		} else if(key == KeyEvent.VK_RIGHT){
+			p.setVelX(pVel);
+		}
 	}
 	
 	public void keyReleased(KeyEvent k){
 		int key = k.getKeyCode();
+		
+		if(key == KeyEvent.VK_UP){
+			p.setVelY(0);
+		} else if(key == KeyEvent.VK_DOWN){
+			p.setVelY(0);
+		} else if(key == KeyEvent.VK_LEFT){
+			p.setVelX(0);
+		} else if(key == KeyEvent.VK_RIGHT){
+			p.setVelX(0);
+		}
 	}
 	
 	public static void main(String args[]){
