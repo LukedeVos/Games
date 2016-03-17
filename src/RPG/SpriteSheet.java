@@ -1,10 +1,11 @@
-package Waiter_Simulator;
+package RPG;
 
 import java.awt.image.BufferedImage;
 
 public class SpriteSheet {
 	
 	private BufferedImage image;
+	private int size = 64;
 		
 	public SpriteSheet(BufferedImage image){
 		this.image = image;
@@ -12,7 +13,7 @@ public class SpriteSheet {
 	
 	public BufferedImage grabImage(int col, int row, int width, int height){
 		
-		BufferedImage img = image.getSubimage((col * 16) - 16, (row * 16) - 16, width, height);
+		BufferedImage img = image.getSubimage((col * size) - size, (row * size) - size, width, height);
 		
 		return img;
 	}

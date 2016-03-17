@@ -1,4 +1,4 @@
-package Waiter_Simulator;
+package RPG;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 

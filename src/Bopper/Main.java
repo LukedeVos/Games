@@ -191,6 +191,7 @@ public class Main extends Canvas implements Runnable{
 			writer.println(smallScore);
 			writer.println(bigScore);
 			writer.close();
+			System.out.println("file saved");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {

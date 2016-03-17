@@ -1,4 +1,4 @@
-package Waiter_Simulator;
+package RPG;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

@@ -1,4 +1,4 @@
-package Waiter_Simulator;
+package RPG;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -9,14 +9,18 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JFrame;
 
-import Waiter_Simulator.BufferedImageLoader;
-import Waiter_Simulator.KeyInput;
+import Bopper.SpriteSheet;
+import RPG.BufferedImageLoader;
+import RPG.KeyInput;
 
 public class Main extends Canvas implements Runnable{
 
@@ -24,7 +28,7 @@ public class Main extends Canvas implements Runnable{
 	private static final int WIDTH = 320;
 	private static final int HEIGHT = WIDTH / 12 * 9;
 	private static final int SCALE = 2;
-	public final String TITLE = "Waiter Simulator";
+	public final String TITLE = "UNKNOWN RPG";
 	
 	private Player p;
 	
@@ -33,42 +37,70 @@ public class Main extends Canvas implements Runnable{
 	Random rand = new Random();
 	
 	private int pVel = 2;
+	private int frames = 0;
+	private int pSize = 8;
 	
 	private boolean paused = false;
 	
-	private int frames = 0;
+	private double tempX;
+	private double tempY;
 	
-	private static int blockSize = 80;
+	private static int blockSize = 20;
 	
 	private static int row = WIDTH * SCALE / blockSize;
 	private static int col = HEIGHT * SCALE / blockSize;
 	
+	private String line = null;
+	private String fileName = "RPG_map.txt";
+	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private BufferedImage spriteSheet = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
-
-	
+	private BufferedImage tile;
 	
 	public static Block[][] map = new Block[row][col];
 	
 	public void init(){
 		requestFocus();
 		try{
-			spriteSheet = loader.loadImage("/res/Sprite_Sheet_WS.png");
+			spriteSheet = loader.loadImage("/res/Sprite_Sheet_RPG.png");
 		}catch(IOException e){
 			e.printStackTrace();
 		}
 		addKeyListener(new KeyInput(this));
 		
-		p = new Player(10, 10,  8, this);
+		p = new Player(10, 10,  pSize, this);
 		
 		for(int x = 0; x < map.length; x++) {
 			for(int y = 0; y < map[0].length; y++) {
-				map[x][y] = new Block(x * blockSize,  y * blockSize, blockSize);
-				map[x][y].setID(2);
+				map[x][y] = new Block(x * blockSize,  y * blockSize, blockSize, this);
 			}
 		}
-		map[1][1].setID(1);
+		loadMap();
+	}
+	
+	public void loadMap(){
+		try {
+            FileReader fileReader = new FileReader(fileName);
+            int y = 0;
+            
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            while((line = bufferedReader.readLine()) != null) {
+            	String string = line;
+            	String[] parts = string.split(" ");
+            	for(int x = 0; x < row; x++){
+            		String temp = parts[x];
+            		int newID = Integer.parseInt(temp);
+            		map[x][y].setID(newID);
+            	}
+            	y++;
+            }   
+            bufferedReader.close();         
+        } catch(FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");                
+        } catch(IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");                  
+        }
 	}
 	
 	public void start(){
@@ -128,15 +160,17 @@ public class Main extends Canvas implements Runnable{
 	public void tick(){
 		p.tick();
 		
-		//White collision
-
+		//Solid collision
 		for(int x = 0; x < map.length; x++) {
 			for(int y = 0; y < map[0].length; y++) {
 				if(map[x][y].intersects(p) && map[x][y].isSolid()) {
-					System.out.println(x + " " + y);
+					p.setX((int)tempX);
+					p.setY((int)tempY);
 				}
 			}
 		}
+		tempX = p.getX();
+		tempY = p.getY();
 	}
 	
 	public void render(){
@@ -207,5 +241,9 @@ public class Main extends Canvas implements Runnable{
 		frame.setVisible(true);
 		
 		game.start();
+	}
+	
+	public BufferedImage getSpriteSheet(){
+		return spriteSheet;
 	}
 }
