@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 public class SpriteSheet {
 	
 	private BufferedImage image;
-	private int size = 64;
+	private int size = 32;
 		
 	public SpriteSheet(BufferedImage image){
 		this.image = image;
@@ -13,7 +13,7 @@ public class SpriteSheet {
 	
 	public BufferedImage grabImage(int col, int row, int width, int height){
 		
-		BufferedImage img = image.getSubimage((col * size) - size, (row * size) - size, width, height);
+		BufferedImage img = image.getSubimage((col * size), (row * size), width, height);
 		
 		return img;
 	}

@@ -1,9 +1,7 @@
 package RPG;
 
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
@@ -13,12 +11,10 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JFrame;
 
-import Bopper.SpriteSheet;
 import RPG.BufferedImageLoader;
 import RPG.KeyInput;
 
@@ -39,6 +35,7 @@ public class Main extends Canvas implements Runnable{
 	private int pVel = 2;
 	private int frames = 0;
 	private int pSize = 8;
+	private int level = 1;
 	
 	private boolean paused = false;
 	
@@ -51,12 +48,11 @@ public class Main extends Canvas implements Runnable{
 	private static int col = HEIGHT * SCALE / blockSize;
 	
 	private String line = null;
-	private String fileName = "RPG_map.txt";
+	private String fileName = "RPG_map";
 	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private BufferedImage spriteSheet = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
-	private BufferedImage tile;
 	
 	public static Block[][] map = new Block[row][col];
 	
@@ -69,19 +65,19 @@ public class Main extends Canvas implements Runnable{
 		}
 		addKeyListener(new KeyInput(this));
 		
-		p = new Player(10, 10,  pSize, this);
+		p = new Player(26, 26,  pSize, this);
 		
 		for(int x = 0; x < map.length; x++) {
 			for(int y = 0; y < map[0].length; y++) {
 				map[x][y] = new Block(x * blockSize,  y * blockSize, blockSize, this);
 			}
 		}
-		loadMap();
+		loadMap(level);
 	}
 	
-	public void loadMap(){
+	public void loadMap(int mapN){
 		try {
-            FileReader fileReader = new FileReader(fileName);
+            FileReader fileReader = new FileReader(fileName + mapN + ".txt");
             int y = 0;
             
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -95,11 +91,12 @@ public class Main extends Canvas implements Runnable{
             	}
             	y++;
             }   
-            bufferedReader.close();         
-        } catch(FileNotFoundException ex) {
-            System.out.println("Unable to open file '" + fileName + "'");                
-        } catch(IOException ex) {
-            System.out.println("Error reading file '" + fileName + "'");                  
+            bufferedReader.close();    
+            System.out.println("Loaded: '" + fileName + mapN + ".txt'");
+        } catch(FileNotFoundException e) {
+            e.printStackTrace();                
+        } catch(IOException e) {
+            e.printStackTrace();                 
         }
 	}
 	
@@ -171,6 +168,17 @@ public class Main extends Canvas implements Runnable{
 		}
 		tempX = p.getX();
 		tempY = p.getY();
+		
+		if(p.getX() >= getWidth() - 4){
+			level += 1;
+			loadMap(level);
+			p.setX(5);
+		}
+		if(p.getX() <= 4){
+			level -= 1;
+			loadMap(level);
+			p.setX(getWidth() - 5);
+		}
 	}
 	
 	public void render(){

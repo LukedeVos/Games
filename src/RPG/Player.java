@@ -3,16 +3,15 @@ package RPG;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 
 public class Player extends Rectangle {
 	
+	private static final long serialVersionUID = 1L;
+
 	public int x,y, size;
 	
 	public int velX = 0;
 	public int velY = 0;
-	
-	private BufferedImage player;
 	
 	public Player(int x, int y, int size, Main game){
 		this.x = x;
