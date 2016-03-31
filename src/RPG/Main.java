@@ -33,14 +33,16 @@ public class Main extends Canvas implements Runnable{
 	Random rand = new Random();
 	
 	private int pVel = 2;
-	private int frames = 0;
+	private int frames;
 	private int pSize = 8;
-	private int level = 1;
+	private int levelX = 1, levelY = 1;
+	private int painTimer;
 	
-	private boolean paused = false;
+	private boolean pain;
+	private boolean spiked;
+	private boolean paused;
 	
-	private double tempX;
-	private double tempY;
+	private double tempX, tempY;
 	
 	private static int blockSize = 20;
 	
@@ -72,12 +74,12 @@ public class Main extends Canvas implements Runnable{
 				map[x][y] = new Block(x * blockSize,  y * blockSize, blockSize, this);
 			}
 		}
-		loadMap(level);
+		loadMap(levelX, levelY);
 	}
 	
-	public void loadMap(int mapN){
+	public void loadMap(int mapX, int mapY){
 		try {
-            FileReader fileReader = new FileReader(fileName + mapN + ".txt");
+            FileReader fileReader = new FileReader(fileName + mapX + "," + mapY + ".txt");
             int y = 0;
             
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -92,7 +94,7 @@ public class Main extends Canvas implements Runnable{
             	y++;
             }   
             bufferedReader.close();    
-            System.out.println("Loaded: '" + fileName + mapN + ".txt'");
+            System.out.println("Loaded: '" + fileName + mapX + "," + mapY + ".txt'");
         } catch(FileNotFoundException e) {
             e.printStackTrace();                
         } catch(IOException e) {
@@ -169,16 +171,56 @@ public class Main extends Canvas implements Runnable{
 		tempX = p.getX();
 		tempY = p.getY();
 		
+		//Spike collision
+		if(spiked){
+			if(!pain){
+				painTimer += 1;
+			}
+			if(painTimer == 12){
+				pain = true;
+				painTimer = 0;
+			}
+		}
+		for(int x = 0; x < map.length; x++) {
+			for(int y = 0; y < map[0].length; y++) {
+				if(map[x][y].intersects(p) && map[x][y].isPain()) {
+					if(pain){
+						p.setHealth(p.getHealth() - 1);
+						pain = false;
+						System.out.println(p.getHealth());
+					}
+					spiked = true;
+				}
+			}
+		}
+		
+		//Next map
 		if(p.getX() >= getWidth() - 4){
-			level += 1;
-			loadMap(level);
+			levelX += 1;
+			loadMap(levelX, levelY);
 			p.setX(5);
 		}
 		if(p.getX() <= 4){
-			level -= 1;
-			loadMap(level);
+			levelX -= 1;
+			loadMap(levelX, levelY);
 			p.setX(getWidth() - 5);
 		}
+		
+		if(p.getY() >= getHeight() - 4){
+			levelY += 1;
+			loadMap(levelX, levelY);
+			p.setY(5);
+		}
+		if(p.getY() <= 4){
+			levelY -= 1;
+			loadMap(levelX, levelY);
+			p.setY(getHeight() - 5);
+		}
+		
+		if(p.getDead()){
+			stop();
+		}
+		
 	}
 	
 	public void render(){

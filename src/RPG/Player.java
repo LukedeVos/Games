@@ -9,9 +9,12 @@ public class Player extends Rectangle {
 	private static final long serialVersionUID = 1L;
 
 	public int x,y, size;
-	
+	public int health = 100;
 	public int velX = 0;
 	public int velY = 0;
+	public int oldH = 100, newH = 100;
+	
+	public boolean dead, damaged;
 	
 	public Player(int x, int y, int size, Main game){
 		this.x = x;
@@ -23,10 +26,24 @@ public class Player extends Rectangle {
 		x+=velX;
 		y+=velY;
 		setBounds(x, y, size, size);
+		if(health <= 0){
+			dead = true;
+		}
+		newH = health;
+		if(newH < oldH){
+			damaged = true;
+		} else {
+			damaged = false;
+		}
+		oldH = newH;
 	}
 	
 	public void render(Graphics2D g) {
-		g.setColor(Color.WHITE);
+		if(damaged){
+			g.setColor(Color.RED);
+		} else {
+			g.setColor(Color.WHITE);
+		}
 		g.fillRect(x, y, size, size);
 	}
 	
@@ -53,5 +70,14 @@ public class Player extends Rectangle {
 	}
 	public void setVelY(int velY){
 		this.velY = velY;
+	}
+	public int getHealth(){
+		return health;
+	}
+	public void setHealth(int health){
+		this.health = health;
+	}
+	public boolean getDead(){
+		return dead;
 	}
 }

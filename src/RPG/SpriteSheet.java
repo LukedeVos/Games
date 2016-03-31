@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 public class SpriteSheet {
 	
 	private BufferedImage image;
-	private int size = 32;
+	private int size = 20;
 		
 	public SpriteSheet(BufferedImage image){
 		this.image = image;
