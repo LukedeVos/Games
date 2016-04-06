@@ -19,7 +19,7 @@ public class Block extends Rectangle{
 		this.size = size;
 		setBounds(x, y, size, size);
 		
-		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet());
+		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("tiles"));
 		tile0 = ss.grabImage(0, 0, size, size);
 		tile1 = ss.grabImage(1, 0, size, size);
 		tile2 = ss.grabImage(2, 0, size, size);

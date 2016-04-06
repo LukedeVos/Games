@@ -53,7 +53,7 @@ public class Main extends Canvas implements Runnable{
 	private String fileName = "RPG_map";
 	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-	private BufferedImage spriteSheet = null;
+	private BufferedImage tiles = null, items = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
 	
 	public static Block[][] map = new Block[row][col];
@@ -61,7 +61,8 @@ public class Main extends Canvas implements Runnable{
 	public void init(){
 		requestFocus();
 		try{
-			spriteSheet = loader.loadImage("/res/Sprite_Sheet_RPG.png");
+			tiles = loader.loadImage("/res/Sprite_Sheet_RPG_Tiles.png");
+			items = loader.loadImage("/res/Sprite_Sheet_RPG_Items.png");
 		}catch(IOException e){
 			e.printStackTrace();
 		}
@@ -251,13 +252,13 @@ public class Main extends Canvas implements Runnable{
 	public void keyPressed(KeyEvent k){
 		int key = k.getKeyCode();
 		
-		if(key == KeyEvent.VK_UP){
+		if(key == KeyEvent.VK_W){
 			p.setVelY(-pVel);
-		} else if(key == KeyEvent.VK_DOWN){
+		} else if(key == KeyEvent.VK_S){
 			p.setVelY(pVel);
-		} else if(key == KeyEvent.VK_LEFT){
+		} else if(key == KeyEvent.VK_A){
 			p.setVelX(-pVel);
-		} else if(key == KeyEvent.VK_RIGHT){
+		} else if(key == KeyEvent.VK_D){
 			p.setVelX(pVel);
 		}
 	}
@@ -265,13 +266,13 @@ public class Main extends Canvas implements Runnable{
 	public void keyReleased(KeyEvent k){
 		int key = k.getKeyCode();
 		
-		if(key == KeyEvent.VK_UP){
+		if(key == KeyEvent.VK_W){
 			p.setVelY(0);
-		} else if(key == KeyEvent.VK_DOWN){
+		} else if(key == KeyEvent.VK_S){
 			p.setVelY(0);
-		} else if(key == KeyEvent.VK_LEFT){
+		} else if(key == KeyEvent.VK_A){
 			p.setVelX(0);
-		} else if(key == KeyEvent.VK_RIGHT){
+		} else if(key == KeyEvent.VK_D){
 			p.setVelX(0);
 		}
 	}
@@ -293,7 +294,12 @@ public class Main extends Canvas implements Runnable{
 		game.start();
 	}
 	
-	public BufferedImage getSpriteSheet(){
-		return spriteSheet;
+	public BufferedImage getSpriteSheet(String path){
+		if(path == "tiles"){
+			return tiles;
+		} else if(path == "items"){
+			return items;
+		}
+		return null;
 	}
 }
