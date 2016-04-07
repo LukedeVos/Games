@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
@@ -56,6 +57,7 @@ public class Main extends Canvas implements Runnable{
 	private BufferedImage tiles = null, items = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
 	
+	public static Item[] item = new Item[1];
 	public static Block[][] map = new Block[row][col];
 	
 	public void init(){
@@ -73,15 +75,19 @@ public class Main extends Canvas implements Runnable{
 		for(int x = 0; x < map.length; x++) {
 			for(int y = 0; y < map[0].length; y++) {
 				map[x][y] = new Block(x * blockSize,  y * blockSize, blockSize, this);
+				
 			}
 		}
 		loadMap(levelX, levelY);
+		
+		
 	}
 	
 	public void loadMap(int mapX, int mapY){
 		try {
             FileReader fileReader = new FileReader(fileName + mapX + "," + mapY + ".txt");
             int y = 0;
+            int itemList = 0;
             
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             while((line = bufferedReader.readLine()) != null) {
@@ -89,8 +95,18 @@ public class Main extends Canvas implements Runnable{
             	String[] parts = string.split(" ");
             	for(int x = 0; x < row; x++){
             		String temp = parts[x];
-            		int newID = Integer.parseInt(temp);
-            		map[x][y].setID(newID);
+            		if(temp.contains(";")){
+            			String data = temp;
+            			String[] meta = data.split(";");
+            			int newID = Integer.parseInt(meta[0]);
+            			int itemID = Integer.parseInt(meta[1]);
+            			map[x][y].setID(newID);
+            			item[itemList] = new Item(x * blockSize, y * blockSize, blockSize / 2, itemID, this);
+            			itemList++;
+            		} else {
+            			int newID = Integer.parseInt(temp);
+            			map[x][y].setID(newID);
+            		}
             	}
             	y++;
             }   
@@ -211,6 +227,9 @@ public class Main extends Canvas implements Runnable{
 			levelY += 1;
 			loadMap(levelX, levelY);
 			p.setY(5);
+			for(int x = 0; x < item.length; x++){
+				
+			}
 		}
 		if(p.getY() <= 4){
 			levelY -= 1;
@@ -236,12 +255,16 @@ public class Main extends Canvas implements Runnable{
 		//////////////////////////////////
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		
-		
 		for(int x = 0; x < map.length; x++) {
 			for(int y = 0; y < map[0].length; y++) {
 				map[x][y].render((Graphics2D) g);
 			}
 		}
+		
+		for(int i = 0; i < item.length; i++){
+			item[i].render((Graphics2D) g);
+		}
+		
 		
 		p.render((Graphics2D) g);
 		//////////////////////////////////
