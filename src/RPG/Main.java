@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
+import Bopper.Enemy;
 import RPG.BufferedImageLoader;
 import RPG.KeyInput;
 
@@ -46,6 +47,7 @@ public class Main extends Canvas implements Runnable{
 	private double tempX, tempY;
 	
 	private static int blockSize = 20;
+	private static int invSize = 20;
 	
 	private static int row = WIDTH * SCALE / blockSize;
 	private static int col = HEIGHT * SCALE / blockSize;
@@ -57,7 +59,8 @@ public class Main extends Canvas implements Runnable{
 	private BufferedImage tiles = null, items = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
 	
-	public static Item[] item = new Item[1];
+	private ArrayList<Item> item;
+	public static Inventory[] inventory = new Inventory[16];
 	public static Block[][] map = new Block[row][col];
 	
 	public void init(){
@@ -71,6 +74,8 @@ public class Main extends Canvas implements Runnable{
 		addKeyListener(new KeyInput(this));
 		
 		p = new Player(26, 26,  pSize, this);
+		item = new ArrayList<Item>();
+
 		
 		for(int x = 0; x < map.length; x++) {
 			for(int y = 0; y < map[0].length; y++) {
@@ -87,7 +92,6 @@ public class Main extends Canvas implements Runnable{
 		try {
             FileReader fileReader = new FileReader(fileName + mapX + "," + mapY + ".txt");
             int y = 0;
-            int itemList = 0;
             
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             while((line = bufferedReader.readLine()) != null) {
@@ -101,8 +105,7 @@ public class Main extends Canvas implements Runnable{
             			int newID = Integer.parseInt(meta[0]);
             			int itemID = Integer.parseInt(meta[1]);
             			map[x][y].setID(newID);
-            			item[itemList] = new Item(x * blockSize, y * blockSize, blockSize / 2, itemID, this);
-            			itemList++;
+            			item.add( new Item(x * blockSize, y * blockSize, blockSize / 2, itemID, this));
             		} else {
             			int newID = Integer.parseInt(temp);
             			map[x][y].setID(newID);
@@ -211,6 +214,24 @@ public class Main extends Canvas implements Runnable{
 			}
 		}
 		
+		//Item collision
+		for(int i = 0; i < item.size(); i++){
+			if(item.get(i).intersects(p)){
+				item.get(i).setInv(true);
+				for(int j = 0; j < inventory.length; j++){
+					if(!inventory[j].occupied){
+						int y = 0;
+						while(j > 4){
+							y++;
+							j -= 4;
+						}
+						inventory[j] = new Inventory(j * invSize, y * invSize, this);
+					}
+				}
+				item.get(i).setItem(-20, -20);
+			}
+		}
+		
 		//Next map
 		if(p.getX() >= getWidth() - 4){
 			levelX += 1;
@@ -227,7 +248,7 @@ public class Main extends Canvas implements Runnable{
 			levelY += 1;
 			loadMap(levelX, levelY);
 			p.setY(5);
-			for(int x = 0; x < item.length; x++){
+			for(int x = 0; x < item.size(); x++){
 				
 			}
 		}
@@ -261,8 +282,8 @@ public class Main extends Canvas implements Runnable{
 			}
 		}
 		
-		for(int i = 0; i < item.length; i++){
-			item[i].render((Graphics2D) g);
+		for(int i = 0; i < item.size(); i++){
+			item.get(i).render((Graphics2D) g);
 		}
 		
 		

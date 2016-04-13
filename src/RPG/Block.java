@@ -20,9 +20,9 @@ public class Block extends Rectangle{
 		setBounds(x, y, size, size);
 		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("tiles"));
-		tile0 = ss.grabImage(0, 0, size, size);
-		tile1 = ss.grabImage(1, 0, size, size);
-		tile2 = ss.grabImage(2, 0, size, size);
+		tile0 = ss.grabImage(0, 0, 20, size, size);
+		tile1 = ss.grabImage(1, 0, 20, size, size);
+		tile2 = ss.grabImage(2, 0, 20, size, size);
 	}
 	
 	public void render(Graphics2D g){

@@ -65,6 +65,10 @@ public class Player extends Rectangle {
 	public void setY(int y){
 		this.y = y;
 	}
+	public void setPlayer(int x, int y){
+		this.x = x;
+		this.y = y;
+	}
 	public void setVelX(int velX){
 		this.velX = velX;
 	}
