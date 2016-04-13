@@ -43,11 +43,12 @@ public class Main extends Canvas implements Runnable{
 	private boolean pain;
 	private boolean spiked;
 	private boolean paused;
+	private boolean inInventory;
 	
 	private double tempX, tempY;
 	
 	private static int blockSize = 20;
-	private static int invSize = 20;
+	private static int invSize = 40;
 	
 	private static int row = WIDTH * SCALE / blockSize;
 	private static int col = HEIGHT * SCALE / blockSize;
@@ -56,7 +57,7 @@ public class Main extends Canvas implements Runnable{
 	private String fileName = "RPG_map";
 	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-	private BufferedImage tiles = null, items = null;
+	private BufferedImage tiles = null, items = null, GUI = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
 	
 	private ArrayList<Item> item;
@@ -68,6 +69,7 @@ public class Main extends Canvas implements Runnable{
 		try{
 			tiles = loader.loadImage("/res/Sprite_Sheet_RPG_Tiles.png");
 			items = loader.loadImage("/res/Sprite_Sheet_RPG_Items.png");
+			GUI = loader.loadImage("/res/Sprite_Sheet_RPG_GUI.png");
 		}catch(IOException e){
 			e.printStackTrace();
 		}
@@ -83,6 +85,17 @@ public class Main extends Canvas implements Runnable{
 				
 			}
 		}
+		int y = 0;
+		int j = 1;
+		for(int i = 0; i < inventory.length; i++){
+			while(j > 4){
+				y++;
+				j -= 4;
+			}
+			inventory[i] = new Inventory(200 + j * invSize, 50 + y * invSize, this);
+			j++;
+		}
+		
 		loadMap(levelX, levelY);
 		
 		
@@ -96,7 +109,7 @@ public class Main extends Canvas implements Runnable{
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             while((line = bufferedReader.readLine()) != null) {
             	String string = line;
-            	String[] parts = string.split(" ");
+            	String[] parts = string.split("\t");
             	for(int x = 0; x < row; x++){
             		String temp = parts[x];
             		if(temp.contains(";")){
@@ -217,18 +230,17 @@ public class Main extends Canvas implements Runnable{
 		//Item collision
 		for(int i = 0; i < item.size(); i++){
 			if(item.get(i).intersects(p)){
-				item.get(i).setInv(true);
-				for(int j = 0; j < inventory.length; j++){
+				for(int j = 0; j < inventory.length && !item.get(i).inInventory; j++){
 					if(!inventory[j].occupied){
-						int y = 0;
-						while(j > 4){
-							y++;
-							j -= 4;
-						}
-						inventory[j] = new Inventory(j * invSize, y * invSize, this);
+						inventory[j].setOccupied(true);
+						inventory[j].setID(0);
+						item.get(i).setItem(-20, -20);
+						item.get(i).setInv(true);
 					}
 				}
-				item.get(i).setItem(-20, -20);
+				if(item.get(i).inInventory){
+					item.remove(i);
+				}
 			}
 		}
 		
@@ -286,6 +298,11 @@ public class Main extends Canvas implements Runnable{
 			item.get(i).render((Graphics2D) g);
 		}
 		
+		if(inInventory){
+			for(int i = 0; i < inventory.length; i++){
+				inventory[i].render((Graphics2D) g);
+			}
+		}
 		
 		p.render((Graphics2D) g);
 		//////////////////////////////////
@@ -304,6 +321,10 @@ public class Main extends Canvas implements Runnable{
 			p.setVelX(-pVel);
 		} else if(key == KeyEvent.VK_D){
 			p.setVelX(pVel);
+		}
+		
+		if(key == KeyEvent.VK_E){
+			inInventory = !inInventory;
 		}
 	}
 	
@@ -343,6 +364,8 @@ public class Main extends Canvas implements Runnable{
 			return tiles;
 		} else if(path == "items"){
 			return items;
+		} else if(path == "GUI"){
+			return GUI;
 		}
 		return null;
 	}
