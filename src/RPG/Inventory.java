@@ -34,4 +34,5 @@ public class Inventory {
 	public void setID(int id){
 		this.id = id;
 	}
+	
 }

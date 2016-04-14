@@ -7,9 +7,9 @@ import java.awt.image.BufferedImage;
 public class Item extends Rectangle{
 
 	private static final long serialVersionUID = 1L;
-	public int x,y,id;
+	public int x, y, id, mX, mY;
 	
-	public boolean inInventory = false;
+	public boolean inInventory, pickAble = true, inMap = true;
 
 	private BufferedImage item0;
 		
@@ -24,10 +24,12 @@ public class Item extends Rectangle{
 	}
 		
 	public void render(Graphics2D g){
-		if(id == 0){
-			g.drawImage(item0, x, y, null);
-		} else if(id == 100){
-			
+		if(!inInventory && inMap){
+			if(id == 0){
+				g.drawImage(item0, x, y, null);
+			} else if(id == 100){
+				
+			}
 		}
 	}
 		
@@ -58,5 +60,15 @@ public class Item extends Rectangle{
 	}
 	public void setInv(boolean inInventory){
 		this.inInventory = inInventory;
+	}
+	public void setMap(int mX, int mY){
+		this.mX = mX;
+		this.mY = mY;
+	}
+	public void setIM(boolean inMap){
+		this.inMap = inMap;
+	}
+	public void setPickAble(boolean pickAble){
+		this.pickAble = pickAble;
 	}
 }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
-import Bopper.Enemy;
 import RPG.BufferedImageLoader;
 import RPG.KeyInput;
 
@@ -40,10 +39,7 @@ public class Main extends Canvas implements Runnable{
 	private int levelX = 1, levelY = 1;
 	private int painTimer;
 	
-	private boolean pain;
-	private boolean spiked;
-	private boolean paused;
-	private boolean inInventory;
+	private boolean pain, spiked, paused, inInventory, beenThere;
 	
 	private double tempX, tempY;
 	
@@ -112,17 +108,29 @@ public class Main extends Canvas implements Runnable{
             	String[] parts = string.split("\t");
             	for(int x = 0; x < row; x++){
             		String temp = parts[x];
-            		if(temp.contains(";")){
+            		for(int i = 0; i < item.size(); i++){
+            			if(item.get(i).mX == mapX && item.get(i).mY == mapY){
+            				beenThere = true;
+            			}
+            		}
+            		if(temp.contains(";") && !beenThere){
             			String data = temp;
             			String[] meta = data.split(";");
             			int newID = Integer.parseInt(meta[0]);
             			int itemID = Integer.parseInt(meta[1]);
             			map[x][y].setID(newID);
-            			item.add( new Item(x * blockSize, y * blockSize, blockSize / 2, itemID, this));
+            			item.add(new Item(x * blockSize, y * blockSize, blockSize / 2, itemID, this));
+            			item.get(item.size() - 1).setMap(mapX, mapY);
+            		} else if(temp.contains(";")){
+            			String data = temp;
+            			String[] meta = data.split(";");
+            			int newID = Integer.parseInt(meta[0]);
+            			map[x][y].setID(newID);
             		} else {
             			int newID = Integer.parseInt(temp);
             			map[x][y].setID(newID);
             		}
+            		beenThere = false;
             	}
             	y++;
             }   
@@ -229,7 +237,7 @@ public class Main extends Canvas implements Runnable{
 		
 		//Item collision
 		for(int i = 0; i < item.size(); i++){
-			if(item.get(i).intersects(p)){
+			if(item.get(i).intersects(p) && item.get(i).pickAble == true){
 				for(int j = 0; j < inventory.length && !item.get(i).inInventory; j++){
 					if(!inventory[j].occupied){
 						inventory[j].setOccupied(true);
@@ -237,9 +245,6 @@ public class Main extends Canvas implements Runnable{
 						item.get(i).setItem(-20, -20);
 						item.get(i).setInv(true);
 					}
-				}
-				if(item.get(i).inInventory){
-					item.remove(i);
 				}
 			}
 		}
@@ -249,25 +254,58 @@ public class Main extends Canvas implements Runnable{
 			levelX += 1;
 			loadMap(levelX, levelY);
 			p.setX(5);
+			for(int i = 0; i < item.size(); i++){
+				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
+					item.get(i).setIM(false);
+					item.get(i).setPickAble(false);
+				} else {
+					item.get(i).setIM(true);
+					item.get(i).setPickAble(true);
+				}
+			}
 		}
 		if(p.getX() <= 4){
 			levelX -= 1;
 			loadMap(levelX, levelY);
 			p.setX(getWidth() - 5);
+			for(int i = 0; i < item.size(); i++){
+				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
+					item.get(i).setIM(false);
+					item.get(i).setPickAble(false);
+				} else {
+					item.get(i).setIM(true);
+					item.get(i).setPickAble(true);
+				}
+			}
 		}
 		
 		if(p.getY() >= getHeight() - 4){
 			levelY += 1;
 			loadMap(levelX, levelY);
 			p.setY(5);
-			for(int x = 0; x < item.size(); x++){
-				
+			for(int i = 0; i < item.size(); i++){
+				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
+					item.get(i).setIM(false);
+					item.get(i).setPickAble(false);
+				} else {
+					item.get(i).setIM(true);
+					item.get(i).setPickAble(true);
+				}
 			}
 		}
 		if(p.getY() <= 4){
 			levelY -= 1;
 			loadMap(levelX, levelY);
 			p.setY(getHeight() - 5);
+			for(int i = 0; i < item.size(); i++){
+				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
+					item.get(i).setIM(false);
+					item.get(i).setPickAble(false);
+				} else {
+					item.get(i).setIM(true);
+					item.get(i).setPickAble(true);
+				}
+			}
 		}
 		
 		if(p.getDead()){
