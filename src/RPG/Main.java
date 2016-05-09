@@ -106,20 +106,20 @@ public class Main extends Canvas implements Runnable{
             while((line = bufferedReader.readLine()) != null) {
             	String string = line;
             	String[] parts = string.split("\t");
+            	for(int i = 0; i < item.size(); i++){
+        			if(item.get(i).mX == mapX && item.get(i).mY == mapY){
+        				beenThere = true;
+        			}
+        		}
             	for(int x = 0; x < row; x++){
             		String temp = parts[x];
-            		for(int i = 0; i < item.size(); i++){
-            			if(item.get(i).mX == mapX && item.get(i).mY == mapY){
-            				beenThere = true;
-            			}
-            		}
             		if(temp.contains(";") && !beenThere){
             			String data = temp;
             			String[] meta = data.split(";");
             			int newID = Integer.parseInt(meta[0]);
             			int itemID = Integer.parseInt(meta[1]);
             			map[x][y].setID(newID);
-            			item.add(new Item(x * blockSize, y * blockSize, blockSize / 2, itemID, this));
+            			item.add(new Item(x * blockSize, y * blockSize, blockSize, itemID, this));
             			item.get(item.size() - 1).setMap(mapX, mapY);
             		} else if(temp.contains(";")){
             			String data = temp;

@@ -17,7 +17,11 @@ public class Item extends Rectangle{
 		this.x = x;
 		this.y = y;
 		this.id = id;
-		setBounds(x, y, size, size);
+		if(id == 1){
+			setBounds(x, y, size / 2, size);
+		} else {
+			setBounds(x, y, size, size);
+		}
 		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("items"));
 		item0 = ss.grabImage(0, 0, 20, size, size);
