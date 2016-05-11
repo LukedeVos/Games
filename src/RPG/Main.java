@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -19,7 +21,7 @@ import javax.swing.JFrame;
 import RPG.BufferedImageLoader;
 import RPG.KeyInput;
 
-public class Main extends Canvas implements Runnable{
+public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
 	private static final int WIDTH = 320;
@@ -41,7 +43,7 @@ public class Main extends Canvas implements Runnable{
 	
 	private boolean pain, spiked, paused, inInventory, beenThere;
 	
-	private double tempX, tempY;
+	private double tempX, tempY, mouseX, mouseY;
 	
 	private static int blockSize = 20;
 	private static int invSize = 40;
@@ -71,6 +73,7 @@ public class Main extends Canvas implements Runnable{
 		}
 		addKeyListener(new KeyInput(this));
 		
+		addMouseMotionListener(this);
 		p = new Player(26, 26,  pSize, this);
 		item = new ArrayList<Item>();
 
@@ -96,6 +99,8 @@ public class Main extends Canvas implements Runnable{
 		
 		
 	}
+	
+	
 	
 	public void loadMap(int mapX, int mapY){
 		try {
@@ -249,6 +254,14 @@ public class Main extends Canvas implements Runnable{
 			}
 		}
 		
+		for(int i = 0; i < inventory.length; i++){
+			if(inventory[i].contains(mouseX, mouseY) && inInventory){
+				inventory[i].setSelected(true);
+			} else {
+				inventory[i].setSelected(false);
+			}
+		}
+		
 		//Next map
 		if(p.getX() >= getWidth() - 4){
 			levelX += 1;
@@ -346,6 +359,15 @@ public class Main extends Canvas implements Runnable{
 		//////////////////////////////////
 		g.dispose();
 		bs.show();
+	}
+
+	public void mouseDragged(MouseEvent e) {
+		
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		mouseX = e.getX();
+		mouseY = e.getY();
 	}
 	
 	public void keyPressed(KeyEvent k){

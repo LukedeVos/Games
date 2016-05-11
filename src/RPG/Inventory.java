@@ -1,19 +1,24 @@
 package RPG;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
-public class Inventory {
-	
+public class Inventory extends Rectangle{
+
+	private static final long serialVersionUID = 1L;
+
 	public int x,y,id = -1;
 	
-	public boolean occupied;
+	public boolean occupied, selected;
 	
 	private BufferedImage GUI, item0;
 	
 	public Inventory(int x, int y, Main game){
 		this.x = x;
 		this.y = y;
+		setBounds(x, y, 30, 30);
+		
 		
 		SpriteSheet IF = new SpriteSheet(game.getSpriteSheet("GUI"));
 		SpriteSheet item = new SpriteSheet(game.getSpriteSheet("items"));
@@ -26,6 +31,10 @@ public class Inventory {
 		if(id == 0){
 			g.drawImage(item0, x + 5, y + 5, null);
 		}
+		
+		if(selected){
+			
+		}
 	}
 	
 	public void setOccupied(boolean occupied){
@@ -34,5 +43,7 @@ public class Inventory {
 	public void setID(int id){
 		this.id = id;
 	}
-	
+	public void setSelected(boolean selected){
+		this.selected = selected;
+	}
 }

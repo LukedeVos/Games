@@ -17,8 +17,8 @@ public class Item extends Rectangle{
 		this.x = x;
 		this.y = y;
 		this.id = id;
-		if(id == 1){
-			setBounds(x, y, size / 2, size);
+		if(id == 0){
+			setBounds(x, y, size / 3, size);
 		} else {
 			setBounds(x, y, size, size);
 		}
