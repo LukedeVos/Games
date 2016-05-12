@@ -8,7 +8,7 @@ public class Inventory extends Rectangle{
 
 	private static final long serialVersionUID = 1L;
 
-	public int x,y,id = -1;
+	public int x,y,id = -1, mX, mY;
 	
 	public boolean occupied, selected;
 	
@@ -45,5 +45,9 @@ public class Inventory extends Rectangle{
 	}
 	public void setSelected(boolean selected){
 		this.selected = selected;
+	}
+	public void setMap(int mX, int mY){
+		this.mX = mX;
+		this.mY = mY;
 	}
 }

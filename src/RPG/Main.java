@@ -43,7 +43,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	
 	private boolean pain, spiked, paused, inInventory, beenThere;
 	
-	private double tempX, tempY, mouseX, mouseY;
+	private double tempX, tempY, mouseX, mouseY, mouseDX, mouseDY;
 	
 	private static int blockSize = 20;
 	private static int invSize = 40;
@@ -116,6 +116,12 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
         				beenThere = true;
         			}
         		}
+            	for(int i = 0; i < inventory.length; i++){
+            		if(inventory[i].mX == mapX && inventory[i].mY == mapY){
+            			beenThere = true;
+            		}
+            	}
+            	
             	for(int x = 0; x < row; x++){
             		String temp = parts[x];
             		if(temp.contains(";") && !beenThere){
@@ -243,12 +249,13 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		//Item collision
 		for(int i = 0; i < item.size(); i++){
 			if(item.get(i).intersects(p) && item.get(i).pickAble == true){
-				for(int j = 0; j < inventory.length && !item.get(i).inInventory; j++){
+				for(int j = 0; j < inventory.length; j++){
 					if(!inventory[j].occupied){
 						inventory[j].setOccupied(true);
 						inventory[j].setID(0);
-						item.get(i).setItem(-20, -20);
-						item.get(i).setInv(true);
+						inventory[j].setMap(levelX, levelY);
+						item.remove(i);
+						break;
 					}
 				}
 			}
@@ -257,7 +264,16 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		for(int i = 0; i < inventory.length; i++){
 			if(inventory[i].contains(mouseX, mouseY) && inInventory){
 				inventory[i].setSelected(true);
-			} else {
+				System.out.println(mouseDX + " " + mouseX + " " + mouseDY + " " + mouseY);
+				if(mouseDX == mouseX && mouseDY == mouseY && !inventory[i].isEmpty()){
+					item.add(new Item(-1 * blockSize, -1 * blockSize, blockSize, inventory[i].id, this));
+					item.get(item.size() - 1).setMap(levelX, levelY);
+					item.get(item.size() - 1).setItem((int)mouseX, (int)mouseY);
+					inventory[i].setOccupied(false);
+					inventory[i].setID(-1);
+					inventory[i].setMap(-1, -1);
+				}
+			} else if(inventory[i].selected){
 				inventory[i].setSelected(false);
 			}
 		}
@@ -362,7 +378,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		
+		mouseDX = e.getX();
+		mouseDY = e.getY();
 	}
 
 	public void mouseMoved(MouseEvent e) {

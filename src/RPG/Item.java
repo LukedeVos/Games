@@ -9,7 +9,7 @@ public class Item extends Rectangle{
 	private static final long serialVersionUID = 1L;
 	public int x, y, id, mX, mY;
 	
-	public boolean inInventory, pickAble = true, inMap = true;
+	public boolean pickAble = true, inMap = true, pickedUp;
 
 	private BufferedImage item0;
 		
@@ -28,7 +28,7 @@ public class Item extends Rectangle{
 	}
 		
 	public void render(Graphics2D g){
-		if(!inInventory && inMap){
+		if(inMap){
 			if(id == 0){
 				g.drawImage(item0, x, y, null);
 			} else if(id == 100){
@@ -59,11 +59,8 @@ public class Item extends Rectangle{
 		this.x = x;
 		this.y = y;
 	}
-	public boolean getInv(){
-		return inInventory;
-	}
-	public void setInv(boolean inInventory){
-		this.inInventory = inInventory;
+	public void setPickedUp(boolean pickedUp){
+		this.pickedUp = pickedUp;
 	}
 	public void setMap(int mX, int mY){
 		this.mX = mX;
