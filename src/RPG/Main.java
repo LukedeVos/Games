@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
@@ -21,7 +22,7 @@ import javax.swing.JFrame;
 import RPG.BufferedImageLoader;
 import RPG.KeyInput;
 
-public class Main extends Canvas implements Runnable, MouseMotionListener {
+public class Main extends Canvas implements Runnable, MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
 	private static final int WIDTH = 320;
@@ -40,8 +41,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private int pSize = 8;
 	private int levelX = 1, levelY = 1;
 	private int painTimer;
+	private int tempPID, tempPX, tempPY;
 	
-	private boolean pain, spiked, paused, inInventory, beenThere;
+	private boolean pain, spiked, paused, inInventory, beenThere, dragged;
 	
 	private double tempX, tempY, mouseX, mouseY, mouseDX, mouseDY;
 	
@@ -73,7 +75,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		}
 		addKeyListener(new KeyInput(this));
 		
+		addMouseListener(this);
 		addMouseMotionListener(this);
+		
 		p = new Player(26, 26,  pSize, this);
 		item = new ArrayList<Item>();
 
@@ -107,20 +111,21 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
             FileReader fileReader = new FileReader(fileName + mapX + "," + mapY + ".txt");
             int y = 0;
             
+            for(int i = 0; i < item.size(); i++){
+    			if(item.get(i).mX == mapX && item.get(i).mY == mapY){
+    				beenThere = true;
+    			}
+    		}
+        	for(int i = 0; i < inventory.length; i++){
+        		if(inventory[i].mX == mapX && inventory[i].mY == mapY){
+        			beenThere = true;
+        		}
+        	}
+            
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             while((line = bufferedReader.readLine()) != null) {
             	String string = line;
             	String[] parts = string.split("\t");
-            	for(int i = 0; i < item.size(); i++){
-        			if(item.get(i).mX == mapX && item.get(i).mY == mapY){
-        				beenThere = true;
-        			}
-        		}
-            	for(int i = 0; i < inventory.length; i++){
-            		if(inventory[i].mX == mapX && inventory[i].mY == mapY){
-            			beenThere = true;
-            		}
-            	}
             	
             	for(int x = 0; x < row; x++){
             		String temp = parts[x];
@@ -141,10 +146,11 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
             			int newID = Integer.parseInt(temp);
             			map[x][y].setID(newID);
             		}
-            		beenThere = false;
+            		
             	}
             	y++;
             }   
+            beenThere = false;
             bufferedReader.close();    
             System.out.println("Loaded: '" + fileName + mapX + "," + mapY + ".txt'");
         } catch(FileNotFoundException e) {
@@ -248,11 +254,11 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		
 		//Item collision
 		for(int i = 0; i < item.size(); i++){
-			if(item.get(i).intersects(p) && item.get(i).pickAble == true){
+			if(item.get(i).intersects(p) && item.get(i).pickable == true){
 				for(int j = 0; j < inventory.length; j++){
 					if(!inventory[j].occupied){
 						inventory[j].setOccupied(true);
-						inventory[j].setID(0);
+						inventory[j].setID(item.get(i).id);
 						inventory[j].setMap(levelX, levelY);
 						item.remove(i);
 						break;
@@ -261,21 +267,56 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			}
 		}
 		
+		//Inventory management
 		for(int i = 0; i < inventory.length; i++){
 			if(inventory[i].contains(mouseX, mouseY) && inInventory){
 				inventory[i].setSelected(true);
-				System.out.println(mouseDX + " " + mouseX + " " + mouseDY + " " + mouseY);
-				if(mouseDX == mouseX && mouseDY == mouseY && !inventory[i].isEmpty()){
-					item.add(new Item(-1 * blockSize, -1 * blockSize, blockSize, inventory[i].id, this));
-					item.get(item.size() - 1).setMap(levelX, levelY);
-					item.get(item.size() - 1).setItem((int)mouseX, (int)mouseY);
-					inventory[i].setOccupied(false);
-					inventory[i].setID(-1);
-					inventory[i].setMap(-1, -1);
+//				System.out.println(mouseDX + " " + mouseX + " " + mouseDY + " " + mouseY);
+				if(inventory[i].contains(mouseDX, mouseDY)){
+					if(item.get(item.size() - 1).pickedUp && inventory[i].occupied && !dragged){
+						tempPID = inventory[i].id;
+						tempPX = inventory[i].mX;
+						tempPY = inventory[i].mY;
+						inventory[i].setID(item.get(item.size() - 1).id);
+						inventory[i].setMap(item.get(item.size() - 1).mX, item.get(item.size() - 1).mY);
+						item.get(item.size() - 1).setMap(tempPX, tempPY);
+						item.get(item.size() - 1).setID(tempPID);
+						item.get(item.size() - 1).setPickable(false);
+						item.get(item.size() - 1).setPickedUp(true);
+						mouseDX = 0;
+						mouseDY = 0;
+						dragged = true;
+						System.out.println("swapped " + i);
+					} else if(item.get(item.size() - 1).pickedUp && !inventory[i].occupied && !dragged){
+						inventory[i].setOccupied(true);
+						inventory[i].setID(item.get(item.size() - 1).id);
+						inventory[i].setMap(item.get(item.size() - 1).mX, item.get(item.size() - 1).mY);
+						item.remove(item.size() - 1);
+						dragged = true;
+						mouseDX = 0;
+						mouseDY = 0;
+						System.out.println("placed " + i);
+					} else if(inventory[i].occupied && !dragged){
+						item.add(new Item(-1 * blockSize, -1 * blockSize, blockSize, inventory[i].id, this));
+						item.get(item.size() - 1).setMap(inventory[i].mX, inventory[i].mY);
+						item.get(item.size() - 1).setPickable(false);
+						item.get(item.size() - 1).setPickedUp(true);
+						inventory[i].setOccupied(false);
+						inventory[i].setID(-1);
+						inventory[i].setMap(-1, -1);
+						mouseDX = 0;
+						mouseDY = 0;
+						dragged = true;
+						System.out.println("picked " + i);
+					}
 				}
 			} else if(inventory[i].selected){
 				inventory[i].setSelected(false);
 			}
+		}
+		dragged = false;
+		if(item.get(item.size() - 1).pickedUp){
+			item.get(item.size() - 1).setItem((int)mouseX, (int)mouseY);
 		}
 		
 		//Next map
@@ -286,10 +327,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			for(int i = 0; i < item.size(); i++){
 				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
 					item.get(i).setIM(false);
-					item.get(i).setPickAble(false);
+					item.get(i).setPickable(false);
 				} else {
 					item.get(i).setIM(true);
-					item.get(i).setPickAble(true);
+					item.get(i).setPickable(true);
 				}
 			}
 		}
@@ -300,10 +341,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			for(int i = 0; i < item.size(); i++){
 				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
 					item.get(i).setIM(false);
-					item.get(i).setPickAble(false);
+					item.get(i).setPickable(false);
 				} else {
 					item.get(i).setIM(true);
-					item.get(i).setPickAble(true);
+					item.get(i).setPickable(true);
 				}
 			}
 		}
@@ -315,10 +356,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			for(int i = 0; i < item.size(); i++){
 				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
 					item.get(i).setIM(false);
-					item.get(i).setPickAble(false);
+					item.get(i).setPickable(false);
 				} else {
 					item.get(i).setIM(true);
-					item.get(i).setPickAble(true);
+					item.get(i).setPickable(true);
 				}
 			}
 		}
@@ -329,10 +370,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			for(int i = 0; i < item.size(); i++){
 				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
 					item.get(i).setIM(false);
-					item.get(i).setPickAble(false);
+					item.get(i).setPickable(false);
 				} else {
 					item.get(i).setIM(true);
-					item.get(i).setPickAble(true);
+					item.get(i).setPickable(true);
 				}
 			}
 		}
@@ -365,21 +406,36 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			item.get(i).render((Graphics2D) g);
 		}
 		
+		p.render((Graphics2D) g);
+		
 		if(inInventory){
 			for(int i = 0; i < inventory.length; i++){
 				inventory[i].render((Graphics2D) g);
 			}
 		}
 		
-		p.render((Graphics2D) g);
+		if(item.get(item.size() - 1).pickedUp){
+			item.get(item.size() - 1).render((Graphics2D) g);
+		}
 		//////////////////////////////////
 		g.dispose();
 		bs.show();
 	}
 
-	public void mouseDragged(MouseEvent e) {
-		mouseDX = e.getX();
-		mouseDY = e.getY();
+	public void mousePressed(MouseEvent e) {
+		
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		
+	}
+
+	public void mouseEntered(MouseEvent e) {
+		
+	}
+
+	public void mouseExited(MouseEvent e) {
+		
 	}
 
 	public void mouseMoved(MouseEvent e) {
@@ -387,21 +443,35 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		mouseY = e.getY();
 	}
 	
+	public void mouseDragged(MouseEvent e) {
+		
+	}
+
+	public void mouseClicked(MouseEvent e){
+		mouseDX = e.getX();
+		mouseDY = e.getY();
+		System.out.println("bhdsfghdsfrgn");
+	}
+	
 	public void keyPressed(KeyEvent k){
 		int key = k.getKeyCode();
 		
-		if(key == KeyEvent.VK_W){
-			p.setVelY(-pVel);
-		} else if(key == KeyEvent.VK_S){
-			p.setVelY(pVel);
-		} else if(key == KeyEvent.VK_A){
-			p.setVelX(-pVel);
-		} else if(key == KeyEvent.VK_D){
-			p.setVelX(pVel);
+		if(!inInventory){
+			if(key == KeyEvent.VK_W){
+				p.setVelY(-pVel);
+			} else if(key == KeyEvent.VK_S){
+				p.setVelY(pVel);
+			} else if(key == KeyEvent.VK_A){
+				p.setVelX(-pVel);
+			} else if(key == KeyEvent.VK_D){
+				p.setVelX(pVel);
+			}
 		}
 		
 		if(key == KeyEvent.VK_E){
 			inInventory = !inInventory;
+			p.setVelX(0);
+			p.setVelY(0);
 		}
 	}
 	

@@ -12,7 +12,7 @@ public class Inventory extends Rectangle{
 	
 	public boolean occupied, selected;
 	
-	private BufferedImage GUI, item0;
+	private BufferedImage GUI, item0, item1;
 	
 	public Inventory(int x, int y, Main game){
 		this.x = x;
@@ -24,12 +24,16 @@ public class Inventory extends Rectangle{
 		SpriteSheet item = new SpriteSheet(game.getSpriteSheet("items"));
 		GUI = IF.grabImage(0, 0, 30, 30, 30);
 		item0 = item.grabImage(0, 0, 20, 20, 20);
+		item1 = item.grabImage(1, 0, 20, 20, 20);
+		
 	}
 	
 	public void render(Graphics2D g){
 		g.drawImage(GUI, x, y, null);
 		if(id == 0){
 			g.drawImage(item0, x + 5, y + 5, null);
+		} else if(id == 1){
+			g.drawImage(item1, x + 5, y + 5, null);
 		}
 		
 		if(selected){
