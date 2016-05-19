@@ -57,10 +57,11 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private String fileName = "RPG_map";
 	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-	private BufferedImage tiles = null, items = null, GUI = null;
+	private BufferedImage tiles = null, items = null, GUI = null, enemies = null;
 	BufferedImageLoader loader = new BufferedImageLoader();
 	
 	private ArrayList<Item> item;
+	private ArrayList<Enemy> enemy;
 	public static Inventory[] inventory = new Inventory[16];
 	public static Block[][] map = new Block[row][col];
 	
@@ -70,6 +71,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			tiles = loader.loadImage("/res/Sprite_Sheet_RPG_Tiles.png");
 			items = loader.loadImage("/res/Sprite_Sheet_RPG_Items.png");
 			GUI = loader.loadImage("/res/Sprite_Sheet_RPG_GUI.png");
+			enemies = loader.loadImage("/res/Sprite_Sheet_RPG_Enemies.png");
 		}catch(IOException e){
 			e.printStackTrace();
 		}
@@ -80,6 +82,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		
 		p = new Player(26, 26,  pSize, this);
 		item = new ArrayList<Item>();
+		enemy = new ArrayList<Enemy>();
 
 		
 		for(int x = 0; x < map.length; x++) {
@@ -100,7 +103,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		}
 		
 		loadMap(levelX, levelY);
-		
+		item.add(new Item(-20, -20, blockSize,100, this));
 		
 	}
 	
@@ -129,15 +132,40 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
             	
             	for(int x = 0; x < row; x++){
             		String temp = parts[x];
-            		if(temp.contains(";") && !beenThere){
+            		if(temp.contains(";") && temp.contains(":") && !beenThere){
             			String data = temp;
             			String[] meta = data.split(";");
-            			int newID = Integer.parseInt(meta[0]);
-            			int itemID = Integer.parseInt(meta[1]);
-            			map[x][y].setID(newID);
+            			String[] last = meta[1].split(":");
+            			int itemID = Integer.parseInt(last[0]);
             			item.add(new Item(x * blockSize, y * blockSize, blockSize, itemID, this));
             			item.get(item.size() - 1).setMap(mapX, mapY);
-            		} else if(temp.contains(";")){
+            			int enemyID = Integer.parseInt(last[1]);
+            			enemy.add(new Enemy(x * blockSize, y * blockSize, enemyID, this));
+            			enemy.get(enemy.size() - 1).setMap(mapX, mapY);
+            			int newID = Integer.parseInt(meta[0]);
+            			map[x][y].setID(newID);
+            		} else if(temp.contains(";") && !beenThere){ 
+            			String data = temp;
+            			String[] meta = data.split(";");
+            			int itemID = Integer.parseInt(meta[0]);
+            			item.add(new Item(x * blockSize, y * blockSize, blockSize, itemID, this));
+            			item.get(item.size() - 1).setMap(mapX, mapY);
+            			int newID = Integer.parseInt(meta[0]);
+            			map[x][y].setID(newID);
+            		} else if(temp.contains(":") && !beenThere){
+            			String data = temp;
+            			String[] meta = data.split(":");
+            			int enemyID = Integer.parseInt(meta[0]);
+            			enemy.add(new Enemy(x * blockSize, y * blockSize, enemyID, this));
+            			enemy.get(enemy.size() - 1).setMap(mapX, mapY);
+            			int newID = Integer.parseInt(meta[0]);
+            			map[x][y].setID(newID);
+            		} else if(temp.contains(":") && beenThere){
+            			String data = temp;
+            			String[] meta = data.split(":");
+            			int newID = Integer.parseInt(meta[0]);
+            			map[x][y].setID(newID);
+            		} else if(temp.contains(";") && beenThere){
             			String data = temp;
             			String[] meta = data.split(";");
             			int newID = Integer.parseInt(meta[0]);
@@ -271,7 +299,6 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		for(int i = 0; i < inventory.length; i++){
 			if(inventory[i].contains(mouseX, mouseY) && inInventory){
 				inventory[i].setSelected(true);
-//				System.out.println(mouseDX + " " + mouseX + " " + mouseDY + " " + mouseY);
 				if(inventory[i].contains(mouseDX, mouseDY)){
 					if(item.get(item.size() - 1).pickedUp && inventory[i].occupied && !dragged){
 						tempPID = inventory[i].id;
@@ -450,7 +477,6 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	public void mouseClicked(MouseEvent e){
 		mouseDX = e.getX();
 		mouseDY = e.getY();
-		System.out.println("bhdsfghdsfrgn");
 	}
 	
 	public void keyPressed(KeyEvent k){
@@ -513,6 +539,8 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			return items;
 		} else if(path == "GUI"){
 			return GUI;
+		} else if(path == "Enemies"){
+			return enemies;
 		}
 		return null;
 	}
