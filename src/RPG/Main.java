@@ -26,11 +26,11 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 
 	private static final long serialVersionUID = 1L;
 	private static final int WIDTH = 320;
-	private static final int HEIGHT = WIDTH / 12 * 9;
+	private static final int HEIGHT = WIDTH / 12 * 9 + 20;
 	private static final int SCALE = 2;
 	public final String TITLE = "UNKNOWN RPG";
 	
-	private Player p;
+	public static Player p;
 	
 	private boolean running = false;
 	private Thread thread;
@@ -43,7 +43,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private int painTimer;
 	private int tempPID, tempPX, tempPY;
 	
-	private boolean pain, spiked, paused, inInventory, beenThere, dragged;
+	public boolean pain, spiked, paused, beenThere, dragged, inInventory;
 	
 	private double tempX, tempY, mouseX, mouseY, mouseDX, mouseDY;
 	
@@ -51,7 +51,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private static int invSize = 40;
 	
 	private static int row = WIDTH * SCALE / blockSize;
-	private static int col = HEIGHT * SCALE / blockSize;
+	private static int col = (HEIGHT - 20) * SCALE / blockSize;
 	
 	private String line = null;
 	private String fileName = "RPG_map";
@@ -64,6 +64,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private ArrayList<Enemy> enemy;
 	public static Inventory[] inventory = new Inventory[16];
 	public static Block[][] map = new Block[row][col];
+	public static int key;
 	
 	public void init(){
 		requestFocus();
@@ -80,7 +81,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		
-		p = new Player(26, 26,  pSize, this);
+		p = new Player(26, 26,  pSize, this, null);
 		item = new ArrayList<Item>();
 		enemy = new ArrayList<Enemy>();
 
@@ -91,8 +92,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 				
 			}
 		}
+		
 		int y = 0;
 		int j = 1;
+		
 		for(int i = 0; i < inventory.length; i++){
 			while(j > 4){
 				y++;
@@ -100,6 +103,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			}
 			inventory[i] = new Inventory(200 + j * invSize, 50 + y * invSize, this);
 			j++;
+		}
+		
+		for(int i = 0; i < 2; i++){
+			inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40, getHeight() - invSize);
 		}
 		
 		loadMap(levelX, levelY);
@@ -147,7 +154,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
             		} else if(temp.contains(";") && !beenThere){ 
             			String data = temp;
             			String[] meta = data.split(";");
-            			int itemID = Integer.parseInt(meta[0]);
+            			int itemID = Integer.parseInt(meta[1]);
             			item.add(new Item(x * blockSize, y * blockSize, blockSize, itemID, this));
             			item.get(item.size() - 1).setMap(mapX, mapY);
             			int newID = Integer.parseInt(meta[0]);
@@ -155,7 +162,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
             		} else if(temp.contains(":") && !beenThere){
             			String data = temp;
             			String[] meta = data.split(":");
-            			int enemyID = Integer.parseInt(meta[0]);
+            			int enemyID = Integer.parseInt(meta[1]);
             			enemy.add(new Enemy(x * blockSize, y * blockSize, enemyID, this));
             			enemy.get(enemy.size() - 1).setMap(mapX, mapY);
             			int newID = Integer.parseInt(meta[0]);
@@ -244,18 +251,20 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	
 	public void tick(){
 		p.tick();
+		for(int i = 0; i < inventory.length; i++){
+			inventory[i].tick();
+		}
 		
 		//Solid collision
 		for(int x = 0; x < map.length; x++) {
 			for(int y = 0; y < map[0].length; y++) {
 				if(map[x][y].intersects(p) && map[x][y].isSolid()) {
-					p.setX((int)tempX);
-					p.setY((int)tempY);
+					p.setPlayer((int)tempX, (int)tempY);
 				}
 			}
 		}
-		tempX = p.getX();
-		tempY = p.getY();
+		tempX = p.x;
+		tempY = p.y;
 		
 		//Spike collision
 		if(spiked){
@@ -271,9 +280,9 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			for(int y = 0; y < map[0].length; y++) {
 				if(map[x][y].intersects(p) && map[x][y].isPain()) {
 					if(pain){
-						p.setHealth(p.getHealth() - 1);
+						p.setHealth(p.health - 1);
 						pain = false;
-						System.out.println(p.getHealth());
+						System.out.println(p.health);
 					}
 					spiked = true;
 				}
@@ -347,7 +356,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		}
 		
 		//Next map
-		if(p.getX() >= getWidth() - 4){
+		if(p.x >= getWidth() - 4){
 			levelX += 1;
 			loadMap(levelX, levelY);
 			p.setX(5);
@@ -361,7 +370,8 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 				}
 			}
 		}
-		if(p.getX() <= 4){
+		
+		if(p.x <= 4){
 			levelX -= 1;
 			loadMap(levelX, levelY);
 			p.setX(getWidth() - 5);
@@ -376,7 +386,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			}
 		}
 		
-		if(p.getY() >= getHeight() - 4){
+		if(p.y >= getHeight() - 50){
 			levelY += 1;
 			loadMap(levelX, levelY);
 			p.setY(5);
@@ -390,10 +400,11 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 				}
 			}
 		}
-		if(p.getY() <= 4){
+		
+		if(p.y <= 4){
 			levelY -= 1;
 			loadMap(levelX, levelY);
-			p.setY(getHeight() - 5);
+			p.setY(getHeight() - 51);
 			for(int i = 0; i < item.size(); i++){
 				if(!(levelX == item.get(i).mX) || !(levelY == item.get(i).mY)){
 					item.get(i).setIM(false);
@@ -405,7 +416,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			}
 		}
 		
-		if(p.getDead()){
+		if(p.dead){
 			stop();
 		}
 		
@@ -431,12 +442,21 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		
 		for(int i = 0; i < item.size(); i++){
 			item.get(i).render((Graphics2D) g);
+//			System.out.println(i + ". Id: " + item.get(i).id);
+		}
+		
+		for(int i = 0; i < enemy.size(); i++){
+			enemy.get(i).render((Graphics2D) g);
 		}
 		
 		p.render((Graphics2D) g);
 		
 		if(inInventory){
 			for(int i = 0; i < inventory.length; i++){
+				inventory[i].render((Graphics2D) g);
+			}
+		} else {
+			for(int i = 0; i < 2; i++){
 				inventory[i].render((Graphics2D) g);
 			}
 		}
@@ -480,22 +500,40 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	}
 	
 	public void keyPressed(KeyEvent k){
-		int key = k.getKeyCode();
+		key = k.getKeyCode();
 		
 		if(!inInventory){
 			if(key == KeyEvent.VK_W){
 				p.setVelY(-pVel);
-			} else if(key == KeyEvent.VK_S){
-				p.setVelY(pVel);
-			} else if(key == KeyEvent.VK_A){
-				p.setVelX(-pVel);
+				p.setVelX(0);
+				p.setDirection(0);
 			} else if(key == KeyEvent.VK_D){
 				p.setVelX(pVel);
+				p.setVelY(0);
+				p.setDirection(1);
+			} else if(key == KeyEvent.VK_S){
+				p.setVelY(pVel);
+				p.setVelX(0);
+				p.setDirection(2);
+			} else if(key == KeyEvent.VK_A){
+				p.setVelX(-pVel);
+				p.setVelY(0);
+				p.setDirection(3);
 			}
 		}
 		
 		if(key == KeyEvent.VK_E){
+			System.out.println(p.direction);
 			inInventory = !inInventory;
+			if(inInventory){
+				for(int i = 0; i < 2; i++){
+					inventory[i].setPosition(200 + (i + 1) * invSize, 50);
+				}
+			} else {
+				for(int i = 0; i < 2; i++){
+					inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40, getHeight() - invSize);
+				}
+			}
 			p.setVelX(0);
 			p.setVelY(0);
 		}

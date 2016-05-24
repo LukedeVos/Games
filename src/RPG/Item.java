@@ -8,9 +8,7 @@ public class Item extends Rectangle{
 
 	private static final long serialVersionUID = 1L;
 	public int x, y, id, mX, mY;
-	
 	public boolean pickable = true, inMap = true, pickedUp;
-
 	private BufferedImage item0, item1;
 		
 	public Item(int x, int y, int size, int id, Main game){
@@ -43,15 +41,6 @@ public class Item extends Rectangle{
 	public void setID(int newID){
 		id = newID;
 	}	
-	public int getID(){
-		return id;
-	}
-	public double getX(){
-		return x;
-	}
-	public double getY(){
-		return y;
-	}
 	public void setX(int x){
 		this.x = x;
 	}

@@ -43,15 +43,6 @@ public class Enemy extends Rectangle{
 	public void setID(int newID){
 		id = newID;
 	}	
-	public int getID(){
-		return id;
-	}
-	public double getX(){
-		return x;
-	}
-	public double getY(){
-		return y;
-	}
 	public void setX(int x){
 		this.x = x;
 	}
