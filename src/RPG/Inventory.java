@@ -35,39 +35,42 @@ public class Inventory extends Rectangle{
 			g.drawImage(item1, x + 5, y + 5, null);
 		}
 		
-		if(Main.key == KeyEvent.VK_SPACE && Main.rendered){
-			if(Main.inventory[0].id == 0){
-				if(Main.p.direction == 0){
-					g.drawImage(item0, Main.p.x + 1, Main.p.y - 15, null);
-					use = true;
-				} else if(Main.p.direction == 1){
-					at.setToRotation(Math.PI / 2, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
-					g.setTransform(at);
-					g.drawImage(item0, Main.p.x , Main.p.y - 5, null);
-					use = true;
-				} else if(Main.p.direction == 2){
-					at.setToRotation(Math.PI, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
-					g.setTransform(at);
-					g.drawImage(item0, Main.p.x - 1, Main.p.y + 15, null);
-					use = true;
-				} else if(Main.p.direction == 3){
-					at.setToRotation(Math.PI * 1.5, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
-					g.setTransform(at);
-					g.drawImage(item0, Main.p.x , Main.p.y + 5, null);
-					use = true;
-				}
-				Main.p.setSpeed(0,0);
-			}
-		}
-		
 		if(selected){
 			
 		}
 	}
 	
+	public void useItem(Graphics2D g){
+		if((use && Main.key == KeyEvent.VK_SPACE) || Main.disableMovement){
+			if(Main.inventory[0].id == 0){
+				if(Main.p.direction == 0){
+					g.drawImage(item0, Main.p.x - 6, Main.p.y - 13, null);
+					use = true;
+				} else if(Main.p.direction == 1){
+					at.setToRotation(Math.PI / 2, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+					g.setTransform(at);
+					g.drawImage(item0, Main.p.x - 6, Main.p.y - 3, null);
+					use = true;
+				} else if(Main.p.direction == 2){
+					at.setToRotation(Math.PI, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+					g.setTransform(at);
+					g.drawImage(item0, Main.p.x + 6, Main.p.y - 3, null);
+					use = true;
+				} else if(Main.p.direction == 3){
+					at.setToRotation(-Math.PI / 2, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+					g.setTransform(at);
+					g.drawImage(item0, Main.p.x + 6, Main.p.y - 13, null);
+					use = true;
+				}
+				Main.p.setSpeed(0,0);
+				g.dispose();
+			}
+		}
+	}
+	
 	public void tick(){
 		if(sc == 20){
-			Main.key = KeyEvent.VK_0;
+			Main.disableMovement = false;
 			sc = 0;
 			use = false;
 		} else if(use){

@@ -6,23 +6,24 @@ import java.awt.image.BufferedImage;
 
 public class Block extends Rectangle{
 	private static final long serialVersionUID = 1L;
-	public int x,y,size;
+	public int x, y, xSize, ySize;
 	private int id;
 	private boolean solid, pain;
 	
 	
 	private BufferedImage tile0, tile1, tile2;
 	
-	public Block(int x, int y, int size, Main game){
+	public Block(int x, int y, int xSize, int ySize, Main game){
 		this.x = x;
 		this.y = y;
-		this.size = size;
-		setBounds(x, y, size, size);
+		this.xSize = xSize;
+		this.ySize = ySize;
+		setBounds(x, y, xSize, ySize);
 		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("tiles"));
-		tile0 = ss.grabImage(0, 0, 20, size, size);
-		tile1 = ss.grabImage(1, 0, 20, size, size);
-		tile2 = ss.grabImage(2, 0, 20, size, size);
+		tile0 = ss.grabImage(0, 0, 20, xSize, xSize);
+		tile1 = ss.grabImage(1, 0, 20, xSize, xSize);
+		tile2 = ss.grabImage(2, 0, 20, xSize, xSize);
 	}
 	
 	public void render(Graphics2D g){

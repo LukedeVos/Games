@@ -36,26 +36,20 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private Thread thread;
 	Random rand = new Random();
 	
-	private int pVel = 2;
-	private int frames;
-	private int pSize = 8;
-	private int levelX = 1, levelY = 1;
-	private int painTimer;
-	private int tempPID, tempPX, tempPY;
+	private int pVel = 2, frames, pSize = 8, levelX = 1, levelY = 1, painTimer, tempPID, tempPX, tempPY;
 	
 	public boolean pain, spiked, paused, beenThere, dragged, inInventory;
-	public static boolean rendered;
+	public static boolean disableMovement;
 	
 	private double tempX, tempY, mouseX, mouseY, mouseDX, mouseDY;
 	
-	static int blockSize = 20;
+	static int blockSize = WIDTH * SCALE / 32;
+	static int blockHeight = (HEIGHT - 20) * SCALE / 23;
 	private static int invSize = 40;
 	
-	private static int row = WIDTH * SCALE / blockSize;
-	private static int col = (HEIGHT - 20) * SCALE / blockSize;
+	private static int row = WIDTH * SCALE / blockSize, col = (HEIGHT - 20) * SCALE / blockSize;
 	
-	private String line = null;
-	private String fileName = "RPG_map";
+	private String line = null,  fileName = "RPG_map";
 	
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private BufferedImage tiles = null, items = null, GUI = null, enemies = null;
@@ -89,7 +83,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		
 		for(int x = 0; x < map.length; x++) {
 			for(int y = 0; y < map[0].length; y++) {
-				map[x][y] = new Block(x * blockSize,  y * blockSize, blockSize, this);
+				map[x][y] = new Block(x * blockSize,  y * blockHeight, blockSize, blockHeight, this);
 				
 			}
 		}
@@ -119,6 +113,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	
 	public void loadMap(int mapX, int mapY){
 		try {
+			System.out.println("rows: " + row + " cols: " + col);
             FileReader fileReader = new FileReader(fileName + mapX + "," + mapY + ".txt");
             int y = 0;
             
@@ -457,12 +452,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 				inventory[i].render((Graphics2D) g);
 			}
 		} else {
-			rendered = false;
 			for(int i = 0; i < 2; i++){
 				inventory[i].render((Graphics2D) g);
 			}
-			rendered = true;
-			inventory[0].render((Graphics2D) g);
+			inventory[0].useItem((Graphics2D) g);
 		}
 		
 		if(item.get(item.size() - 1).pickedUp){
@@ -506,7 +499,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	public void keyPressed(KeyEvent k){
 		key = k.getKeyCode();
 		
-		if(!inInventory){
+		if(!inInventory && !disableMovement){
 			if(key == KeyEvent.VK_W){
 				p.setVelY(-pVel);
 				p.setVelX(0);
@@ -540,6 +533,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			}
 			p.setVelX(0);
 			p.setVelY(0);
+		}
+		
+		if(key == KeyEvent.VK_SPACE){
+			disableMovement = true;
 		}
 	}
 	
