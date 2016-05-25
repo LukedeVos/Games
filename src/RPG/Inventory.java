@@ -10,9 +10,9 @@ public class Inventory extends Rectangle{
 
 	private static final long serialVersionUID = 1L;
 	public int x,y,id = -1, mX, mY, sc;
-	public boolean occupied, selected, use;
+	public boolean occupied, selected, use, rotate;
 	private BufferedImage GUI, item0, item1;
-	AffineTransform AT = new AffineTransform();
+	AffineTransform at = new AffineTransform();
 	
 	public Inventory(int x, int y, Main game){
 		this.x = x;
@@ -35,12 +35,28 @@ public class Inventory extends Rectangle{
 			g.drawImage(item1, x + 5, y + 5, null);
 		}
 		
-		if(Main.key == KeyEvent.VK_SPACE){
+		if(Main.key == KeyEvent.VK_SPACE && Main.rendered){
 			if(Main.inventory[0].id == 0){
 				if(Main.p.direction == 0){
-					g.drawImage(item0, Main.p.x + 1, Main.p.y - 20, null);
+					g.drawImage(item0, Main.p.x + 1, Main.p.y - 15, null);
+					use = true;
+				} else if(Main.p.direction == 1){
+					at.setToRotation(Math.PI / 2, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+					g.setTransform(at);
+					g.drawImage(item0, Main.p.x , Main.p.y - 5, null);
+					use = true;
+				} else if(Main.p.direction == 2){
+					at.setToRotation(Math.PI, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+					g.setTransform(at);
+					g.drawImage(item0, Main.p.x - 1, Main.p.y + 15, null);
+					use = true;
+				} else if(Main.p.direction == 3){
+					at.setToRotation(Math.PI * 1.5, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+					g.setTransform(at);
+					g.drawImage(item0, Main.p.x , Main.p.y + 5, null);
 					use = true;
 				}
+				Main.p.setSpeed(0,0);
 			}
 		}
 		

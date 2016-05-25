@@ -44,10 +44,11 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private int tempPID, tempPX, tempPY;
 	
 	public boolean pain, spiked, paused, beenThere, dragged, inInventory;
+	public static boolean rendered;
 	
 	private double tempX, tempY, mouseX, mouseY, mouseDX, mouseDY;
 	
-	private static int blockSize = 20;
+	static int blockSize = 20;
 	private static int invSize = 40;
 	
 	private static int row = WIDTH * SCALE / blockSize;
@@ -456,9 +457,12 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 				inventory[i].render((Graphics2D) g);
 			}
 		} else {
+			rendered = false;
 			for(int i = 0; i < 2; i++){
 				inventory[i].render((Graphics2D) g);
 			}
+			rendered = true;
+			inventory[0].render((Graphics2D) g);
 		}
 		
 		if(item.get(item.size() - 1).pickedUp){

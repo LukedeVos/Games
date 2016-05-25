@@ -59,6 +59,10 @@ public class Player extends Rectangle {
 	public void setVelY(int velY){
 		this.velY = velY;
 	}
+	public void setSpeed(int velX, int velY){
+		this.velX = velX;
+		this.velY = velY;
+	}
 	public void setHealth(int health){
 		this.health = health;
 	}
