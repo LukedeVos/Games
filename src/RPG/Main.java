@@ -39,7 +39,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private int pVel = 2, frames, pSize = 8, levelX = 1, levelY = 1, painTimer, tempPID, tempPX, tempPY;
 	
 	public boolean pain, spiked, paused, beenThere, dragged, inInventory;
-	public static boolean disableMovement;
+	public static boolean disableMovement, use;
 	
 	private double tempX, tempY, mouseX, mouseY, mouseDX, mouseDY;
 	
@@ -57,6 +57,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	
 	private ArrayList<Item> item;
 	private ArrayList<Enemy> enemy;
+	private ArrayList<Entity> entity;
 	public static Inventory[] inventory = new Inventory[16];
 	public static Block[][] map = new Block[row][col];
 	public static int key;
@@ -79,6 +80,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		p = new Player(26, 26,  pSize, this, null);
 		item = new ArrayList<Item>();
 		enemy = new ArrayList<Enemy>();
+		entity = new ArrayList<Entity>();
 
 		
 		for(int x = 0; x < map.length; x++) {
@@ -247,8 +249,9 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	
 	public void tick(){
 		p.tick();
-		for(int i = 0; i < inventory.length; i++){
-			inventory[i].tick();
+		
+		for(int i = 0; i < entity.size(); i++){
+			entity.get(i).tick();
 		}
 		
 		//Solid collision
@@ -293,6 +296,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 						inventory[j].setOccupied(true);
 						inventory[j].setID(item.get(i).id);
 						inventory[j].setMap(levelX, levelY);
+						inventory[j].setUseable(item.get(i).useable);
 						item.remove(i);
 						break;
 					}
@@ -311,6 +315,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 						tempPY = inventory[i].mY;
 						inventory[i].setID(item.get(item.size() - 1).id);
 						inventory[i].setMap(item.get(item.size() - 1).mX, item.get(item.size() - 1).mY);
+						inventory[i].setUseable(item.get(item.size() - 1).useable);
 						item.get(item.size() - 1).setMap(tempPX, tempPY);
 						item.get(item.size() - 1).setID(tempPID);
 						item.get(item.size() - 1).setPickable(false);
@@ -323,6 +328,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 						inventory[i].setOccupied(true);
 						inventory[i].setID(item.get(item.size() - 1).id);
 						inventory[i].setMap(item.get(item.size() - 1).mX, item.get(item.size() - 1).mY);
+						inventory[i].setUseable(item.get(item.size() - 1).useable);
 						item.remove(item.size() - 1);
 						dragged = true;
 						mouseDX = 0;
@@ -349,6 +355,17 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		dragged = false;
 		if(item.get(item.size() - 1).pickedUp){
 			item.get(item.size() - 1).setItem((int)mouseX, (int)mouseY);
+		}
+		
+		//Enemy collision
+		for(int i = 0; i < entity.size(); i++){
+			for(int j = 0; j < enemy.size(); j++){
+				System.out.println("spam");
+				if(enemy.get(j).intersects(entity.get(i))){
+					enemy.get(j).setHealth(enemy.get(j).health - 1);
+					System.out.println(enemy.get(j).health);
+				}
+			}
 		}
 		
 		//Next map
@@ -438,7 +455,6 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		
 		for(int i = 0; i < item.size(); i++){
 			item.get(i).render((Graphics2D) g);
-//			System.out.println(i + ". Id: " + item.get(i).id);
 		}
 		
 		for(int i = 0; i < enemy.size(); i++){
@@ -455,7 +471,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			for(int i = 0; i < 2; i++){
 				inventory[i].render((Graphics2D) g);
 			}
-			inventory[0].useItem((Graphics2D) g);
+		}
+		
+		for(int i = 0; i < entity.size(); i++){
+			entity.get(i).useItem((Graphics2D) g);
 		}
 		
 		if(item.get(item.size() - 1).pickedUp){
@@ -535,8 +554,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			p.setVelY(0);
 		}
 		
-		if(key == KeyEvent.VK_SPACE){
+		if(key == KeyEvent.VK_SPACE && inventory[0].useable){
 			disableMovement = true;
+			use = true;
+			entity.add(new Entity(inventory[0].x, inventory[0].y, blockSize, inventory[0].id, this));
 		}
 	}
 	

@@ -8,7 +8,7 @@ public class Item extends Rectangle{
 
 	private static final long serialVersionUID = 1L;
 	public int x, y, id, mX, mY;
-	public boolean pickable = true, inMap = true, pickedUp;
+	public boolean pickable = true, inMap = true, pickedUp, useable;
 	private BufferedImage item0, item1;
 		
 	public Item(int x, int y, int size, int id, Main game){
@@ -17,8 +17,10 @@ public class Item extends Rectangle{
 		this.id = id;
 		if(id == 0){
 			setBounds((int)(x + Main.blockSize * 0.35), y, size / 3, size);
+			useable = true;
 		} else {
 			setBounds(x, y, size, size);
+			useable = false;
 		}
 		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("items"));
@@ -63,5 +65,8 @@ public class Item extends Rectangle{
 	}
 	public void setPickable(boolean pickable){
 		this.pickable = pickable;
+	}
+	public void setUseable(boolean useable){
+		this.useable = useable;
 	}
 }

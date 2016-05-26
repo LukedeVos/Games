@@ -2,17 +2,14 @@ package RPG;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class Inventory extends Rectangle{
 
 	private static final long serialVersionUID = 1L;
-	public int x,y,id = -1, mX, mY, sc;
-	public boolean occupied, selected, use, rotate;
+	public int x,y,id = -1, mX, mY;
+	public boolean occupied, selected, useable;
 	private BufferedImage GUI, item0, item1;
-	AffineTransform at = new AffineTransform();
 	
 	public Inventory(int x, int y, Main game){
 		this.x = x;
@@ -40,44 +37,6 @@ public class Inventory extends Rectangle{
 		}
 	}
 	
-	public void useItem(Graphics2D g){
-		if((use && Main.key == KeyEvent.VK_SPACE) || Main.disableMovement){
-			if(Main.inventory[0].id == 0){
-				if(Main.p.direction == 0){
-					g.drawImage(item0, Main.p.x - 6, Main.p.y - 13, null);
-					use = true;
-				} else if(Main.p.direction == 1){
-					at.setToRotation(Math.PI / 2, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
-					g.setTransform(at);
-					g.drawImage(item0, Main.p.x - 6, Main.p.y - 3, null);
-					use = true;
-				} else if(Main.p.direction == 2){
-					at.setToRotation(Math.PI, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
-					g.setTransform(at);
-					g.drawImage(item0, Main.p.x + 6, Main.p.y - 3, null);
-					use = true;
-				} else if(Main.p.direction == 3){
-					at.setToRotation(-Math.PI / 2, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
-					g.setTransform(at);
-					g.drawImage(item0, Main.p.x + 6, Main.p.y - 13, null);
-					use = true;
-				}
-				Main.p.setSpeed(0,0);
-				g.dispose();
-			}
-		}
-	}
-	
-	public void tick(){
-		if(sc == 20){
-			Main.disableMovement = false;
-			sc = 0;
-			use = false;
-		} else if(use){
-			sc++;
-		}
-	}
-	
 	public void setPosition(int x, int y){
 		this.x = x;
 		this.y = y;
@@ -94,5 +53,8 @@ public class Inventory extends Rectangle{
 	public void setMap(int mX, int mY){
 		this.mX = mX;
 		this.mY = mY;
+	}
+	public void setUseable(boolean useable){
+		this.useable = useable;
 	}
 }
