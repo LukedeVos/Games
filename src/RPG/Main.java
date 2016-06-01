@@ -36,10 +36,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private Thread thread;
 	Random rand = new Random();
 	
-	private int pVel = 2, frames, pSize = 8, levelX = 1, levelY = 1, painTimer, tempPID, tempPX, tempPY;
+	private int pVel = 2, frames, pSize = 8, levelX = 1, levelY = 1, painTimer, tempPID, tempPX, tempPY, entityCounter;
 	
 	public boolean pain, spiked, paused, beenThere, dragged, inInventory;
-	public static boolean disableMovement, use;
+	public static boolean disableMovement, use, remove, showBounds;
 	
 	private double tempX, tempY, mouseX, mouseY, mouseDX, mouseDY;
 	
@@ -297,6 +297,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 						inventory[j].setID(item.get(i).id);
 						inventory[j].setMap(levelX, levelY);
 						inventory[j].setUseable(item.get(i).useable);
+						inventory[j].setConsumeabel(item.get(i).consumeable);
 						item.remove(i);
 						break;
 					}
@@ -316,6 +317,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 						inventory[i].setID(item.get(item.size() - 1).id);
 						inventory[i].setMap(item.get(item.size() - 1).mX, item.get(item.size() - 1).mY);
 						inventory[i].setUseable(item.get(item.size() - 1).useable);
+						inventory[i].setConsumeabel(item.get(item.size() - 1).consumeable);
 						item.get(item.size() - 1).setMap(tempPX, tempPY);
 						item.get(item.size() - 1).setID(tempPID);
 						item.get(item.size() - 1).setPickable(false);
@@ -329,6 +331,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 						inventory[i].setID(item.get(item.size() - 1).id);
 						inventory[i].setMap(item.get(item.size() - 1).mX, item.get(item.size() - 1).mY);
 						inventory[i].setUseable(item.get(item.size() - 1).useable);
+						inventory[i].setConsumeabel(item.get(item.size() - 1).consumeable);
 						item.remove(item.size() - 1);
 						dragged = true;
 						mouseDX = 0;
@@ -360,12 +363,17 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		//Enemy collision
 		for(int i = 0; i < entity.size(); i++){
 			for(int j = 0; j < enemy.size(); j++){
-				System.out.println("spam");
-				if(enemy.get(j).intersects(entity.get(i))){
+				if(enemy.get(j).getBounds().intersects(entity.get(i).getBounds())){
 					enemy.get(j).setHealth(enemy.get(j).health - 1);
 					System.out.println(enemy.get(j).health);
 				}
 			}
+		}
+		
+		if(remove){
+			entity.remove(entity.size() - 1 - entityCounter);
+			remove = false;
+			entityCounter = 0;
 		}
 		
 		//Next map
@@ -554,10 +562,20 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			p.setVelY(0);
 		}
 		
-		if(key == KeyEvent.VK_SPACE && inventory[0].useable){
-			disableMovement = true;
-			use = true;
-			entity.add(new Entity(inventory[0].x, inventory[0].y, blockSize, inventory[0].id, this));
+		if(key == KeyEvent.VK_SPACE && !use){
+			if(inventory[0].useable){
+				disableMovement = true;
+				use = true;
+				entity.add(new Entity(p.x, p.y, blockSize, inventory[0].id, this));
+			} else if(inventory[0].consumeable){
+				disableMovement = true;
+				use = true;
+				entity.add(new Entity(p.x, p.y, blockSize, inventory[0].id, this));
+			}
+		}
+		
+		if(key == KeyEvent.VK_B){
+			showBounds = !showBounds;
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package RPG;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -17,9 +18,17 @@ public class Entity extends Rectangle{
 		this.y = y;
 		this.id = id;
 		if(id == 0){
-			setBounds((int)(x + Main.blockSize * 0.35), y, size / 3, size);
-		} else {
-			setBounds(x, y, size, size);
+			if(Main.p.direction == 0){
+				setBounds((int)(x + Main.blockSize * 0.35) - 6, y - 13, size / 3, size);
+			} else if(Main.p.direction == 1){
+				setBounds(x + 3, (int)(y + Main.blockSize * 0.35) - 6, size, size / 3);
+			} else if(Main.p.direction == 2){
+				setBounds((int)(x + Main.blockSize * 0.35) - 6, y + 3, size / 3, size);
+			} else if(Main.p.direction == 3){
+				setBounds(x - 14, (int)(y + Main.blockSize * 0.35) - 6, size, size / 3);
+			}
+		} else if(id == 2){
+			
 		}
 		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("items"));
@@ -38,32 +47,57 @@ public class Entity extends Rectangle{
 	}
 		
 	public void useItem(Graphics2D g){
+		g.setColor(Color.WHITE);
 		if(Main.inventory[0].id == 0){
 			if(Main.p.direction == 0){
 				g.drawImage(en0, Main.p.x - 6, Main.p.y - 13, null);
+				if(Main.showBounds){
+					g.drawRect((int)(Main.p.x + Main.blockSize * 0.35) - 6, Main.p.y - 13, 20 / 3, 20);
+				}
 			} else if(Main.p.direction == 1){
 				at.setToRotation(Math.PI / 2, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+				if(Main.showBounds){
+					g.drawRect(x + 3, (int)(y + Main.blockSize * 0.35) - 6, 20, 20 / 3);
+				}
 				g.setTransform(at);
 				g.drawImage(en0, Main.p.x - 6, Main.p.y - 3, null);
 			} else if(Main.p.direction == 2){
 				at.setToRotation(Math.PI, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+				if(Main.showBounds){
+					g.drawRect((int)(x + Main.blockSize * 0.35) - 6, y + 3, 20 / 3, 20);
+				}
 				g.setTransform(at);
 				g.drawImage(en0, Main.p.x + 6, Main.p.y - 3, null);
 			} else if(Main.p.direction == 3){
 				at.setToRotation(-Math.PI / 2, Main.p.x + Main.blockSize / 2, Main.p.y + Main.blockSize / 2);
+				if(Main.showBounds){
+					g.drawRect(x - 14, (int)(y + Main.blockSize * 0.35) - 6, 20, 20 / 3);
+				}
 				g.setTransform(at);
 				g.drawImage(en0, Main.p.x + 6, Main.p.y - 13, null);
 			}
 			Main.p.setSpeed(0,0);
 			g.dispose();
+		} else if(Main.inventory[0].id == 1){
+			Main.p.setDirection(2);
+			at.scale(-5, -5);
+			g.drawImage(en1, Main.p.x, Main.p.y, null);
 		}
+		
+		
 	}
 	
 	public void tick(){
-		if(sc == 20){
+		if(sc == 20 && Main.inventory[0].id == 0){
 			Main.disableMovement = false;
 			sc = 0;
 			Main.use = false;
+			Main.remove = true;
+		} else if(sc == 50 && Main.inventory[0].id == 1){
+			Main.disableMovement = false;
+			sc = 0;
+			Main.use = false;
+			Main.remove = true;
 		} else if(Main.use){
 			sc++;
 		}

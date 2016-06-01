@@ -8,7 +8,7 @@ public class Inventory extends Rectangle{
 
 	private static final long serialVersionUID = 1L;
 	public int x,y,id = -1, mX, mY;
-	public boolean occupied, selected, useable;
+	public boolean occupied, selected, useable, consumeable;
 	private BufferedImage GUI, item0, item1;
 	
 	public Inventory(int x, int y, Main game){
@@ -56,5 +56,8 @@ public class Inventory extends Rectangle{
 	}
 	public void setUseable(boolean useable){
 		this.useable = useable;
+	}
+	public void setConsumeabel(boolean consumeable){
+		this.consumeable = consumeable;
 	}
 }
