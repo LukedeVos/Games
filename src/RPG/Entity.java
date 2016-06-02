@@ -82,6 +82,9 @@ public class Entity extends Rectangle{
 			Main.p.setDirection(2);
 			g.drawImage(en1, Main.p.x + 1, Main.p.y + 2, 6, 6, null);
 			g.dispose();
+			if(Main.p.health < 100 && sc%2 == 0){
+				Main.p.setHealth(Main.p.health + 1);
+			}
 		}
 		
 		
@@ -98,6 +101,7 @@ public class Entity extends Rectangle{
 			sc = 0;
 			Main.use = false;
 			Main.remove = true;
+			Main.clearInventory(0);
 		} else if(Main.use){
 			sc++;
 		}

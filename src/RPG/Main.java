@@ -1,6 +1,7 @@
 package RPG;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -35,6 +36,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private boolean running = false;
 	private Thread thread;
 	Random rand = new Random();
+	
+	
+	public String hS;
+	
 	
 	private int pVel = 2, frames, pSize = 8, levelX = 1, levelY = 1, painTimer, tempPID, tempPX, tempPY, entityCounter;
 	
@@ -281,7 +286,6 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 					if(pain){
 						p.setHealth(p.health - 1);
 						pain = false;
-						System.out.println(p.health);
 					}
 					spiked = true;
 				}
@@ -342,9 +346,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 						item.get(item.size() - 1).setMap(inventory[i].mX, inventory[i].mY);
 						item.get(item.size() - 1).setPickable(false);
 						item.get(item.size() - 1).setPickedUp(true);
-						inventory[i].setOccupied(false);
-						inventory[i].setID(-1);
-						inventory[i].setMap(-1, -1);
+						clearInventory(i);
 						mouseDX = 0;
 						mouseDY = 0;
 						dragged = true;
@@ -471,6 +473,12 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		
 		p.render((Graphics2D) g);
 		
+		//TODO Find a way to put this in Player class
+		g.setColor(Color.RED);
+		hS = Integer.toString(p.health);
+		g.drawString(hS, 40, (int)getHeight() - 20);
+		//
+		
 		if(inInventory){
 			for(int i = 0; i < inventory.length; i++){
 				inventory[i].render((Graphics2D) g);
@@ -492,7 +500,15 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		g.dispose();
 		bs.show();
 	}
-
+	
+	public static void clearInventory(int i){
+		inventory[i].setOccupied(false);
+		inventory[i].setID(-1);
+		inventory[i].setMap(-1, -1);
+		inventory[i].setConsumeabel(false);
+		inventory[i].setUseable(false);
+	}
+	
 	public void mousePressed(MouseEvent e) {
 		
 	}
@@ -547,7 +563,6 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		}
 		
 		if(key == KeyEvent.VK_E){
-			System.out.println(p.direction);
 			inInventory = !inInventory;
 			if(inInventory){
 				for(int i = 0; i < 2; i++){
