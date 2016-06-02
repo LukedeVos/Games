@@ -567,10 +567,14 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 				disableMovement = true;
 				use = true;
 				entity.add(new Entity(p.x, p.y, blockSize, inventory[0].id, this));
+				p.setVelX(0);
+				p.setVelY(0);
 			} else if(inventory[0].consumeable){
 				disableMovement = true;
 				use = true;
 				entity.add(new Entity(p.x, p.y, blockSize, inventory[0].id, this));
+				p.setVelX(0);
+				p.setVelY(0);
 			}
 		}
 		

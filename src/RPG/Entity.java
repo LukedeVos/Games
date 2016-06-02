@@ -80,8 +80,8 @@ public class Entity extends Rectangle{
 			g.dispose();
 		} else if(Main.inventory[0].id == 1){
 			Main.p.setDirection(2);
-			at.scale(-5, -5);
-			g.drawImage(en1, Main.p.x, Main.p.y, null);
+			g.drawImage(en1, Main.p.x + 1, Main.p.y + 2, 6, 6, null);
+			g.dispose();
 		}
 		
 		
