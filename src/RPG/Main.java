@@ -37,8 +37,9 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	private Thread thread;
 	Random rand = new Random();
 	
-	
+	//TODO Get into Player class
 	public String hS;
+	public int invisC;
 	
 	
 	private int pVel = 2, frames, pSize = 8, levelX = 1, levelY = 1, painTimer, tempPID, tempPX, tempPY, entityCounter;
@@ -309,6 +310,21 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			}
 		}
 		
+		//Enemy Collision
+		for(int i = 0; i < enemy.size(); i++){
+			if(enemy.get(i).intersects(p) && !p.invincible){
+				p.setHealth(p.health - enemy.get(i).damage);
+				p.setInvincible(true);
+			}
+		}
+		if(p.invincible){
+			invisC++;
+		}
+		if(invisC >= 30){
+			invisC = 0;
+			p.setInvincible(false);
+		}
+		
 		//Inventory management
 		for(int i = 0; i < inventory.length; i++){
 			if(inventory[i].contains(mouseX, mouseY) && inInventory){
@@ -440,9 +456,9 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		}
 		
 		if(p.dead){
-			stop();
+			//TODO Add death feature
+			running = false;
 		}
-		
 	}
 	
 	public void render(){
@@ -457,8 +473,8 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		//////////////////////////////////
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 		
-		for(int x = 0; x < map.length; x++) {
-			for(int y = 0; y < map[0].length; y++) {
+		for(int x = 0; x < map.length; x++){
+			for(int y = 0; y < map[0].length; y++){
 				map[x][y].render((Graphics2D) g);
 			}
 		}
@@ -473,7 +489,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		
 		p.render((Graphics2D) g);
 		
-		//TODO Find a way to put this in Player class
+		//TODO Find a way to put this in the Player class
 		g.setColor(Color.RED);
 		hS = Integer.toString(p.health);
 		g.drawString(hS, 40, (int)getHeight() - 20);

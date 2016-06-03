@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 public class Enemy extends Rectangle{
 
 	private static final long serialVersionUID = 1L;
-	public int x, y, id, size, mX, mY, health;
+	public int x, y, id, size, mX, mY, health, damage;
 	public boolean inMap = true;
 	private BufferedImage en0, en1;
 		
@@ -19,6 +19,7 @@ public class Enemy extends Rectangle{
 		if(id == 0){
 			size = 20;
 			health = 50;
+			damage = 15;
 		}
 		
 		setBounds(x, y, size, size);
