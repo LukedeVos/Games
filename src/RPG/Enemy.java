@@ -16,17 +16,25 @@ public class Enemy extends Rectangle{
 		this.y = y;
 		this.id = id;
 		
+		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("Enemies"));
+		en0 = ss.grabImage(0, 0, 20, 20, 20);
+		en1 = ss.grabImage(1, 0, 20, 20, 20);
+	}
+	
+	public void tick(){
 		if(id == 0){
 			size = 20;
 			health = 50;
 			damage = 15;
 		}
-		
 		setBounds(x, y, size, size);
 		
-		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("Enemies"));
-		en0 = ss.grabImage(0, 0, 20, 20, 20);
-		en1 = ss.grabImage(1, 0, 20, 20, 20);
+		if(Main.levelX != mX || Main.levelY != mY){
+			inMap = false;
+			
+		} else {
+			inMap = true;
+		}
 	}
 		
 	public void render(Graphics2D g){

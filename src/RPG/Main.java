@@ -42,7 +42,8 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	public int invisC;
 	
 	
-	private int pVel = 2, frames, pSize = 8, levelX = 1, levelY = 1, painTimer, tempPID, tempPX, tempPY, entityCounter;
+	private int pVel = 2, frames, pSize = 8, painTimer, tempPID, tempPX, tempPY, entityCounter;
+	public static int levelX = 1, levelY = 1;
 	
 	public boolean pain, spiked, paused, beenThere, dragged, inInventory;
 	public static boolean disableMovement, use, remove, showBounds;
@@ -256,6 +257,10 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 	public void tick(){
 		p.tick();
 		
+		for(int i = 0; i < enemy.size(); i++){
+			enemy.get(i).tick();
+		}
+		
 		for(int i = 0; i < entity.size(); i++){
 			entity.get(i).tick();
 		}
@@ -312,7 +317,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 		
 		//Enemy Collision
 		for(int i = 0; i < enemy.size(); i++){
-			if(enemy.get(i).intersects(p) && !p.invincible){
+			if(enemy.get(i).intersects(p) && !p.invincible && enemy.get(i).inMap){
 				p.setHealth(p.health - enemy.get(i).damage);
 				p.setInvincible(true);
 			}
@@ -378,7 +383,7 @@ public class Main extends Canvas implements Runnable, MouseListener, MouseMotion
 			item.get(item.size() - 1).setItem((int)mouseX, (int)mouseY);
 		}
 		
-		//Enemy collision
+		//Enemy Entity collision
 		for(int i = 0; i < entity.size(); i++){
 			for(int j = 0; j < enemy.size(); j++){
 				if(enemy.get(j).getBounds().intersects(entity.get(i).getBounds())){
