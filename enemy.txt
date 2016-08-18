@@ -1,0 +1,6 @@
+id = 0
+size = 20
+health = 50
+damage = 15
+speed = 175
+time = 50
