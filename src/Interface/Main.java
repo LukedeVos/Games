@@ -1,7 +1,6 @@
 package Interface;
 
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
@@ -18,22 +17,27 @@ public class Main extends Canvas implements Runnable {
 	public static final int SCALE = 2;
 	public final String TITLE = "Interface";
 	
-	private int select;
+	private int select = 2;
 	private boolean unpressed = true;
 	private static Main game = new Main();
 	private static JFrame frame = new JFrame(game.TITLE);
 	
 	private boolean running = false;
 	private Thread thread;
-	private BufferedImage inter = null, loaded;
+	private BufferedImage inter, loaded, s0, s1, s2, s3, s4;
 
 
 	public void init(){
 		requestFocus();
 		BufferedImageLoader loader = new BufferedImageLoader();
 		try {
-			inter = loader.loadImage("/res/Interface_Normal.png");
-			loaded = loader.loadImage("/res/Interface_Loaded.png");
+			inter = loader.loadImage("/res/Interface/Interface_Normal.png");
+			loaded = loader.loadImage("/res/Interface/Interface_Loaded.png");
+			s0 = loader.loadImage("/res/Interface/Interface_0.png");
+			s1 = loader.loadImage("/res/Interface/Interface_1.png");
+			s2 = loader.loadImage("/res/Interface/Interface_2.png");
+			s3 = loader.loadImage("/res/Interface/Interface_3.png");
+			s4 = loader.loadImage("/res/Interface/Interface_4.png");
 		} catch(IOException e){
 			e.printStackTrace();
 		}
@@ -99,8 +103,18 @@ public class Main extends Canvas implements Runnable {
 		//////////////////////////////////
 		
 		g.drawImage(inter, 0, 0, null);
-		g.setColor(Color.WHITE);
-		g.drawRect(select * 100, 40, 40, 40);
+		
+		if(select == 0){
+			g.drawImage(s0, 0, 0, null);
+		} else if(select == 1){
+			g.drawImage(s1, 0, 0, null);
+		} else if(select == 2){
+			g.drawImage(s2, 0, 0, null);
+		} else if(select == 3){
+			g.drawImage(s3, 0, 0, null);
+		} else if(select == 4){
+			g.drawImage(s4, 0, 0, null);
+		}
 		
 		//////////////////////////////////
 		g.dispose();
