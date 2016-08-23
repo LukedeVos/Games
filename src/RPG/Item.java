@@ -32,8 +32,7 @@ public class Item extends Rectangle {
 
 		if(id != 100){
 			setBounds((int) (x + Main.blockSize * xSize),
-					(int) (y + Main.blockHeight * ySize), size / xMod, size
-							/ yMod);
+					(int) (y + Main.blockHeight * ySize), size / xMod, size / yMod);
 		}
 
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("items"));

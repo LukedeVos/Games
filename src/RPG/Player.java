@@ -3,14 +3,16 @@ package RPG;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Player extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
 
-	public int x, y, size, health = 100, velX = 0, velY = 0, oldH = 100,
-			newH = 100, direction = 2;
+	public int x, y, size, health = 100, velX = 0, velY = 0, oldH = 100, newH = 100, direction = 2;
 	public boolean dead, damaged, invincible;
+	private ArrayList<BufferedImage> img;
 	public String hS;
 
 	public Player(int x, int y, int size, Main game, Inventory inventory){

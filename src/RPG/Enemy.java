@@ -8,24 +8,29 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Enemy extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
-	public int tempX, tempY, id, size, mX, mY, health, damage, time, lL = 6;
+	public int tempX, tempY, id, size, mX, mY, health, damage, time, lL = 8, direction = 2, defence, type;
 	public double x, y, velX, velY, pDist, eVel;
 	public boolean inMap = true, collide;
-	private BufferedImage en0, en1;
+	private ArrayList<BufferedImage> img;
 	private String line = null;
 
 	public Enemy(int x, int y, int id, Main game){
 		this.x = x;
 		this.y = y;
 		this.id = id;
-
+		img = new ArrayList<BufferedImage>();
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("Enemies"));
-		en0 = ss.grabImage(0, 0, 20, 20, 20);
-		en1 = ss.grabImage(1, 0, 20, 20, 20);
+		
+		for(int ys = 0; ys < 10; ys++){
+			for(int xs = 0; xs < 10; xs++){
+				img.add(ss.grabImage(xs, ys, 20, 20, 20));
+			}
+		}
 
 		loadEnemy(id);
 	}
@@ -51,11 +56,15 @@ public class Enemy extends Rectangle {
 					} else if(y == eID * lL + 2){
 						health = Integer.parseInt(data[1]);
 					} else if(y == eID * lL + 3){
-						damage = Integer.parseInt(data[1]);
+						defence = Integer.parseInt(data[1]);
 					} else if(y == eID * lL + 4){
-						eVel = Integer.parseInt(data[1]) * 0.01;
+						damage = Integer.parseInt(data[1]);
 					} else if(y == eID * lL + 5){
+						eVel = Integer.parseInt(data[1]) * 0.01;
+					} else if(y == eID * lL + 6){
 						time = Integer.parseInt(data[1]);
+					} else if(y == eID * lL + 7){
+						type = Integer.parseInt(data[1]);
 					}
 				}
 				y++;
@@ -128,12 +137,8 @@ public class Enemy extends Rectangle {
 
 	public void render(Graphics2D g){
 		if(inMap){
-			if(id == 0){
-				g.drawImage(en0, (int) x, (int) y, null);
-			} else if(id == 1){
-				g.drawImage(en1, (int) x, (int) y, null);
-			} else if(id == 100){
-
+			if(id != 100){
+				g.drawImage(img.get(id), (int) x, (int) y, null);
 			}
 		}
 		if(Main.showBounds && inMap){
