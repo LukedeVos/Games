@@ -13,12 +13,11 @@ import java.util.ArrayList;
 public class Item extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
-	public int x, y, id, mX, mY, size, xMod, yMod, lL = 8;
-	public double xSize, ySize;
+	public int x, y, id, mX, mY, size, xMod, yMod, lL = 11, duration, type;
+	public double xSize, ySize, effect;
 	public boolean pickable = true, inMap = true, pickedUp, usable, consumable;
 	private ArrayList<BufferedImage> itemImg;
-	public String line = null;
-	String name = null;
+	public String line = null, name = null;
 
 	public Item(int x, int y, int size, int id, Main game){
 		this.x = x;
@@ -31,8 +30,7 @@ public class Item extends Rectangle {
 		loadItem(id);
 
 		if(id != 100){
-			setBounds((int) (x + Main.blockSize * xSize),
-					(int) (y + Main.blockHeight * ySize), size / xMod, size / yMod);
+			setBounds((int) (x + Main.blockWidth * xSize), (int) (y + Main.blockHeight * ySize), size / xMod, size / yMod);
 		}
 
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("items"));
@@ -63,16 +61,22 @@ public class Item extends Rectangle {
 					if(y == iID * lL + 1){
 						name = data[1];
 					} else if(y == iID * lL + 2){
-						xSize = Integer.parseInt(data[1]) * 0.01;
+						effect = Integer.parseInt(data[1]) / 100;
 					} else if(y == iID * lL + 3){
-						ySize = Integer.parseInt(data[1]) * 0.01;
+						type = Integer.parseInt(data[1]);
 					} else if(y == iID * lL + 4){
-						xMod = Integer.parseInt(data[1]);
+						duration = Integer.parseInt(data[1]);
 					} else if(y == iID * lL + 5){
-						yMod = Integer.parseInt(data[1]);
+						xSize = (Integer.parseInt(data[1]) * 0.01) * Main.xMod;
 					} else if(y == iID * lL + 6){
-						usable = Boolean.valueOf(data[1]);
+						ySize = (Integer.parseInt(data[1]) * 0.01) * Main.yMod;
 					} else if(y == iID * lL + 7){
+						xMod = Integer.parseInt(data[1]);
+					} else if(y == iID * lL + 8){
+						yMod = Integer.parseInt(data[1]);
+					} else if(y == iID * lL + 9){
+						usable = Boolean.valueOf(data[1]);
+					} else if(y == iID * lL + 10){
 						consumable = Boolean.valueOf(data[1]);
 					}
 				}
@@ -92,9 +96,7 @@ public class Item extends Rectangle {
 		}
 		if(Main.showBounds && id != 100 && inMap){
 			g.setColor(Color.RED);
-			g.drawRect((int) (x + Main.blockSize * xSize),
-					(int) (y + Main.blockHeight * ySize), size / xMod, size
-							/ yMod);
+			g.drawRect((int)(x + Main.blockWidth * xSize), (int)(y + Main.blockHeight * ySize), size / xMod, size / yMod);
 		}
 	}
 

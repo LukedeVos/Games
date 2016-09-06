@@ -13,8 +13,8 @@ import java.util.ArrayList;
 public class Enemy extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
-	public int tempX, tempY, id, size, mX, mY, health, damage, time, lL = 8, direction = 2, defence, type;
-	public double x, y, velX, velY, pDist, eVel;
+	public int tempX, tempY, id, size, mX, mY, damage, time, lL = 8, direction = 2, defence, type;
+	public double x, y, velX, velY, pDist, eVel, health;
 	public boolean inMap = true, collide;
 	private ArrayList<BufferedImage> img;
 	private String line = null;
@@ -60,7 +60,7 @@ public class Enemy extends Rectangle {
 					} else if(y == eID * lL + 4){
 						damage = Integer.parseInt(data[1]);
 					} else if(y == eID * lL + 5){
-						eVel = Integer.parseInt(data[1]) * 0.01;
+						eVel = (Integer.parseInt(data[1]) * 0.01) * Main.yMod;
 					} else if(y == eID * lL + 6){
 						time = Integer.parseInt(data[1]);
 					} else if(y == eID * lL + 7){
@@ -100,8 +100,7 @@ public class Enemy extends Rectangle {
 					velY = eVel;
 					velX = 0;
 				}
-				if(Main.p.x < (int) x + 2 + size / 2 - Main.p.size / 2
-						&& Main.p.x > (int) x - 2 + size / 2 - Main.p.size / 2){
+				if(Main.p.x < (int) x + 2 + size / 2 - Main.p.size / 2 && Main.p.x > (int) x - 2 + size / 2 - Main.p.size / 2){
 					if(Main.p.y < (int) y + size / 2 - Main.p.size / 2){
 						velY = -eVel;
 						velX = 0;
@@ -109,8 +108,7 @@ public class Enemy extends Rectangle {
 						velY = eVel;
 						velX = 0;
 					}
-				} else if(Main.p.y < (int) y + 2 + size / 2 - Main.p.size / 2
-						&& Main.p.y > (int) y - 2 + size / 2 - Main.p.size / 2){
+				} else if(Main.p.y < (int) y + 2 + size / 2 - Main.p.size / 2 && Main.p.y > (int) y - 2 + size / 2 - Main.p.size / 2){
 					if(Main.p.x < (int) x + size / 2 - Main.p.size / 2){
 						velX = -eVel;
 						velY = 0;
@@ -138,7 +136,7 @@ public class Enemy extends Rectangle {
 	public void render(Graphics2D g){
 		if(inMap){
 			if(id != 100){
-				g.drawImage(img.get(id), (int) x, (int) y, null);
+				g.drawImage(img.get(id), (int)x, (int)y, (int)(10 * Main.xMod), (int)(10 * Main.xMod), null);
 			}
 		}
 		if(Main.showBounds && inMap){
@@ -170,7 +168,7 @@ public class Enemy extends Rectangle {
 		this.inMap = inMap;
 	}
 
-	public void setHealth(int health){
+	public void setHealth(double health){
 		this.health = health;
 	}
 }

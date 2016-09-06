@@ -1,6 +1,8 @@
 id = 0
 size = 20
 health = 50
+defence = 0
 damage = 15
 speed = 175
-time = 50
+attack speed = 50
+type = 0

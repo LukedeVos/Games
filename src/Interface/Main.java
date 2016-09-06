@@ -5,9 +5,15 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 
+import javax.imageio.IIOException;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileSystemView;
 
 public class Main extends Canvas implements Runnable {
 
@@ -21,16 +27,16 @@ public class Main extends Canvas implements Runnable {
 	private boolean unpressed = true;
 	private static Main game = new Main();
 	private static JFrame frame = new JFrame(game.TITLE);
+	private static BufferedImageLoader loader = new BufferedImageLoader();
 	
-	private boolean running = false;
+	private boolean running, inserted;
 	private Thread thread;
-	private BufferedImage inter, loaded, s0, s1, s2, s3, s4;
+	private BufferedImage inter, loaded, image, s0, s1, s2, s3, s4;
 
 
 	public void init(){
 		requestFocus();
-		BufferedImageLoader loader = new BufferedImageLoader();
-		try {
+		try{
 			inter = loader.loadImage("/res/Interface/Interface_Normal.png");
 			loaded = loader.loadImage("/res/Interface/Interface_Loaded.png");
 			s0 = loader.loadImage("/res/Interface/Interface_0.png");
@@ -92,7 +98,59 @@ public class Main extends Canvas implements Runnable {
 		stop();
 
 	}
-
+	
+	private String checkUSB(){
+		System.out.println("File system roots returned by   FileSystemView.getFileSystemView():");
+		FileSystemView fsv = FileSystemView.getFileSystemView();
+		File[] roots = fsv.getRoots();
+		String driveLetter = "";
+		for (int i = 0; i < roots.length; i++){
+			System.out.println("Root: " + roots[i]);
+		}
+		System.out.println("Home directory: " + fsv.getHomeDirectory());
+		System.out.println("File system roots returned by File.listRoots():");
+		
+		File[] f = File.listRoots();
+		for (int i = 0; i < f.length; i++){
+			String drive = f[i].getPath();
+			String displayName = fsv.getSystemDisplayName(f[i]);
+			String type = fsv.getSystemTypeDescription(f[i]);
+			boolean isDrive = fsv.isDrive(f[i]);
+			boolean isFloppy = fsv.isFloppyDrive(f[i]);
+			boolean canRead = f[i].canRead();
+			boolean canWrite = f[i].canWrite();
+			
+			System.out.println(type.toLowerCase());
+			
+			if (canRead && canWrite && !isFloppy && isDrive && (type.toLowerCase().contains("verwisselbare") || type.toLowerCase().contains("rimovibile"))){
+				System.out.println("Detected PEN Drive: " + drive + " - "+ displayName); 
+				driveLetter = drive;
+				break;
+			}
+		}
+		return driveLetter;
+	}
+	
+	public String findUSB(File dir){
+		String pattern = ".png";
+		
+		File listFile[] = dir.listFiles();
+		if (listFile != null){
+			for (int i = 0; i < listFile.length; i++){
+				System.out.println(listFile[i]);
+				System.out.println("lol");
+				if (listFile[i].isDirectory()){
+					findUSB(listFile[i]);
+				} else { 
+					if (listFile[i].getName().endsWith(pattern)){
+						System.out.println(listFile[i].getPath());
+					}
+				}
+			}
+		}
+		return pattern;
+	}
+	
 	private void render(){
 		BufferStrategy bs = this.getBufferStrategy();
 		if(bs == null){
@@ -101,8 +159,12 @@ public class Main extends Canvas implements Runnable {
 		}
 		Graphics g = bs.getDrawGraphics();
 		//////////////////////////////////
-		
-		g.drawImage(inter, 0, 0, null);
+		if(!inserted){
+			g.drawImage(inter, 0, 0, null);
+		} else {
+			g.drawImage(loaded, 0, 0, null);
+			g.drawImage(image, 20, 20, null);
+		}
 		
 		if(select == 0){
 			g.drawImage(s0, 0, 0, null);
@@ -160,11 +222,22 @@ public class Main extends Canvas implements Runnable {
 			}
 		}
 		
-		if(key == KeyEvent.VK_ENTER){
+		if(key == KeyEvent.VK_ENTER && unpressed){
 			if(select == 0){
 				
 			} else if(select == 1){
-			
+				if(!inserted){
+					String drive = checkUSB();
+					if(drive != null && !drive.isEmpty()) {
+						System.out.println(findUSB(new File(drive + ":")));
+//						try {
+//							image = loader.loadImage(findUSB(new File("Image.png")));
+//							inserted = true;
+//						} catch(IOException e2) {
+//							e2.printStackTrace();
+//						}
+					}
+				}
 			} else if(select == 2){
 				
 			} else if(select == 3){
@@ -174,6 +247,7 @@ public class Main extends Canvas implements Runnable {
 			} else if(select == 4){
 				
 			}
+			unpressed = false;
 		}
 		
 	}
@@ -181,7 +255,7 @@ public class Main extends Canvas implements Runnable {
 	public void keyReleased(KeyEvent e){
 		int key = e.getKeyCode();
 		
-		if(key == KeyEvent.VK_W || key == KeyEvent.VK_A || key == KeyEvent.VK_S || key == KeyEvent.VK_D){
+		if(key == KeyEvent.VK_W || key == KeyEvent.VK_A || key == KeyEvent.VK_S || key == KeyEvent.VK_D || key == KeyEvent.VK_ENTER){
 			unpressed = true;
 		}
 		

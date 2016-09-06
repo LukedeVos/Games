@@ -3,14 +3,15 @@ package RPG;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Block extends Rectangle {
 	private static final long serialVersionUID = 1L;
 	public int x, y, xSize, ySize;
 	private int id;
 	private boolean solid, pain;
+	private ArrayList<BufferedImage> img;
 
-	private BufferedImage tile0, tile1, tile2;
 
 	public Block(int x, int y, int xSize, int ySize, Main game){
 		this.x = x;
@@ -18,21 +19,18 @@ public class Block extends Rectangle {
 		this.xSize = xSize;
 		this.ySize = ySize;
 		setBounds(x, y, xSize, ySize);
-
+		img = new ArrayList<BufferedImage>();
+		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("tiles"));
-		tile0 = ss.grabImage(0, 0, 20, xSize, xSize);
-		tile1 = ss.grabImage(1, 0, 20, xSize, xSize);
-		tile2 = ss.grabImage(2, 0, 20, xSize, xSize);
+		for(int i = 0; i < 8; i++){
+			for(int j = 0; j < 8; j++){
+				img.add(ss.grabImage(j, i, 20, 20, 20));
+			}
+		}
 	}
 
 	public void render(Graphics2D g){
-		if(id == 0){
-			g.drawImage(tile0, x, y, null);
-		} else if(id == 1){
-			g.drawImage(tile1, x, y, null);
-		} else if(id == 2){
-			g.drawImage(tile2, x, y, null);
-		}
+		g.drawImage(img.get(id), x, y, (int)(20 * Main.xMod), (int)(20 * Main.yMod), null);
 	}
 
 	public void setID(int newID){

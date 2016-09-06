@@ -5,15 +5,20 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Inventory extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
-	public int x, y, id = -1, mX, mY;
+	public int x, y, id = -1, mX, mY, lL = 11, duration, type;
+	public double effect;
 	public boolean occupied, selected, usable, consumable;
 	private ArrayList<BufferedImage> itemImg, GUIImg;
-	public String name;
+	public String name, line;
 	private Font f;
 
 	public Inventory(int x, int y, Main game){
@@ -39,10 +44,51 @@ public class Inventory extends Rectangle {
 			}
 		}
 	}
-
+	
+	public void loadItem(int iID){
+		try {
+			FileReader fileReader = new FileReader("item.txt");
+			int y = 0;
+			boolean found = false;
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			while((line = bufferedReader.readLine()) != null){
+				String string = line;
+				String[] data = string.split(" = ");
+				if(y == iID * lL && iID != 100){
+					if(Integer.parseInt(data[1]) == iID && !found){
+						found = true;
+					} else if(Integer.parseInt(data[1]) == iID + 1 && found){
+						found = false;
+					}
+				}
+				if(found){
+					if(y == iID * lL + 1){
+						name = data[1];
+					} else if(y == iID * lL + 2){
+						effect = Integer.parseInt(data[1]) / 100;
+					} else if(y == iID * lL + 3){
+						type = Integer.parseInt(data[1]);
+					} else if(y == iID * lL + 4){
+						duration = Integer.parseInt(data[1]);
+					} else if(y == iID * lL + 9){
+						usable = Boolean.valueOf(data[1]);
+					} else if(y == iID * lL + 10){
+						consumable = Boolean.valueOf(data[1]);
+					}
+				}
+				y++;
+			}
+			bufferedReader.close();
+		} catch(FileNotFoundException e){
+			e.printStackTrace();
+		} catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	
 	public void render(Graphics2D g){
 		g.setFont(f);
-		g.drawImage(GUIImg.get(0), x, y, null);
+		g.drawImage(GUIImg.get(0), x, y, (int)(32 * Main.yMod), (int)(32 * Main.yMod), null);
 		if(occupied){
 			g.drawImage(itemImg.get(id), x + 5, y + 5, null);
 		}
@@ -68,6 +114,9 @@ public class Inventory extends Rectangle {
 
 	public void setID(int id){
 		this.id = id;
+		if(id != -1){
+			loadItem(id);
+		}
 	}
 
 	public void setSelected(boolean selected){
@@ -77,16 +126,5 @@ public class Inventory extends Rectangle {
 	public void setMap(int mX, int mY){
 		this.mX = mX;
 		this.mY = mY;
-	}
-
-	public void setusable(boolean usable){
-		this.usable = usable;
-	}
-
-	public void setConsumeabel(boolean consumable){
-		this.consumable = consumable;
-	}
-	public void setName(String name){
-		this.name = name;
 	}
 }

@@ -2,7 +2,6 @@ package RPG;
 
 import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
@@ -41,17 +40,17 @@ public class Main extends Canvas implements Runnable, MouseListener,
 	public int invisC;
 
 	private int frames, pSize = 8, painTimer, tempPID, tempPX, tempPY, entityCounter, eInv;
-	public static int levelX = 1, levelY = 1, pVel = 2, used;
+	public static int levelX = 1, levelY = 1, used;
 
 	public boolean pain, spiked, paused, beenThere, dragged, inInventory;
 	public static boolean disableMovement, use, remove, showBounds;
 
 	private double tempX, tempY, mouseDX, mouseDY, lvl;
-	public static double mouseX, mouseY;
-
-	static int blockSize = WIDTH * SCALE / 32, blockHeight = (HEIGHT - 20) * SCALE / 23, invSize = 40;
-	private static int row = WIDTH * SCALE / blockSize, col = (HEIGHT - 20) * SCALE / blockSize;
-
+	public static double mouseX, mouseY,pVel = 2;
+	
+	static int xB = 64, yB = 46, blockWidth = 20, blockHeight = 20, invSize = 40;
+	public static double xMod, yMod, inX, inY;
+	
 	private String line = null, fileName = "RPG_map", tempN;
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -63,7 +62,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 	private ArrayList<Entity> entity;
 	private ArrayList<Double> maps;
 	public static Inventory[] inventory = new Inventory[16];
-	public static Block[][] map = new Block[row][col];
+	public static Block[][] map = new Block[xB][yB];
 	public static int key;
 
 	public void init(){
@@ -80,18 +79,24 @@ public class Main extends Canvas implements Runnable, MouseListener,
 
 		addMouseListener(this);
 		addMouseMotionListener(this);
-
-		p = new Player(26, 26, pSize, this, null);
+		
+		inX = getWidth() / xB;
+		inY = (getHeight() - 60) / yB;
+		xMod = inX / blockWidth;
+		yMod = inY / blockHeight;
+		
+		System.out.println(inX + " " + inY + " " + xMod + " " + yMod);
+		System.out.println(getWidth());
+		
+		p = new Player((int)(26 * xMod), (int)(26 * yMod), (int)(pSize * yMod), this, null);
 		item = new ArrayList<Item>();
 		enemy = new ArrayList<Enemy>();
 		entity = new ArrayList<Entity>();
 		maps = new ArrayList<Double>();
-
+		
 		for(int x = 0; x < map.length; x++){
 			for(int y = 0; y < map[0].length; y++){
-				map[x][y] = new Block(x * blockSize, y * blockHeight,
-						blockSize, blockHeight, this);
-
+				map[x][y] = new Block((int)(x * inX), (int)(y * inY), (int)(blockWidth * xMod), (int)(blockHeight * yMod), this);
 			}
 		}
 
@@ -103,8 +108,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				y++;
 				j -= 4;
 			}
-			inventory[i] = new Inventory(200 + j * invSize, 50 + y * invSize,
-					this);
+			inventory[i] = new Inventory((int)((200 + j * invSize) * xMod), (int)((50 + y * invSize) * yMod), this);
 			j++;
 		}
 
@@ -113,18 +117,17 @@ public class Main extends Canvas implements Runnable, MouseListener,
 					getHeight() - invSize);
 		}
 
-		System.out.println("rows: " + row + " cols: " + col);
+		System.out.println("xBs: " + xB + " yBs: " + yB);
 		loadMap(levelX, levelY);
 		lvl = levelX + levelY * 0.1;
 		maps.add(lvl);
-		item.add(new Item(-20, -20, blockSize, 100, this));
-
+		item.add(new Item(-20, -20, blockWidth, 100, this));
+		pVel *= yMod;
 	}
 
 	public void loadMap(int mapX, int mapY){
 		try {
-			FileReader fileReader = new FileReader(fileName + mapX + "," + mapY
-					+ ".txt");
+			FileReader fileReader = new FileReader(fileName + mapX + "," + mapY + ".txt");
 			int y = 0;
 
 			if(!maps.isEmpty()){
@@ -143,19 +146,17 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				String string = line;
 				String[] parts = string.split("\t");
 
-				for(int x = 0; x < row; x++){
+				for(int x = 0; x < xB; x++){
 					String temp = parts[x];
 					if(temp.contains(";") && temp.contains(":") && !beenThere){
 						String data = temp;
 						String[] meta = data.split(";");
 						String[] last = meta[1].split(":");
 						int itemID = Integer.parseInt(last[0]);
-						item.add(new Item(x * blockSize, y * blockSize,
-								blockSize, itemID, this));
+						item.add(new Item((int)(x * blockWidth * xMod), (int)(y * blockWidth * yMod), (int)(blockWidth * yMod), itemID, this));
 						item.get(item.size() - 1).setMap(mapX, mapY);
 						int enemyID = Integer.parseInt(last[1]);
-						enemy.add(new Enemy(x * blockSize, y * blockSize,
-								enemyID, this));
+						enemy.add(new Enemy((int)(x * blockWidth * xMod), (int)(y * blockWidth * yMod), enemyID, this));
 						enemy.get(enemy.size() - 1).setMap(mapX, mapY);
 						int newID = Integer.parseInt(meta[0]);
 						map[x][y].setID(newID);
@@ -163,8 +164,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 						String data = temp;
 						String[] meta = data.split(";");
 						int itemID = Integer.parseInt(meta[1]);
-						item.add(new Item(x * blockSize, y * blockSize,
-								blockSize, itemID, this));
+						item.add(new Item((int)(x * blockWidth * xMod), (int)(y * blockWidth * yMod), (int)(blockWidth * yMod), itemID, this));
 						item.get(item.size() - 1).setMap(mapX, mapY);
 						int newID = Integer.parseInt(meta[0]);
 						map[x][y].setID(newID);
@@ -172,8 +172,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 						String data = temp;
 						String[] meta = data.split(":");
 						int enemyID = Integer.parseInt(meta[1]);
-						enemy.add(new Enemy(x * blockSize, y * blockSize,
-								enemyID, this));
+						enemy.add(new Enemy((int)(x * blockWidth * xMod), (int)(y * blockWidth * yMod), enemyID, this));
 						enemy.get(enemy.size() - 1).setMap(mapX, mapY);
 						int newID = Integer.parseInt(meta[0]);
 						map[x][y].setID(newID);
@@ -197,9 +196,8 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			}
 			beenThere = false;
 			bufferedReader.close();
-			System.out.println("Loaded: '" + fileName + mapX + "," + mapY
-					+ ".txt'");
-		} catch(FileNotFoundException e){
+			System.out.println("Loaded: '" + fileName + mapX + "," + mapY + ".txt'");
+		}catch(FileNotFoundException e){
 			e.printStackTrace();
 		} catch(IOException e){
 			e.printStackTrace();
@@ -270,7 +268,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		for(int i = 0; i < entity.size(); i++){
 			entity.get(i).tick();
 		}
-
+		
 		// Solid collision
 		for(int x = 0; x < map.length; x++){
 			for(int y = 0; y < map[0].length; y++){
@@ -281,12 +279,12 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		}
 		tempX = p.x;
 		tempY = p.y;
-
+		
+		// Enemy solid collision
 		for(int i = 0; i < enemy.size(); i++){
 			for(int x = 0; x < map.length; x++){
 				for(int y = 0; y < map[0].length; y++){
-					if(map[x][y].intersects(enemy.get(i))
-							&& map[x][y].isSolid()){
+					if(map[x][y].intersects(enemy.get(i)) && map[x][y].isSolid()){
 						enemy.get(i).setEnemy((int) enemy.get(i).tempX,
 								(int) enemy.get(i).tempY);
 						enemy.get(i).collide = true;
@@ -296,7 +294,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			enemy.get(i).tempX = (int) enemy.get(i).x;
 			enemy.get(i).tempY = (int) enemy.get(i).y;
 		}
-
+		
 		// Spike collision
 		if(spiked){
 			if(!pain){
@@ -327,9 +325,6 @@ public class Main extends Canvas implements Runnable, MouseListener,
 						inventory[j].setOccupied(true);
 						inventory[j].setID(item.get(i).id);
 						inventory[j].setMap(levelX, levelY);
-						inventory[j].setusable(item.get(i).usable);
-						inventory[j].setConsumeabel(item.get(i).consumable);
-						inventory[j].setName(item.get(i).name);
 						item.remove(i);
 						break;
 					}
@@ -337,7 +332,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			}
 		}
 
-		// Enemy Collision
+		// Enemy collision
 		for(int i = 0; i < enemy.size(); i++){
 			if(enemy.get(i).intersects(p) && !p.invincible
 					&& enemy.get(i).inMap){
@@ -364,12 +359,8 @@ public class Main extends Canvas implements Runnable, MouseListener,
 						tempPID = inventory[i].id;
 						tempPX = inventory[i].mX;
 						tempPY = inventory[i].mY;
-						tempN = inventory[i].name;
 						inventory[i].setID(item.get(item.size() - 1).id);
 						inventory[i].setMap(item.get(item.size() - 1).mX, item.get(item.size() - 1).mY);
-						inventory[i].setusable(item.get(item.size() - 1).usable);
-						inventory[i].setConsumeabel(item.get(item.size() - 1).consumable);
-						inventory[i].setName(item.get(item.size() - 1).name);
 						item.get(item.size() - 1).setMap(tempPX, tempPY);
 						item.get(item.size() - 1).setID(tempPID);
 						item.get(item.size() - 1).setPickable(false);
@@ -383,16 +374,13 @@ public class Main extends Canvas implements Runnable, MouseListener,
 						inventory[i].setOccupied(true);
 						inventory[i].setID(item.get(item.size() - 1).id);
 						inventory[i].setMap(item.get(item.size() - 1).mX, item.get(item.size() - 1).mY);
-						inventory[i].setusable(item.get(item.size() - 1).usable);
-						inventory[i].setConsumeabel(item.get(item.size() - 1).consumable);
-						inventory[i].setName(item.get(item.size() - 1).name);
 						item.remove(item.size() - 1);
 						dragged = true;
 						mouseDX = 0;
 						mouseDY = 0;
 						System.out.println("placed " + i);
 					} else if(inventory[i].occupied && !dragged){
-						item.add(new Item(-1 * blockSize, -1 * blockSize, blockSize, inventory[i].id, this));
+						item.add(new Item(-1 * blockWidth, -1 * blockWidth, blockWidth, inventory[i].id, this));
 						item.get(item.size() - 1).setMap(inventory[i].mX, inventory[i].mY);
 						item.get(item.size() - 1).setPickable(false);
 						item.get(item.size() - 1).setPickedUp(true);
@@ -411,21 +399,19 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		if(item.get(item.size() - 1).pickedUp){
 			item.get(item.size() - 1).setItem((int) mouseX, (int) mouseY);
 		}
-
+		
 		// Enemy Entity collision
 		for(int i = 0; i < entity.size(); i++){
 			for(int j = 0; j < enemy.size(); j++){
-				if(enemy.get(j).getBounds()
-						.intersects(entity.get(i).getBounds())
-						&& enemy.get(j).inMap){
-					enemy.get(j).setHealth(enemy.get(j).health - 1);
+				if(enemy.get(j).getBounds().intersects(entity.get(i).getBounds()) && enemy.get(j).inMap && (entity.get(i).type == 0 || entity.get(i).type == 4 || entity.get(i).type == 2)){
+					enemy.get(j).setHealth(enemy.get(j).health - entity.get(i).effect);
 					if(enemy.get(j).health <= 0){
 						enemy.remove(j);
 					}
 				}
 			}
 		}
-
+		
 		if(remove){
 			entity.remove(entity.size() - 1 - entityCounter);
 			remove = false;
@@ -542,7 +528,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		}
 
 		if(p.dead){
-			// TODO Add death feature
+			//TODO Add death feature
 			running = false;
 		}
 	}
@@ -556,7 +542,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			return;
 		}
 		Graphics g = bs.getDrawGraphics();
-		// ////////////////////////////////
+		//////////////////////////////////
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
 
 		for(int x = 0; x < map.length; x++){
@@ -605,7 +591,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		if(item.get(item.size() - 1).pickedUp){
 			item.get(item.size() - 1).render((Graphics2D) g);
 		}
-		// ////////////////////////////////
+		//////////////////////////////////
 		g.dispose();
 		bs.show();
 	}
@@ -614,9 +600,6 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		inventory[i].setOccupied(false);
 		inventory[i].setID(-1);
 		inventory[i].setMap(-1, -1);
-		inventory[i].setConsumeabel(false);
-		inventory[i].setusable(false);
-		inventory[i].setName(null);
 	}
 
 	public void mousePressed(MouseEvent e){
@@ -654,19 +637,19 @@ public class Main extends Canvas implements Runnable, MouseListener,
 
 		if(!inInventory && !disableMovement){
 			if(key == KeyEvent.VK_W){
-				p.setVelY(-pVel);
+				p.setVelY((int)-(pVel));
 				p.setVelX(0);
 				p.setDirection(0);
 			} else if(key == KeyEvent.VK_D){
-				p.setVelX(pVel);
+				p.setVelX((int)(pVel));
 				p.setVelY(0);
 				p.setDirection(1);
 			} else if(key == KeyEvent.VK_S){
-				p.setVelY(pVel);
+				p.setVelY((int)(pVel));
 				p.setVelX(0);
 				p.setDirection(2);
 			} else if(key == KeyEvent.VK_A){
-				p.setVelX(-pVel);
+				p.setVelX((int)-(pVel));
 				p.setVelY(0);
 				p.setDirection(3);
 			}
@@ -676,12 +659,11 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			inInventory = !inInventory;
 			if(inInventory){
 				for(int i = 0; i < 2; i++){
-					inventory[i].setPosition(200 + (i + 1) * invSize, 50);
+					inventory[i] = new Inventory((int)((200 + 1 * invSize) * xMod), (int)((50 + 0 * invSize) * yMod), this);
 				}
 			} else {
 				for(int i = 0; i < 2; i++){
-					inventory[i].setPosition(getWidth() - (1 - i) * invSize
-							- 40, getHeight() - invSize);
+					inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40, getHeight() - invSize);
 				}
 			}
 			p.setVelX(0);
@@ -693,7 +675,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				disableMovement = true;
 				use = true;
 				used = 0;
-				entity.add(new Entity(p.x, p.y, blockSize, inventory[0].id,
+				entity.add(new Entity(p.x, p.y, blockWidth, inventory[0].id,
 						this));
 				p.setVelX(0);
 				p.setVelY(0);
@@ -701,7 +683,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				disableMovement = true;
 				use = true;
 				used = 0;
-				entity.add(new Entity(p.x, p.y, blockSize, inventory[0].id,
+				entity.add(new Entity(p.x, p.y, blockWidth, inventory[0].id,
 						this));
 				p.setVelX(0);
 				p.setVelY(0);
@@ -714,7 +696,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				disableMovement = true;
 				use = true;
 				used = 1;
-				entity.add(new Entity(p.x, p.y, blockSize, inventory[1].id,
+				entity.add(new Entity(p.x, p.y, blockWidth, inventory[1].id,
 						this));
 				p.setVelX(0);
 				p.setVelY(0);
@@ -722,7 +704,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				disableMovement = true;
 				use = true;
 				used = 1;
-				entity.add(new Entity(p.x, p.y, blockSize, inventory[1].id,
+				entity.add(new Entity(p.x, p.y, blockWidth, inventory[1].id,
 						this));
 				p.setVelX(0);
 				p.setVelY(0);
@@ -751,16 +733,15 @@ public class Main extends Canvas implements Runnable, MouseListener,
 	public static void main(String args[]){
 		Main game = new Main();
 
-		game.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
-
 		JFrame frame = new JFrame(game.TITLE);
 		frame.add(game);
-		frame.pack();
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(true);
-		frame.setLocationRelativeTo(null);
+		frame.setSize(WIDTH * SCALE, HEIGHT * SCALE);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		frame.setUndecorated(true);
+		frame.pack();
 		frame.setVisible(true);
-
 		game.start();
 	}
 
