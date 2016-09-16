@@ -25,7 +25,7 @@ public class Inventory extends Rectangle {
 		this.x = x;
 		this.y = y;
 
-		setBounds(x - (Main.invSize - 30), y - (Main.invSize - 30), 40, 40);
+		setBounds(x - 10, y - 10, 40 * 3, 40 * 3);
 		f = new Font("Arial", Font.PLAIN, 14);
 		itemImg = new ArrayList<BufferedImage>();
 		GUIImg = new ArrayList<BufferedImage>();
@@ -88,7 +88,7 @@ public class Inventory extends Rectangle {
 	
 	public void render(Graphics2D g){
 		g.setFont(f);
-		g.drawImage(GUIImg.get(0), x, y, (int)(32 * Main.yMod), (int)(32 * Main.yMod), null);
+		g.drawImage(GUIImg.get(0), x, y, (int)(32 * Main.yMod) * 3, (int)(32 * Main.yMod) * 3, null);
 		if(occupied){
 			g.drawImage(itemImg.get(id), x + 5, y + 5, null);
 		}
@@ -100,6 +100,10 @@ public class Inventory extends Rectangle {
 				g.drawImage(GUIImg.get(2), (int)Main.mouseX + 10, (int)Main.mouseY + 1, g.getFontMetrics(f).stringWidth(name) + 10, 20, null);
 				g.drawString(name, (int)Main.mouseX + 15, (int)Main.mouseY + 15);
 			}
+		}
+		if(Main.showBounds){
+			g.setColor(Color.RED);
+			g.drawRect(x - 10, y - 10, 40 * 3, 40 * 3);
 		}
 	}
 

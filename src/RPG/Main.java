@@ -2,6 +2,7 @@ package RPG;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
@@ -26,7 +27,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
-	private static final int WIDTH = 320, HEIGHT = WIDTH / 12 * 9 + 20, SCALE = 2;
+	private static final int WIDTH = 960, HEIGHT = WIDTH / 12 * 9 + 20, SCALE = 2;
 	public final String TITLE = "UNKNOWN RPG";
 
 	public static Player p;
@@ -48,7 +49,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 	private double tempX, tempY, mouseDX, mouseDY, lvl;
 	public static double mouseX, mouseY,pVel = 2;
 	
-	static int xB = 64, yB = 46, blockWidth = 20, blockHeight = 20, invSize = 40;
+	static int xB = 64, yB = 46, blockWidth = 20, blockHeight = 20, invSize = 175;
 	public static double xMod, yMod, inX, inY;
 	
 	private String line = null, fileName = "RPG_map", tempN;
@@ -113,8 +114,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		}
 
 		for(int i = 0; i < 2; i++){
-			inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40,
-					getHeight() - invSize);
+			inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40, getHeight() - 40);
 		}
 
 		System.out.println("xBs: " + xB + " yBs: " + yB);
@@ -659,11 +659,11 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			inInventory = !inInventory;
 			if(inInventory){
 				for(int i = 0; i < 2; i++){
-					inventory[i] = new Inventory((int)((200 + 1 * invSize) * xMod), (int)((50 + 0 * invSize) * yMod), this);
+					inventory[i].setPosition((int)((200 + (i + 1) * invSize) * xMod), (int)((50 * yMod)));
 				}
 			} else {
 				for(int i = 0; i < 2; i++){
-					inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40, getHeight() - invSize);
+					inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40, getHeight() - 40);
 				}
 			}
 			p.setVelX(0);
@@ -732,16 +732,28 @@ public class Main extends Canvas implements Runnable, MouseListener,
 
 	public static void main(String args[]){
 		Main game = new Main();
+//
+//		JFrame frame = new JFrame(game.TITLE);
+//		frame.add(game);
+//		frame.setResizable(false);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.setSize(WIDTH * SCALE, HEIGHT * SCALE);
+//		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//		frame.setUndecorated(true);
+//		frame.pack();
+//		frame.setVisible(true);
+//		game.start();
+		
+		game.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 
 		JFrame frame = new JFrame(game.TITLE);
 		frame.add(game);
-		frame.setResizable(false);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(WIDTH * SCALE, HEIGHT * SCALE);
-		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		frame.setUndecorated(true);
 		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(true);
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+
 		game.start();
 	}
 

@@ -34,11 +34,9 @@ public class Main extends Canvas implements Runnable {
 	
 	private boolean running, inserted;
 	private Thread thread;
-<<<<<<< HEAD
-	private BufferedImage inter, loaded, image, s0, s1, s2, s3, s4;
-=======
-	private BufferedImage inter, loaded, s0, s1, s2, s3, s4, s5, s6;
->>>>>>> origin/master
+
+	private BufferedImage inter, loaded, image, s0, s1, s2, s3, s4, s5, s6;
+
 
 
 	public void init(){
@@ -168,7 +166,6 @@ public class Main extends Canvas implements Runnable {
 		}
 		Graphics g = bs.getDrawGraphics();
 		//////////////////////////////////
-<<<<<<< HEAD
 		if(!inserted){
 			g.drawImage(inter, 0, 0, null);
 		} else {
@@ -186,7 +183,6 @@ public class Main extends Canvas implements Runnable {
 			g.drawImage(s3, 0, 0, null);
 		} else if(select == 4){
 			g.drawImage(s4, 0, 0, null);
-=======
 		
 		g.drawImage(inter, 0, 0, null);
 		if(inMenu == 1 && profile == 0 && settings == 0){
@@ -205,11 +201,11 @@ public class Main extends Canvas implements Runnable {
 			g.drawImage(s5, 0, 0, null);
 		}else if(inMenu == 0 && profile == 0 && settings == 1){
 			g.drawImage(s6, 0, 0, null);
->>>>>>> origin/master
 		}
 		//////////////////////////////////
 		g.dispose();
 		bs.show();
+		}
 	}
 
 	public void keyPressed(KeyEvent e){
