@@ -732,29 +732,29 @@ public class Main extends Canvas implements Runnable, MouseListener,
 
 	public static void main(String args[]){
 		Main game = new Main();
-//
-//		JFrame frame = new JFrame(game.TITLE);
-//		frame.add(game);
-//		frame.setResizable(false);
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		frame.setSize(WIDTH * SCALE, HEIGHT * SCALE);
-//		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//		frame.setUndecorated(true);
-//		frame.pack();
-//		frame.setVisible(true);
-//		game.start();
-		
-		game.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 
 		JFrame frame = new JFrame(game.TITLE);
 		frame.add(game);
-		frame.pack();
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(true);
-		frame.setLocationRelativeTo(null);
+		frame.setSize(WIDTH * SCALE, HEIGHT * SCALE);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		frame.setUndecorated(true);
+		frame.pack();
 		frame.setVisible(true);
-
 		game.start();
+		
+//		game.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
+//
+//		JFrame frame = new JFrame(game.TITLE);
+//		frame.add(game);
+//		frame.pack();
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.setResizable(true);
+//		frame.setLocationRelativeTo(null);
+//		frame.setVisible(true);
+//
+//		game.start();
 	}
 
 	public BufferedImage getSpriteSheet(String path){

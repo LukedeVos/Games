@@ -5,13 +5,11 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+//import java.io.FileNotFoundException;
+//import java.io.FileReader;
 import java.io.IOException;
 
-import javax.imageio.IIOException;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileSystemView;
 
@@ -34,10 +32,8 @@ public class Main extends Canvas implements Runnable {
 	
 	private boolean running, inserted;
 	private Thread thread;
-
+	
 	private BufferedImage inter, loaded, image, s0, s1, s2, s3, s4, s5, s6;
-
-
 
 	public void init(){
 		requestFocus();
@@ -129,7 +125,7 @@ public class Main extends Canvas implements Runnable {
 			
 			System.out.println(type.toLowerCase());
 			
-			if (canRead && canWrite && !isFloppy && isDrive && (type.toLowerCase().contains("verwisselbare") || type.toLowerCase().contains("rimovibile"))){
+			if (canRead && canWrite && !isFloppy && isDrive && (type.toLowerCase().contains("verwisselbare"))){
 				System.out.println("Detected PEN Drive: " + drive + " - "+ displayName); 
 				driveLetter = drive;
 				break;
@@ -167,58 +163,43 @@ public class Main extends Canvas implements Runnable {
 		Graphics g = bs.getDrawGraphics();
 		//////////////////////////////////
 		if(!inserted){
-			g.drawImage(inter, 0, 0, null);
+			g.drawImage(inter, 0, 0, getWidth(), getHeight(), null);
 		} else {
-			g.drawImage(loaded, 0, 0, null);
-			g.drawImage(image, 20, 20, null);
+			g.drawImage(loaded, 0, 0, getWidth(), getHeight(), null);
+			g.drawImage(image, 20, 20, getWidth(), getHeight(), null);
 		}
 		
-		if(select == 0){
-			g.drawImage(s0, 0, 0, null);
-		} else if(select == 1){
-			g.drawImage(s1, 0, 0, null);
-		} else if(select == 2){
-			g.drawImage(s2, 0, 0, null);
-		} else if(select == 3){
-			g.drawImage(s3, 0, 0, null);
-		} else if(select == 4){
-			g.drawImage(s4, 0, 0, null);
-		
-		g.drawImage(inter, 0, 0, null);
 		if(inMenu == 1 && profile == 0 && settings == 0){
 			if(select == 0){
-				g.drawImage(s0, 0, 0, null);
+				g.drawImage(s0, 0, 0, getWidth(), getHeight(), null);
 			} else if(select == 1){
-				g.drawImage(s1, 0, 0, null);
+				g.drawImage(s1, 0, 0, getWidth(), getHeight(), null);
 			} else if(select == 2){
-				g.drawImage(s2, 0, 0, null);
+				g.drawImage(s2, 0, 0, getWidth(), getHeight(), null);
 			} else if(select == 3){
-				g.drawImage(s3, 0, 0, null);
+				g.drawImage(s3, 0, 0, getWidth(), getHeight(), null);
 			} else if(select == 4){
-				g.drawImage(s4, 0, 0, null);
+				g.drawImage(s4, 0, 0, getWidth(), getHeight(), null);
 			}
 		}else if(inMenu == 0 && profile == 1 && settings == 0){
-			g.drawImage(s5, 0, 0, null);
+			g.drawImage(s5, 0, 0, getWidth(), getHeight(), null);
 		}else if(inMenu == 0 && profile == 0 && settings == 1){
-			g.drawImage(s6, 0, 0, null);
+			g.drawImage(s6, 0, 0, getWidth(), getHeight(), null);
 		}
 		//////////////////////////////////
 		g.dispose();
 		bs.show();
-		}
 	}
 
 	public void keyPressed(KeyEvent e){
 		int key = e.getKeyCode();
-		//////////////////////////////////
 		if(profile == 1 || settings == 1){
 			if(key == KeyEvent.VK_ESCAPE){
 				profile = 0;
 				settings = 0;
 				inMenu = 1;
 			}
-		//simpel nu ff failsafe ofc ga ik verbeteren//
-		//////////////////////////////////	
+		//simpel nu ff failsafe ofc ga ik verbeteren
 		}
 		
 		if(unpressed){
@@ -312,6 +293,19 @@ public class Main extends Canvas implements Runnable {
 		frame.pack();
 		frame.setVisible(true);
 		game.start();
+		
+//		game.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
+//
+//		JFrame frame = new JFrame(game.TITLE);
+//		frame.add(game);
+//		frame.pack();
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.setResizable(true);
+//		frame.setLocationRelativeTo(null);
+//		frame.setVisible(true);
+//
+//		game.start();
+		
 	}
 
 	public BufferedImage getSpriteSheet(String path){
