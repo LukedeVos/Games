@@ -13,9 +13,9 @@ import java.util.ArrayList;
 public class Item extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
-	public int x, y, id, mX, mY, size, xMod, yMod, lL = 11, duration, type;
+	public int x, y, id, mX, mY, size, xMod, yMod, lL = 12, duration, type;
 	public double xSize, ySize, effect;
-	public boolean pickable = true, inMap = true, pickedUp, usable, consumable;
+	public boolean pickable = true, inMap = true, pickedUp, usable, consumable, stackAble;
 	private ArrayList<BufferedImage> itemImg;
 	public String line = null, name = null;
 
@@ -78,6 +78,8 @@ public class Item extends Rectangle {
 						usable = Boolean.valueOf(data[1]);
 					} else if(y == iID * lL + 10){
 						consumable = Boolean.valueOf(data[1]);
+					} else if(y == iID * lL + 11){
+						stackAble = Boolean.valueOf(data[1]);
 					}
 				}
 				y++;

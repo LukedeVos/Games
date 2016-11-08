@@ -14,9 +14,9 @@ import java.util.ArrayList;
 public class Inventory extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
-	public int x, y, id = -1, mX, mY, lL = 11, duration, type;
+	public int x, y, id = -1, mX, mY, lL = 12, duration, type, amount;
 	public double effect;
-	public boolean occupied, selected, usable, consumable;
+	public boolean occupied, selected, usable, consumable, stackAble;
 	private ArrayList<BufferedImage> itemImg, GUIImg;
 	public String name, line;
 	private Font f;
@@ -74,6 +74,8 @@ public class Inventory extends Rectangle {
 						usable = Boolean.valueOf(data[1]);
 					} else if(y == iID * lL + 10){
 						consumable = Boolean.valueOf(data[1]);
+					} else if(y == iID * lL + 11){
+						stackAble = Boolean.valueOf(data[1]);
 					}
 				}
 				y++;
@@ -88,13 +90,28 @@ public class Inventory extends Rectangle {
 	
 	public void render(Graphics2D g){
 		g.setFont(f);
-		g.drawImage(GUIImg.get(0), x, y, (int)(32 * Main.yMod) * 3, (int)(32 * Main.yMod) * 3, null);
-		if(occupied){
-			g.drawImage(itemImg.get(id), x + 5, y + 5, null);
+		if(Main.inInventory){
+			g.drawImage(GUIImg.get(0), x, y, (int)(32 * Main.yMod) * 3, (int)(32 * Main.yMod) * 3, null);
+			if(occupied){
+				g.drawImage(itemImg.get(id), x, y, (int)(32 * Main.yMod) * 3, (int)(32 * Main.yMod) * 3, null);
+				if(stackAble && amount > 1){
+					g.setColor(Color.WHITE);
+					g.drawString("x" + amount, x + (int)(32 * Main.yMod) * 3 - g.getFontMetrics(f).stringWidth("x" + amount) - 2, y + 20);
+				}
+			}
+		} else {
+			g.drawImage(GUIImg.get(0), x, y - 20, (int)((32 * Main.yMod) * 1.5), (int)((32 * Main.yMod) * 1.5), null);
+			if(occupied){
+				g.drawImage(itemImg.get(id), x, y - 20, (int)((32 * Main.yMod) * 1.5), (int)((32 * Main.yMod) * 1.5), null);
+				if(stackAble && amount > 1){
+					g.setColor(Color.WHITE);
+					g.drawString("x" + amount, x + (int)((32 * Main.yMod) * 1.5) - 15, y - 5);
+				}
+			}
 		}
 
 		if(selected){
-			g.drawImage(GUIImg.get(1), x, y, null);
+			g.drawImage(GUIImg.get(1), x, y, (int)(32 * Main.yMod) * 3, (int)(32 * Main.yMod) * 3, null);
 			if(occupied){
 				g.setColor(Color.BLACK);
 				g.drawImage(GUIImg.get(2), (int)Main.mouseX + 10, (int)Main.mouseY + 1, g.getFontMetrics(f).stringWidth(name) + 10, 20, null);
@@ -111,7 +128,11 @@ public class Inventory extends Rectangle {
 		this.x = x;
 		this.y = y;
 	}
-
+	
+	public void setAmount(int amount){
+		this.amount = amount;
+	}
+	
 	public void setOccupied(boolean occupied){
 		this.occupied = occupied;
 	}

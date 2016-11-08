@@ -29,6 +29,8 @@ public class Main extends Canvas implements Runnable, MouseListener,
 	private static final long serialVersionUID = 1L;
 	private static final int WIDTH = 960, HEIGHT = WIDTH / 12 * 9 + 20, SCALE = 2;
 	public final String TITLE = "UNKNOWN RPG";
+	private static Main game = new Main();
+	private static JFrame frame = new JFrame(game.TITLE);
 
 	public static Player p;
 
@@ -40,11 +42,11 @@ public class Main extends Canvas implements Runnable, MouseListener,
 	public String hS;
 	public int invisC;
 
-	private int frames, pSize = 8, painTimer, tempPID, tempPX, tempPY, entityCounter, eInv;
-	public static int levelX = 1, levelY = 1, used;
+	private int frames, pSize = 8, painTimer, tempPID, tempPX, tempPY, eInv;
+	public static int levelX = 1, levelY = 1, used, entityCounter;
 
-	public boolean pain, spiked, paused, beenThere, dragged, inInventory;
-	public static boolean disableMovement, use, remove, showBounds;
+	public boolean pain, spiked, paused, beenThere, dragged;
+	public static boolean disableMovement, use, remove, showBounds, inInventory, shootArrow;
 
 	private double tempX, tempY, mouseDX, mouseDY, lvl;
 	public static double mouseX, mouseY,pVel = 2;
@@ -114,7 +116,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		}
 
 		for(int i = 0; i < 2; i++){
-			inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40, getHeight() - 40);
+			inventory[i].setPosition(getWidth() - (1 - i) * (int)(invSize / 2.5) - 60, getHeight() - 40);
 		}
 
 		System.out.println("xBs: " + xB + " yBs: " + yB);
@@ -320,18 +322,62 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		// Item collision
 		for(int i = 0; i < item.size(); i++){
 			if(item.get(i).intersects(p) && item.get(i).pickable == true){
+				int plus = 1;
+				boolean stacked = false;
+				if(item.get(i).type == 2){
+					plus = 4;
+				}
 				for(int j = 0; j < inventory.length; j++){
-					if(!inventory[j].occupied){
-						inventory[j].setOccupied(true);
-						inventory[j].setID(item.get(i).id);
-						inventory[j].setMap(levelX, levelY);
+					if(inventory[j].id == item.get(i).id && item.get(i).stackAble){
+						inventory[j].setAmount(inventory[j].amount + plus);
 						item.remove(i);
-						break;
+						stacked = true;
+					}
+				}
+				if(!stacked){
+					for(int j = 0; j < inventory.length; j++){
+						if(!inventory[j].occupied){
+							inventory[j].setOccupied(true);
+							inventory[j].setID(item.get(i).id);
+							inventory[j].setMap(levelX, levelY);
+							if(item.get(i).stackAble){
+								inventory[j].setAmount(inventory[j].amount + plus);
+							}
+							item.remove(i);
+							break;
+						}
 					}
 				}
 			}
 		}
-
+		
+		// Arrow mechanism
+		if(shootArrow){
+			int id = 0;
+			for(int i = 0; i < inventory.length; i++){
+				if(inventory[i].type == 2){
+					id = inventory[i].id;
+				}
+			}
+			entity.add(new Entity(p.x, p.y, blockWidth, id,this));
+			for(int i = 0; i < entity.size(); i++){
+				if(entity.get(i).type == 2){
+					id = i;
+				}
+			}
+			if(p.direction == 0){
+				System.out.println(entity.get(id).type == 2);
+				entity.get(id).setVelY(-4);
+			} else if(p.direction == 1){
+				entity.get(id).setVelX(4);
+			} else if(p.direction == 2){
+				entity.get(id).setVelY(4);
+			} else if(p.direction == 3){
+				entity.get(id).setVelX(-4);
+			}
+			shootArrow = false;
+		}
+		
 		// Enemy collision
 		for(int i = 0; i < enemy.size(); i++){
 			if(enemy.get(i).intersects(p) && !p.invincible
@@ -413,7 +459,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		}
 		
 		if(remove){
-			entity.remove(entity.size() - 1 - entityCounter);
+			entity.remove(entity.size() - entityCounter);
 			remove = false;
 			entityCounter = 0;
 		}
@@ -663,7 +709,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				}
 			} else {
 				for(int i = 0; i < 2; i++){
-					inventory[i].setPosition(getWidth() - (1 - i) * invSize - 40, getHeight() - 40);
+					inventory[i].setPosition(getWidth() - (1 - i) * (int)(invSize / 2.5) - 60, getHeight() - 40);
 				}
 			}
 			p.setVelX(0);
@@ -675,8 +721,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				disableMovement = true;
 				use = true;
 				used = 0;
-				entity.add(new Entity(p.x, p.y, blockWidth, inventory[0].id,
-						this));
+				entity.add(new Entity(p.x, p.y, blockWidth, inventory[0].id, this));
 				p.setVelX(0);
 				p.setVelY(0);
 			} else if(inventory[0].consumable){
@@ -714,6 +759,12 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		if(key == KeyEvent.VK_B){
 			showBounds = !showBounds;
 		}
+		
+		if(key == KeyEvent.VK_ESCAPE){
+			frame.setVisible(false);
+			System.exit(0);
+			frame.dispose();
+		}
 	}
 
 	public void keyReleased(KeyEvent k){
@@ -731,9 +782,6 @@ public class Main extends Canvas implements Runnable, MouseListener,
 	}
 
 	public static void main(String args[]){
-		Main game = new Main();
-
-		JFrame frame = new JFrame(game.TITLE);
 		frame.add(game);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

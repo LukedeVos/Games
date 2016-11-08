@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public class Entity extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
-	public int x, y, id, mX, mY, sc, size, lL = 11, xMod, yMod, type;
-	public double effect, xSize, ySize;
+	public int x, y, id, mX, mY, sc, size, lL = 12, xMod, yMod, type;
+	public double effect, xSize, ySize, velX, velY;
 	private ArrayList<BufferedImage> img;
 	AffineTransform at = new AffineTransform();
 	private String line = null;
@@ -50,6 +50,7 @@ public class Entity extends Rectangle {
 				img.add(ss.grabImage(xs, ys, 20, size, size));
 			}
 		}
+		Main.entityCounter++;
 	}
 	
 	public void loadItem(int iID){
@@ -144,6 +145,17 @@ public class Entity extends Rectangle {
 				Main.p.setHealth(Main.p.health + 1);
 			}
 		} else if(Main.inventory[Main.used].id == 2){
+			boolean arrow = false;
+			for(int i = 0; i < Main.inventory.length; i++){
+				if(Main.inventory[i].type == 2){
+					arrow = true;
+				}
+			}
+			if(arrow){
+				Main.shootArrow = true;
+			} else {
+				
+			}
 			g.drawImage(img.get(2), x, y, null);
 			g.dispose();
 		} else if(Main.inventory[Main.used].id == 3){
@@ -157,6 +169,9 @@ public class Entity extends Rectangle {
 	}
 
 	public void tick(){
+		x+=velX;
+		y+=velY;
+		
 		if(sc == 20 && Main.inventory[Main.used].id == 0){
 			Main.disableMovement = false;
 			sc = 0;
@@ -168,7 +183,7 @@ public class Entity extends Rectangle {
 			Main.use = false;
 			Main.remove = true;
 			Main.clearInventory(Main.used);
-		} else if(sc == 50 && Main.inventory[Main.used].id == 2){
+		} else if(sc == 10 && Main.inventory[Main.used].id == 2){
 			Main.disableMovement = false;
 			sc = 0;
 			Main.use = false;
@@ -192,20 +207,26 @@ public class Entity extends Rectangle {
 	public void setID(int newID){
 		id = newID;
 	}
-
 	public void setX(int x){
 		this.x = x;
 	}
-
 	public void setY(int y){
 		this.y = y;
 	}
-
 	public void setEntity(int x, int y){
 		this.x = x;
 		this.y = y;
 	}
-
+	public void setVelX(int velX){
+		this.velX = velX;
+	}
+	public void setVelY(int velY){
+		this.velY = velY;
+	}
+	public void setSpeed(int velX, int velY){
+		this.velX = velX;
+		this.velY = velY;
+	}
 	public void setMap(int mX, int mY){
 		this.mX = mX;
 		this.mY = mY;
