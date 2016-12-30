@@ -14,8 +14,9 @@ import java.util.ArrayList;
 public class Entity extends Rectangle {
 
 	private static final long serialVersionUID = 1L;
-	public int x, y, id, mX, mY, sc, size, lL = 12, xMod, yMod, type;
+	public int x, y, id, mX, mY, sc, size, lL = 12, xMod, yMod, type, direction;
 	public double effect, xSize, ySize, velX, velY;
+	public boolean beingUsed;
 	private ArrayList<BufferedImage> img;
 	AffineTransform at = new AffineTransform();
 	private String line = null;
@@ -27,30 +28,18 @@ public class Entity extends Rectangle {
 		this.size = size;
 		img = new ArrayList<BufferedImage>();
 		
+		if(Main.use){
+			Main.entityCounter++;
+		}
+		
 		loadItem(id);
 		
-		if(id == 0){
-			if(Main.p.direction == 0){
-				setBounds((int) (x + Main.blockWidth * 0.35) - 6, y - 13,
-						size / 3, size);
-			} else if(Main.p.direction == 1){
-				setBounds(x + 3, (int) (y + Main.blockWidth * 0.35) - 6, size,
-						size / 3);
-			} else if(Main.p.direction == 2){
-				setBounds((int) (x + Main.blockWidth * 0.35) - 6, y + 3,
-						size / 3, size);
-			} else if(Main.p.direction == 3){
-				setBounds(x - 14, (int) (y + Main.blockWidth * 0.35) - 6, size,
-						size / 3);
-			}
-		}
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet("items"));
 		for(int ys = 0; ys < 8; ys++){
 			for(int xs = 0; xs < 8; xs++){
 				img.add(ss.grabImage(xs, ys, 20, size, size));
 			}
 		}
-		Main.entityCounter++;
 	}
 	
 	public void loadItem(int iID){
@@ -95,56 +84,78 @@ public class Entity extends Rectangle {
 	}
 	
 	public void render(Graphics2D g){
-		g.drawImage(img.get(id), x, y, null);
-	}
-
-	public void useItem(Graphics2D g){
 		g.setColor(Color.RED);
-		if(Main.inventory[Main.used].id == 0){
+		if(Main.inventory[Main.used].type == 0){
 			if(Main.p.direction == 0){
-				g.drawImage(img.get(0), Main.p.x - 6, Main.p.y - 13, null);
+				g.drawImage(img.get(id), Main.p.x - 6, Main.p.y - 13, null);
 				if(Main.showBounds){
-					g.drawRect((int) (Main.p.x + Main.blockWidth * 0.35) - 6,
-							Main.p.y - 13, 20 / 3, 20);
+					g.drawRect((int) (Main.p.x + Main.blockWidth * 0.35) - 6, Main.p.y - 13, 20 / 3, 20);
 				}
 			} else if(Main.p.direction == 1){
-				at.setToRotation(Math.PI / 2, Main.p.x + Main.blockWidth / 2,
-						Main.p.y + Main.blockWidth / 2);
+				at.setToRotation(Math.PI / 2, Main.p.x + Main.blockWidth / 2, Main.p.y + Main.blockWidth / 2);
 				if(Main.showBounds){
-					g.drawRect(x + 3, (int) (y + Main.blockWidth * 0.35) - 6,
-							20, 20 / 3);
+					g.drawRect(x + 3, (int) (y + Main.blockWidth * 0.35) - 6, 20, 20 / 3);
 				}
 				g.setTransform(at);
-				g.drawImage(img.get(0), Main.p.x - 6, Main.p.y - 3, null);
+				g.drawImage(img.get(id), Main.p.x - 6, Main.p.y - 3, null);
 			} else if(Main.p.direction == 2){
-				at.setToRotation(Math.PI, Main.p.x + Main.blockWidth / 2,
-						Main.p.y + Main.blockWidth / 2);
+				at.setToRotation(Math.PI, Main.p.x + Main.blockWidth / 2, Main.p.y + Main.blockWidth / 2);
 				if(Main.showBounds){
-					g.drawRect((int) (x + Main.blockWidth * 0.35) - 6, y + 3,
-							20 / 3, 20);
+					g.drawRect((int) (x + Main.blockWidth * 0.35) - 6, y + 3, 20 / 3, 20);
 				}
 				g.setTransform(at);
-				g.drawImage(img.get(0), Main.p.x + 6, Main.p.y - 3, null);
+				g.drawImage(img.get(id), Main.p.x + 6, Main.p.y - 3, null);
 			} else if(Main.p.direction == 3){
-				at.setToRotation(-Math.PI / 2, Main.p.x + Main.blockWidth / 2,
-						Main.p.y + Main.blockWidth / 2);
+				at.setToRotation(-Math.PI / 2, Main.p.x + Main.blockWidth / 2, Main.p.y + Main.blockWidth / 2);
 				if(Main.showBounds){
-					g.drawRect(x - 14, (int) (y + Main.blockWidth * 0.35) - 6,
-							20, 20 / 3);
+					g.drawRect(x - 14, (int) (y + Main.blockWidth * 0.35) - 6, 20, 20 / 3);
 				}
 				g.setTransform(at);
-				g.drawImage(img.get(0), Main.p.x + 6, Main.p.y - 13, null);
+				g.drawImage(img.get(id), Main.p.x + 6, Main.p.y - 13, null);
 			}
 			Main.p.setSpeed(0, 0);
-			g.dispose();
-		} else if(Main.inventory[Main.used].id == 1){
+		} else if(Main.inventory[Main.used].type == 1){
+			g.drawImage(img.get(id), x, y, null);
+		} else if(Main.inventory[Main.used].type == 2){
+			g.drawImage(img.get(id), x, y, null);
+		} else if(Main.inventory[Main.used].consumable){
 			Main.p.setDirection(2);
 			g.drawImage(img.get(1), Main.p.x - 2, Main.p.y, 15, 15, null);
-			g.dispose();
 			if(Main.p.health < 100 && sc % 2 == 0){
 				Main.p.setHealth(Main.p.health + 1);
 			}
-		} else if(Main.inventory[Main.used].id == 2){
+		} else {
+			System.out.println(direction);
+			if(direction == 1){
+				at.setToRotation(Math.PI / 2, x, y);
+				g.setTransform(at);
+			} else if(direction == 2){
+				at.setToRotation(Math.PI, x, y);
+				g.setTransform(at);
+			} else if(direction == 3){
+				at.setToRotation(-Math.PI / 2, x, y);
+				g.setTransform(at);
+			}
+			g.drawImage(img.get(id), x, y, null);
+		}
+		g.dispose();
+	}
+
+	public void useItem(){
+		if(Main.inventory[Main.used].type == 0){
+			if(Main.p.direction == 0){
+				setBounds((int) (x + Main.blockWidth * 0.35) - 6, y - 13, size / 3, size);
+			} else if(Main.p.direction == 1){
+				setBounds(x + 3, (int) (y + Main.blockWidth * 0.35) - 6, size, size / 3);
+			} else if(Main.p.direction == 2){
+				setBounds((int) (x + Main.blockWidth * 0.35) - 6, y + 3, size / 3, size);
+			} else if(Main.p.direction == 3){
+				setBounds(x - 14, (int) (y + Main.blockWidth * 0.35) - 6, size, size / 3);
+			}
+		} else if(Main.inventory[Main.used].type == 3){
+			
+		} else if(Main.inventory[Main.used].type == 1){
+			System.out.println("yep");
 			boolean arrow = false;
 			for(int i = 0; i < Main.inventory.length; i++){
 				if(Main.inventory[i].type == 2){
@@ -156,15 +167,10 @@ public class Entity extends Rectangle {
 			} else {
 				
 			}
-			g.drawImage(img.get(2), x, y, null);
-			g.dispose();
-		} else if(Main.inventory[Main.used].id == 3){
-			g.drawImage(img.get(3), x, y, null);
-			g.dispose();
-		} else if(Main.inventory[Main.used].id == 4){
-			g.drawImage(img.get(4), x, y, null);
-			g.dispose();
+		} else if(Main.inventory[Main.used].type == 2){
+
 		}
+		beingUsed = false;
 
 	}
 
@@ -230,5 +236,11 @@ public class Entity extends Rectangle {
 	public void setMap(int mX, int mY){
 		this.mX = mX;
 		this.mY = mY;
+	}
+	public void setBeingUsed(boolean beingUsed){
+		this.beingUsed = beingUsed;
+	}
+	public void setDirection(int direction){
+		this.direction = direction;
 	}
 }

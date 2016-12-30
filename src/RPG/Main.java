@@ -43,7 +43,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 	public int invisC;
 
 	private int frames, pSize = 8, painTimer, tempPID, tempPX, tempPY, eInv;
-	public static int levelX = 1, levelY = 1, used, entityCounter;
+	public static int levelX = 1, levelY = 1, used, entityCounter = 1;
 
 	public boolean pain, spiked, paused, beenThere, dragged;
 	public static boolean disableMovement, use, remove, showBounds, inInventory, shootArrow;
@@ -357,23 +357,27 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			for(int i = 0; i < inventory.length; i++){
 				if(inventory[i].type == 2){
 					id = inventory[i].id;
+					inventory[i].setAmount(inventory[i].amount - 1);
 				}
 			}
-			entity.add(new Entity(p.x, p.y, blockWidth, id,this));
+			entity.add(new Entity(p.x, p.y, blockWidth, id, this));
 			for(int i = 0; i < entity.size(); i++){
 				if(entity.get(i).type == 2){
 					id = i;
 				}
 			}
 			if(p.direction == 0){
-				System.out.println(entity.get(id).type == 2);
-				entity.get(id).setVelY(-4);
+				entity.get(id).setVelY(-8);
+				entity.get(id).setDirection(0);
 			} else if(p.direction == 1){
-				entity.get(id).setVelX(4);
+				entity.get(id).setVelX(8);
+				entity.get(id).setDirection(1);
 			} else if(p.direction == 2){
-				entity.get(id).setVelY(4);
+				entity.get(id).setVelY(8);
+				entity.get(id).setDirection(2);
 			} else if(p.direction == 3){
-				entity.get(id).setVelX(-4);
+				entity.get(id).setVelX(-8);
+				entity.get(id).setDirection(3);
 			}
 			shootArrow = false;
 		}
@@ -395,7 +399,10 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			invisC = 0;
 			p.setInvincible(false);
 		}
-
+		
+		// Entity collision
+		
+		
 		// Inventory management
 		for(int i = 0; i < inventory.length; i++){
 			if(inventory[i].contains(mouseX, mouseY) && inInventory){
@@ -461,7 +468,7 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		if(remove){
 			entity.remove(entity.size() - entityCounter);
 			remove = false;
-			entityCounter = 0;
+			entityCounter = 1;
 		}
 
 		// Next map
@@ -629,9 +636,19 @@ public class Main extends Canvas implements Runnable, MouseListener,
 				inventory[i].render((Graphics2D) g);
 			}
 		}
-
+		
 		for(int i = 0; i < entity.size(); i++){
-			entity.get(i).useItem((Graphics2D) g);
+			if(!entity.get(i).beingUsed){
+				entity.get(i).render((Graphics2D) g);
+			}
+		}
+		
+		if(use){
+			for(int i = 0; i < entity.size(); i++){
+				if(entity.get(i).beingUsed){
+					entity.get(i).useItem();
+				}
+			}
 		}
 
 		if(item.get(item.size() - 1).pickedUp){
@@ -719,19 +736,20 @@ public class Main extends Canvas implements Runnable, MouseListener,
 		if(key == KeyEvent.VK_SPACE && !use){
 			if(inventory[0].usable){
 				disableMovement = true;
-				use = true;
 				used = 0;
 				entity.add(new Entity(p.x, p.y, blockWidth, inventory[0].id, this));
+				use = true;
 				p.setVelX(0);
 				p.setVelY(0);
+				entity.get(entity.size() - 1).setBeingUsed(true);
 			} else if(inventory[0].consumable){
 				disableMovement = true;
-				use = true;
 				used = 0;
-				entity.add(new Entity(p.x, p.y, blockWidth, inventory[0].id,
-						this));
+				entity.add(new Entity(p.x, p.y, blockWidth, inventory[0].id, this));
+				use = true;
 				p.setVelX(0);
 				p.setVelY(0);
+				entity.get(entity.size() - 1).setBeingUsed(true);
 			}
 		}
 
@@ -739,20 +757,20 @@ public class Main extends Canvas implements Runnable, MouseListener,
 			System.out.println(inventory[0].id + " " + inventory[1].id);
 			if(inventory[1].usable){
 				disableMovement = true;
-				use = true;
 				used = 1;
-				entity.add(new Entity(p.x, p.y, blockWidth, inventory[1].id,
-						this));
+				entity.add(new Entity(p.x, p.y, blockWidth, inventory[1].id, this));
+				use = true;
 				p.setVelX(0);
 				p.setVelY(0);
+				entity.get(entity.size() - 1).setBeingUsed(true);
 			} else if(inventory[1].consumable){
 				disableMovement = true;
-				use = true;
 				used = 1;
-				entity.add(new Entity(p.x, p.y, blockWidth, inventory[1].id,
-						this));
+				entity.add(new Entity(p.x, p.y, blockWidth, inventory[1].id, this));
+				use = true;
 				p.setVelX(0);
 				p.setVelY(0);
+				entity.get(entity.size() - 1).setBeingUsed(true);
 			}
 		}
 
