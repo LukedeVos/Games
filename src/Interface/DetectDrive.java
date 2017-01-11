@@ -1,7 +1,6 @@
 package Interface;
 
 import java.io.*;
-import java.util.*;
 import javax.swing.filechooser.FileSystemView;
 
 public class DetectDrive{

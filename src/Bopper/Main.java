@@ -142,8 +142,7 @@ public class Main extends Canvas implements Runnable {
 	private String line = null;
 
 	Random rand = new Random();
-	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT,
-			BufferedImage.TYPE_INT_RGB);
+	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private BufferedImage spriteSheet = null;
 	private BufferedImage diamond;
 	private BufferedImage blue;
@@ -1196,6 +1195,7 @@ public class Main extends Canvas implements Runnable {
 
 	public void keyPressed(KeyEvent k) {
 		int key = k.getKeyCode();
+		System.out.println(key);
 
 		if(inMenu) {
 			if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) {

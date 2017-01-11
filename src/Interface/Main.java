@@ -7,13 +7,10 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
-//import java.io.FileNotFoundException;
-//import java.io.FileReader;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.filechooser.FileSystemView;
 
 public class Main extends Canvas implements Runnable {
 
@@ -77,7 +74,7 @@ public class Main extends Canvas implements Runnable {
 	public void run(){
 		init();
 		long lastTime = System.nanoTime();
-		final double amountOfTicks = 60.0;
+		final double amountOfTicks = 30.0;
 		double ns = 1000000000 / amountOfTicks;
 		double delta = 0;
 		int frames = 0;
@@ -204,12 +201,24 @@ public class Main extends Canvas implements Runnable {
 			    		try{
 			    			File sourceimage = new File(imagePath);
 			    			image = ImageIO.read(sourceimage);
+			    			inserted = !inserted;
 						} catch (IOException e1){
 							e1.printStackTrace();
 						}
+			    	} else {
+				    	try{
+				    		Runtime rt = Runtime.getRuntime();
+				    		System.out.println(rt.exec("mcopy ../../../media/luke/LUKESTICK/Image.png"));
+				    		File sourceimage = new File("Image.png");
+				    		image = ImageIO.read(sourceimage);
+				    		inserted = !inserted;
+				    	} catch(IOException e2){
+				    		e2.printStackTrace();
+				    	}
 			    	}
-				}
-				inserted = !inserted;
+				} else {
+					inserted = !inserted;
+				}	
 			} else if(select == 2){
 				//run game
 				String drive = (new DetectDrive()).USBDetect();
@@ -219,7 +228,15 @@ public class Main extends Canvas implements Runnable {
 		    		System.out.println(jarPath);
 		    		Runtime rt = Runtime.getRuntime();
 					try {
-						Process pr = rt.exec("java -jar " + jarPath);
+						rt.exec("java -jar " + jarPath);
+						System.out.println("java -jar " + jarPath);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+		    	} else {
+		    		Runtime rt = Runtime.getRuntime();
+		    		try {
+						System.out.println(rt.exec("java -jar ../../../media/luke/LUKESTICK/game.jar"));
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
