@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -184,17 +185,84 @@ public class Main extends Canvas implements Runnable {
 
 	public void save() {
 		PrintWriter writer;
-		try {
-			writer = new PrintWriter("Bopper_sav.txt", "UTF-8");
-			writer.println(level);
-			writer.println(smallScore);
-			writer.println(bigScore);
-			writer.close();
-			System.out.println("file saved");
-		} catch(FileNotFoundException e) {
-			e.printStackTrace();
-		} catch(UnsupportedEncodingException e) {
-			e.printStackTrace();
+		if(new File("/home/luke/Desktop/Prof1select", "UTF-8").exists()){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Profile1/Bopper_sav.txt", "UTF-8");
+				writer.println(level);
+				writer.println(smallScore);
+				writer.println(bigScore);
+				writer.close();
+				System.out.println("file saved");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}else if(new File("/home/luke/Desktop/Prof2select", "UTF-8").exists()){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Profile2/Bopper_sav.txt", "UTF-8");
+				writer.println(level);
+				writer.println(smallScore);
+				writer.println(bigScore);
+				writer.close();
+				System.out.println("file saved");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}else if(new File("/home/luke/Desktop/Prof2select", "UTF-8").exists()){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Profile3/Bopper_sav.txt", "UTF-8");
+				writer.println(level);
+				writer.println(smallScore);
+				writer.println(bigScore);
+				writer.close();
+				System.out.println("file saved");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}else if(new File("/home/luke/Desktop/Prof2select", "UTF-8").exists()){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Profile4/Bopper_sav.txt", "UTF-8");
+				writer.println(level);
+				writer.println(smallScore);
+				writer.println(bigScore);
+				writer.close();
+				System.out.println("file saved");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}else if(new File("/home/luke/Desktop/Prof2select", "UTF-8").exists()){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Profile5/Bopper_sav.txt", "UTF-8");
+				writer.println(level);
+				writer.println(smallScore);
+				writer.println(bigScore);
+				writer.close();
+				System.out.println("file saved");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}else{
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Bopper_sav.txt", "UTF-8");
+				writer.println(level);
+				writer.println(smallScore);
+				writer.println(bigScore);
+				writer.close();
+				System.out.println("file saved");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

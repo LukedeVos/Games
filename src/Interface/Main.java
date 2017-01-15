@@ -7,9 +7,13 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
 public class Main extends Canvas implements Runnable {
@@ -21,7 +25,9 @@ public class Main extends Canvas implements Runnable {
 	public final String TITLE = "Interface";
 	
 	private int select = 2;
-	private boolean unpressed = true, inMenu = true, settings, profile;
+	private int keys = 0;
+	private int profileselect = 0;
+	private boolean unpressed = true, inMenu = true, settings = false, profile = false;
 	private static Main game = new Main();
 	private static JFrame frame = new JFrame(game.TITLE);
 	private static BufferedImageLoader loader = new BufferedImageLoader();
@@ -29,7 +35,7 @@ public class Main extends Canvas implements Runnable {
 	private boolean running, inserted;
 	private Thread thread;
 	
-	private BufferedImage inter, loaded, s0, s1, s2, s3, s4, s5, s6;
+	private BufferedImage inter, loaded, s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19;
 	private Image image;
 
 	public void init(){
@@ -44,6 +50,21 @@ public class Main extends Canvas implements Runnable {
 			s4 = loader.loadImage("/res/Interface/Interface_4.png");
 			s5 = loader.loadImage("/res/Interface/Interface_5.png");
 			s6 = loader.loadImage("/res/Interface/Interface_6.png");
+			s7 = loader.loadImage("/res/Interface/Create_Profile.png");
+			s8 = loader.loadImage("/res/Interface/Create_Profile_select.png");
+			s9 = loader.loadImage("/res/Interface/Profile_1.png");
+			s10 = loader.loadImage("/res/Interface/Profile_2.png");
+			s11 = loader.loadImage("/res/Interface/Profile_3.png");
+			s12 = loader.loadImage("/res/Interface/Profile_4.png");
+			s13 = loader.loadImage("/res/Interface/Profile_5.png");
+			s14 = loader.loadImage("/res/Interface/Profile_1_select.png");
+			s15 = loader.loadImage("/res/Interface/Profile_2_select.png");
+			s16 = loader.loadImage("/res/Interface/Profile_3_select.png");
+			s17 = loader.loadImage("/res/Interface/Profile_4_select.png");
+			s18 = loader.loadImage("/res/Interface/Profile_5_select.png");
+			s19 = loader.loadImage("/res/Interface/CurrSelect.png");
+			
+			
 		} catch(IOException e){
 			e.printStackTrace();
 		}
@@ -127,15 +148,93 @@ public class Main extends Canvas implements Runnable {
 				g.drawImage(s4, 0, 0, getWidth(), getHeight(), null);
 			}
 		}else if(!inMenu && profile && !settings){
+			
 			g.drawImage(s5, 0, 0, getWidth(), getHeight(), null);
+			if(keys == 0 && !new File("/home/luke/Desktop/Profile1").exists() && !new File("/home/luke/Desktop/Profile2").exists() && !new File("/home/luke/Desktop/Profile3").exists() && !new File("/home/luke/Desktop/Profile4").exists() && !new File("/home/luke/Desktop/Profile5").exists()){
+				g.drawImage(s8, 325, 50, 382, 105, null);
+			}else if(keys == 0 && new File("/home/luke/Desktop/Profile1").exists()){
+				g.drawImage(s8, 125, 50, 382, 105, null);
+				g.drawImage(s9, 125, 150, 382, 105, null);
+			}else if(keys == 0 && new File ("home/luke/Desktop/Profile2").exists()){
+				g.drawImage(s8, 125, 50, 382, 105, null);
+				g.drawImage(s9, 125, 150, 382, 105, null);
+				g.drawImage(s10, 125, 350, 382, 105, null);
+			}else if(keys == 0 && new File ("home/luke/Desktop/Profile3").exists()){
+				g.drawImage(s8, 125, 50, 382, 105, null);
+				g.drawImage(s9, 125, 150, 382, 105, null);
+				g.drawImage(s10, 125, 350, 382, 105, null);
+				g.drawImage(s11, 125, 500, 382, 105, null);
+			}else if(keys == 0 && new File ("home/luke/Desktop/Profile4").exists()){
+				g.drawImage(s8, 125, 50, 382, 105, null);
+				g.drawImage(s9, 125, 150, 382, 105, null);
+				g.drawImage(s10, 125, 350, 382, 105, null);
+				g.drawImage(s11, 125, 500, 382, 105, null);
+				g.drawImage(s12, 125, 650, 382, 105, null);
+			}else if(keys == 0 && new File ("home/luke/Desktop/Profile5").exists()){
+				g.drawImage(s8, 125, 50, 382, 105, null);
+				g.drawImage(s9, 125, 150, 382, 105, null);
+				g.drawImage(s10, 125, 350, 382, 105, null);
+				g.drawImage(s11, 125, 500, 382, 105, null);
+				g.drawImage(s12, 125, 650, 382, 105, null);
+				g.drawImage(s13, 125, 800, 382, 105, null);
+			}else if(keys == 1){
+				g.drawImage(s7, 325, 50, 382, 105, null);
+				g.drawImage(s14, 325, 200,382,105, null);
+				g.drawImage(s10, 325, 350, 382, 105, null);
+				g.drawImage(s11, 325, 500, 382, 105, null);
+				g.drawImage(s12, 325, 650, 382, 105, null);
+				g.drawImage(s13, 325, 800, 382, 105, null);
+			}else if(keys == 2){
+				g.drawImage(s7, 25, 50, 382, 105, null);
+				g.drawImage(s9, 25, 200,382,105, null);
+				g.drawImage(s15, 25, 350, 382, 105, null);
+				g.drawImage(s11, 25, 500, 382, 105, null);
+				g.drawImage(s12, 25, 650, 382, 105, null);
+				g.drawImage(s13, 25, 800, 382, 105, null);
+			}else if(keys == 3){
+				g.drawImage(s7, 25, 50, 382, 105, null);
+				g.drawImage(s9, 25, 200,382,105, null);
+				g.drawImage(s10, 25, 350, 382, 105, null);
+				g.drawImage(s16, 25, 500, 382, 105, null);
+				g.drawImage(s12, 25, 650, 382, 105, null);
+				g.drawImage(s13, 25, 800, 382, 105, null);
+			}else if(keys == 4){
+				g.drawImage(s7, 25, 50, 382, 105, null);
+				g.drawImage(s9, 25, 200,382,105, null);
+				g.drawImage(s10, 25, 350, 382, 105, null);
+				g.drawImage(s11, 25, 500, 382, 105, null);
+				g.drawImage(s17, 25, 650, 382, 105, null);
+				g.drawImage(s13, 25, 800, 382, 105, null);
+			}else if(keys == 5){
+				g.drawImage(s7, 25, 50, 382, 105, null);
+				g.drawImage(s9, 25, 200,382,105, null);
+				g.drawImage(s10, 25, 350, 382, 105, null);
+				g.drawImage(s11, 25, 500, 382, 105, null);
+				g.drawImage(s12, 25, 650, 382, 105, null);
+				g.drawImage(s18, 25, 800, 382, 105, null);
+			}
+			if(profileselect == 1){
+				g.drawImage(s19, 1225, 200, 382, 105, null);
+			}else if(profileselect == 2){
+				g.drawImage(s19, 1225, 350, 382, 105, null);
+			}else if(profileselect == 3){
+				g.drawImage(s19, 1225, 500, 382, 105, null);
+			}else if(profileselect == 4){
+				g.drawImage(s19, 1225, 650, 382, 105, null);
+			}else if(profileselect == 5){
+				g.drawImage(s19, 1225, 800, 382, 105, null);
+			}			
+							
 		}else if(!inMenu && !profile && settings){
 			g.drawImage(s6, 0, 0, getWidth(), getHeight(), null);
+			
 		}
+		
 		//////////////////////////////////
 		g.dispose();
 		bs.show();
-	}
-
+	
+}
 	public void keyPressed(KeyEvent e){
 		int key = e.getKeyCode();
 		if(profile || settings){
@@ -149,41 +248,88 @@ public class Main extends Canvas implements Runnable {
 		
 		if(unpressed){
 			if(key == KeyEvent.VK_W){
+				if(inMenu && !profile && !settings){
 				if(select == 1 || select == 2 || select == 3){
 					select = 0;
 					unpressed = false;
-				} else if(select == 4){
+				}else if(select == 4){
 					select = 2;
 					unpressed = false;
 				}
+			}else if(profile && !inMenu && !settings){
+				if(keys >= 0){
+				keys --;
+				}else if(keys >= 0 && !new File("/home/luke/Desktop/Profile1").exists()){
+					keys = 0;
+				}else if(keys >= 0 && !new File("/home/luke/Desktop/Profile2").exists()){
+					keys = 1;
+				}else if(keys >= 0 && !new File("/home/luke/Desktop/Profile3").exists()){
+					keys = 2;
+				}else if(keys >= 0 && !new File("/home/luke/Desktop/Profile4").exists()){
+					keys = 3;
+				}else if(keys >= 0 && !new File("/home/luke/Desktop/Profile5").exists()){
+					keys = 4;				
+				}else{
+					keys = 5;
+				}
+			}
 			} else if(key == KeyEvent.VK_A){
-				if(select == 0 || select == 2 || select == 4){
-					select = 1;
-					unpressed = false;
-				} else if(select == 3){
-					select = 2;
-					unpressed = false;
+				
+				if(inMenu && !profile && !settings){
+					if(select == 0 || select == 2 || select == 4){
+						select = 1;
+						unpressed = false;
+					} else if(select == 3){
+						select = 2;
+						unpressed = false;
+					}
+				}else if(profile && !inMenu && !settings){
+					
 				}
 			} else if(key == KeyEvent.VK_S){
-				if(select == 1 || select == 2 || select == 3){
-					select = 4;
-					unpressed = false;
-				} else if(select == 0){
-					select = 2;
-					unpressed = false;
+				if(inMenu = true && !profile && !settings){	
+					if(select == 1 || select == 2 || select == 3){
+						select = 4;
+						unpressed = false;
+					} else if(select == 0){
+						select = 2;
+						unpressed = false;
+					}
+				}else if(profile && !inMenu && !settings){
+					if(keys <= 5 && new File("/home/luke/Desktop/Profile1").exists() && new File("/home/luke/Desktop/Profile2").exists() && new File("/home/luke/Desktop/Profile3").exists() && new File("/home/luke/Desktop/Profile4").exists() && new File("/home/luke/Desktop/Profile5").exists()){
+					keys ++;
+					}else if(keys <= 5 && !new File("/home/luke/Desktop/Profile1").exists()){
+						keys = 0;
+					}else if(keys <= 5 && !new File("/home/luke/Desktop/Profile2").exists()){
+						keys = 1;
+					}else if(keys <= 5 && !new File("/home/luke/Desktop/Profile3").exists()){
+						keys = 2;
+					}else if(keys <= 5 && !new File("/home/luke/Desktop/Profile4").exists()){
+						keys = 3;
+					}else if(keys <= 5 && !new File("/home/luke/Desktop/Profile5").exists()){
+						keys = 4;				
+					}else{
+						keys = 0;
+					}
 				}
 			} else if(key == KeyEvent.VK_D){
-				if(select == 0 || select == 2 || select == 4){
-					select = 3;
-					unpressed = false;
-				} else if(select == 1){
-					select = 2;
-					unpressed = false;
-				}
+				
+			if(inMenu = true && !profile && !settings){	
+					if(select == 0 || select == 2 || select == 4){
+						select = 3;
+						unpressed = false;
+					} else if(select == 1){
+						select = 2;
+						unpressed = false;
+					}
+			}else if(profile && !inMenu && !settings){
+				
+			}
 			}
 		}
 		
 		if(key == KeyEvent.VK_ENTER && unpressed){
+			if(inMenu && !profile && !settings){
 			if(select == 0){
 				//profiles
 				inMenu = false;
@@ -254,7 +400,35 @@ public class Main extends Canvas implements Runnable {
 			}
 			unpressed = false;
 		}
-		
+		}else if(profile && !inMenu && !settings && keys == 0){
+				File file1 = new File("/home/luke/Desktop/Profile1");
+				file1.mkdir();
+			 if(new File("/home/luke/Desktop/Profile1").exists()){
+				File file2 = new File("/home/luke/Desktop/Profile2");
+				file2.mkdir();
+			}else if(new File("/home/luke/Desktop/Profile2").exists()){
+				File file3 = new File("/home/luke/Desktop/Profile3");
+				file3.mkdir();
+			}else if(new File("/home/luke/Desktop/Profile3").exists()){
+				File file4 = new File("/home/luke/Desktop/Profile4");
+				file4.mkdir();
+			}else if(new File("/home/luke/Desktop/Profile4").exists()){
+				File file5 = new File("/home/luke/Desktop/Profile5");
+				file5.mkdir();
+			}
+		}else if(profile && !inMenu && !settings && keys != 0){
+			if(keys == 1 && new File("/home/luke/Desktop/Profile1").exists()){
+				profileselect = 1;
+			}else if(keys == 2 && new File("/home/luke/Desktop/Profile2").exists()){
+				profileselect = 2;
+			}else if(keys == 3 && new File("/home/luke/Desktop/Profile3").exists()){
+				profileselect =3;
+			}else if(keys == 4 && new File("/home/luke/Desktop/Profile4").exists()){
+				profileselect = 4;
+			}else if(keys == 5 && new File("/home/luke/Desktop/Profile5").exists()){
+				profileselect = 5;
+			}
+		}
 	}
 
 	public void keyReleased(KeyEvent e){
@@ -264,6 +438,200 @@ public class Main extends Canvas implements Runnable {
 			unpressed = true;
 		}
 		
+	}
+	public void selection() {
+		PrintWriter writer;
+		if(profileselect == 1){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Prof1select", "UTF-8");
+				writer.close();
+				System.out.println("Selected");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof2select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof3select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof4select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+	
+				File file = new File("/home/luke/Desktop/Prof5select", "UTF-8");
+				file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}else if(profileselect == 2){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Prof2select", "UTF-8");
+				writer.close();
+				System.out.println("Selected");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+try {
+				
+				File file = new File("/home/luke/Desktop/Prof1select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof3select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof4select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+	
+				File file = new File("/home/luke/Desktop/Prof5select", "UTF-8");
+				file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}else if(profileselect == 3){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Prof3select", "UTF-8");
+				writer.close();
+				System.out.println("Selected");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+try {
+				
+				File file = new File("/home/luke/Desktop/Prof2select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof1select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof4select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+	
+				File file = new File("/home/luke/Desktop/Prof5select", "UTF-8");
+				file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}else if(profileselect == 4){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Prof4select", "UTF-8");
+				writer.close();
+				System.out.println("Selected");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof2select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof3select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof1select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+	
+				File file = new File("/home/luke/Desktop/Prof5select", "UTF-8");
+				file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}else if(profileselect == 5){
+			try {
+				writer = new PrintWriter("/home/luke/Desktop/Prof5select", "UTF-8");
+				writer.close();
+				System.out.println("Selected");
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof2select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof3select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+				
+				File file = new File("/home/luke/Desktop/Prof4select", "UTF-8");
+				 file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			try {
+	
+				File file = new File("/home/luke/Desktop/Prof1select", "UTF-8");
+				file.delete();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void main(String args[]){
@@ -289,5 +657,7 @@ public class Main extends Canvas implements Runnable {
 			return null;
 		}
 	}
+	
+
 
 }
