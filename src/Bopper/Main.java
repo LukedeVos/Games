@@ -51,92 +51,22 @@ public class Main extends Canvas implements Runnable {
 	private SpeedElement s;
 	private Font f;
 
-	private boolean inMenu = true;
-	private boolean inTutorial = false;
-	private boolean inDifficultyMenu = false;
-	private boolean inSettings = false;
-	private boolean menuKeyReleased = true;
-	private boolean paused = false;
-	private boolean dead = false;
-	private boolean enemyFree = false;
-	private boolean enemyShooting = false;
-	private boolean levelTransfer = false;
-	private boolean glitchy = false;
-	private boolean speedCounter = false;
-	private boolean bullet = false;
-	private boolean titleMusicPlaying = false;
-	private boolean blueDiamond;
-	private boolean speedElement;
-	private boolean glitchyTextures = false;
-	private boolean volume = true;
-	private boolean eating = false;
-	private boolean diamondEaten;
+	private boolean inMenu = true, inTutorial = false, inDifficultyMenu = false, inSettings = false, menuKeyReleased = true, paused = false, dead = false; 
+	private boolean enemyFree = false, enemyShooting = false, levelTransfer = false, glitchy = false, speedCounter = false, bullet = false, titleMusicPlaying = false; 
+	private boolean blueDiamond, speedElement, glitchyTextures = false, volume = true, eating = false, diamondEaten; 
 
-	private int menuSeperator = 15;
-	private int menuChoice = 0;
-	private int difficulty = 1;
-	private int smallScore = 0;
-	private int bigScore = 0;
-	private int maxEVel = 3;
-	private int level = 1;
-	private int nextLevel;
-	private int blueTimer = 0;
-	private int blueFinal = 180;
-	private int diaTimer = 0;
-	private int speedTimer = 0;
-	private int bulletCounter = 0;
-	private int bulletTimer = 0;
-	private int shooterShooting = 0;
-	private int transferTimer;
-	private int frames = 0;
+	private int menuSeperator = 15, menuChoice = 0, difficulty = 1, smallScore = 0, bigScore = 0, maxEVel = 3, level = 1, nextLevel, blueTimer = 0, blueFinal = 180; 
+	private int diaTimer = 0, speedTimer = 0, bulletCounter = 0, bulletTimer = 0, shooterShooting = 0, transferTimer, frames = 0; 
 
-	private int pWIDTH = 16;
-	private int dWIDTH = 6;
-	private int dHEIGHT = 8;
+	private int pWIDTH = 16, dWIDTH = 6, dHEIGHT = 8;
 
 	private static Clip clip;
 
-	private int esRealX;
-	private int esRealY;
-	private int buRealX;
-	private int buRealY;
+	private int esRealX, esRealY, buRealX, buRealY;
 
-	private double pERatio;
-	private double pESRatio;
-	private double eDRatio;
-	private double randomizer;
-	private double xPDDiff;
-	private double yPDDiff;
-	private double pDDiff;
-	private double rootedPDDiff;
-	private double xPBDiff;
-	private double yPBDiff;
-	private double pBDiff;
-	private double rootedPBDiff;
-	private double xPEDiff;
-	private double yPEDiff;
-	private double pEDiff;
-	private double rootedPEDiff;
-	private double xPSDiff;
-	private double yPSDiff;
-	private double pSDiff;
-	private double rootedPSDiff;
-	private double xPESDiff;
-	private double yPESDiff;
-	private double xPBUDiff;
-	private double yPBUDiff;
-	private double pBUDiff;
-	private double rootedPBUDiff = 100;
-	private double xEDDiff;
-	private double yEDDiff;
-	private double eDDiff;
-	private double rootedEDDiff;
-	private double speedInc = 1;
-	private double speedElementCounter;
-	private double pVel = 2;
-	private double bVel = 12;
-	private double eVel = 0;
-	private double sVel = 40;
+	private double pERatio, pESRatio, eDRatio, randomizer, xPDDiff, yPDDiff, pDDiff, rootedPDDiff, xPBDiff, yPBDiff, pBDiff, rootedPBDiff, xPEDiff, yPEDiff, pEDiff;
+	private double rootedPEDiff, xPSDiff, yPSDiff, pSDiff, rootedPSDiff, xPESDiff, yPESDiff, xPBUDiff, yPBUDiff, pBUDiff, rootedPBUDiff = 100, xEDDiff, yEDDiff;
+	private double eDDiff, rootedEDDiff, speedInc = 1, speedElementCounter, pVel = 2, bVel = 12, eVel = 0, sVel = 40;
 
 	private String difficultyString = "Normal";
 	private String fileName = "Bopper_sav.txt";
@@ -148,6 +78,9 @@ public class Main extends Canvas implements Runnable {
 	private BufferedImage diamond;
 	private BufferedImage blue;
 	BufferedImageLoader loader = new BufferedImageLoader();
+	
+	private static Main game = new Main();
+	private static JFrame frame = new JFrame(game.TITLE);
 
 	private ArrayList<Bullet> bullets;
 	private ArrayList<Enemy> enemies;
@@ -183,6 +116,7 @@ public class Main extends Canvas implements Runnable {
 		blue = new SpriteSheet(this.getSpriteSheet()).grabImage(2, 2, 16, 16);
 	}
 
+	//Code Yorick
 	public void save() {
 		PrintWriter writer;
 		if(new File("/home/luke/Desktop/Prof1select", "UTF-8").exists()){
@@ -265,10 +199,10 @@ public class Main extends Canvas implements Runnable {
 			}
 		}
 	}
-
+	//Einde code Yorick
+	
 	public void load() {
 		int reading = 0;
-
 		try {
 			FileReader fileReader = new FileReader(fileName);
 
@@ -331,29 +265,35 @@ public class Main extends Canvas implements Runnable {
 		System.exit(1);
 	}
 
-	public void run() {
+	public void run(){
 		init();
 		long lastTime = System.nanoTime();
 		final double amountOfTicks = 60.0;
-		double ns = 1000000000 / amountOfTicks;
-		double delta = 0;
+		final double amountOfFrames = 30.0;
+		double ts = 1000000000 / amountOfTicks;
+		double fs = 1000000000 / amountOfFrames;
+		double tDelta = 0;
+		double fDelta = 0;
 		int updates = 0;
 		long timer = System.currentTimeMillis();
 
 		// Game loop starts here
-		while(running) {
+		while(running){
 			long now = System.nanoTime();
-			delta += (now - lastTime) / ns;
+			tDelta += (now - lastTime) / ts;
+			fDelta += (now - lastTime) / fs;
 			lastTime = now;
-			if(delta >= 1) {
-				if(!paused) {
-					tick();
-				} else {
+			if(tDelta >= 1){
+				tick();
+				updates++;
+				tDelta--;
+			}
+			if(fDelta >= 1){
+				if(!paused){
 					render();
 					frames++;
+					fDelta--;
 				}
-				updates++;
-				delta--;
 			}
 			// music();
 			if(System.currentTimeMillis() - timer > 1000) {
@@ -366,17 +306,14 @@ public class Main extends Canvas implements Runnable {
 		stop();
 	}
 
-	private void tick() {
-		render();
-		frames++;
-
+	private void tick(){
 		if(glitchy && !glitchyTextures) {
 			try {
 				spriteSheet = loader.loadImage("/res/Sprite_Sheet_Bopper2.png");
+				glitchyTextures = true;
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
-			glitchyTextures = true;
 		}
 
 		p.tick(this);
@@ -1263,7 +1200,6 @@ public class Main extends Canvas implements Runnable {
 
 	public void keyPressed(KeyEvent k) {
 		int key = k.getKeyCode();
-		System.out.println(key);
 
 		if(inMenu) {
 			if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) {
@@ -1517,18 +1453,14 @@ public class Main extends Canvas implements Runnable {
 	}
 
 	public static void main(String args[]) {
-		Main game = new Main();
-
-		game.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
-
-		JFrame frame = new JFrame(game.TITLE);
 		frame.add(game);
-		frame.pack();
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(true);
-		frame.setLocationRelativeTo(null);
+		frame.setSize(WIDTH * SCALE, HEIGHT * SCALE);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		frame.setUndecorated(true);
+		frame.pack();
 		frame.setVisible(true);
-
 		game.start();
 	}
 
